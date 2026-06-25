@@ -109,10 +109,10 @@ describe('registry ↔ export manifest stay in sync', () => {
   });
 });
 
-// The GitHub Pages showcase (docs/index.html) embeds a knob per dial. Guard against
+// The GitHub Pages showcase (root index.html) embeds a knob per dial. Guard against
 // adding a dial to an animation but forgetting to expose it in the showcase.
 describe('Pages showcase exposes every dial', () => {
-  const showcase = read('../../docs/index.html');
+  const showcase = read('../../index.html');
   for (const a of animations) {
     it(`has a knob for every ${a.id} dial`, () => {
       for (const key of Object.keys(a.dials)) {
