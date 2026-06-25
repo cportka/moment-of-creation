@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <title>moment of creation — animation engine</title>
+    <title>moment of creation — animation toolkit</title>
     <meta
       name="description"
-      content="The moment of creation, as an engine: its two halves — the creation burst and the binary-merger splash — looping separately and together, with 29 live parameters and 10 presets."
+      content="A toolkit for two animations — a Burst and a Merger — combined into a Moment. Tune 29 parameters and 10 presets; swap the order or continue the chain."
     />
     <style>
       :root {
@@ -31,28 +31,29 @@
       header { padding: 28px 22px 6px; }
       header h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); letter-spacing: 0.02em; font-weight: 650; }
       header h1 .dim { color: var(--muted); font-weight: 400; }
-      header p { margin: 8px 0 0; color: var(--muted); max-width: 72ch; }
+      header p { margin: 8px 0 0; color: var(--muted); max-width: 76ch; }
       main { padding: 14px 22px 50px; }
 
-      /* --- the three windows: the two halves + the whole, always on one row --- */
+      /* --- the three windows: Burst · Moment · Merger, always on one row --- */
       .stage {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
-        margin: 16px 0 22px;
+        margin: 16px 0 18px;
       }
       .window { margin: 0; min-width: 0; }
       .window figcaption {
         display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
         margin: 0 2px 6px; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffd9a0;
+        min-height: 1.2em;
       }
       .window figcaption span { color: var(--muted); text-transform: none; letter-spacing: 0; font-size: 10.5px; }
-      .window.whole figcaption { color: #ffe6c2; }
+      .window.mid figcaption { color: #ffe6c2; }
       .frame {
         position: relative; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden;
         background: var(--bg); border: 1px solid var(--line); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
       }
-      .window.whole .frame { border-color: rgba(255, 200, 130, 0.32); }
+      .window.mid .frame { border-color: rgba(255, 200, 130, 0.32); }
       .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; }
 
       /* --- controls --- */
@@ -65,7 +66,7 @@
       .bar label { font-weight: 600; color: #d9dffb; font-size: 13px; }
       .bar select {
         appearance: none; cursor: pointer; background: rgba(0, 0, 0, 0.35); color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; min-width: 160px;
+        border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; min-width: 150px;
       }
       .bar .spacer { flex: 1; }
       .btn {
@@ -73,6 +74,8 @@
         border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px;
       }
       .btn:hover { background: rgba(255, 255, 255, 0.13); }
+      .btn.on { background: rgba(255, 138, 60, 0.22); border-color: rgba(255, 138, 60, 0.5); color: #ffd9a0; }
+      .pill { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
 
       .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
@@ -99,28 +102,29 @@
   </head>
   <body>
     <header>
-      <h1>moment of creation <span class="dim">· animation engine</span></h1>
+      <h1>moment of creation <span class="dim">· animation toolkit</span></h1>
       <p>
-        The intro is two animations in sequence — a pure-CSS <strong>creation burst</strong> and a
-        <strong>binary-merger splash</strong>. Here they loop on their own and <em>together</em> as the original moment
-        of creation. <strong>29 parameters</strong> and <strong>10 presets</strong> drive all three windows live.
+        A toolkit for two animations — a pure-CSS <strong>Burst</strong> and a binary <strong>Merger</strong> — combined
+        into a <strong>Moment</strong>. Left: the Burst, looping. Middle: the Moment, the two combined. Right: the Merger.
+        <strong>Swap</strong> reverses their order; <strong>Continue the chain</strong> folds the current Moment into a new
+        random one. 29 parameters and 10 presets drive every window live.
         <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
       </p>
     </header>
 
     <main>
       <section class="stage">
-        <figure class="window">
-          <figcaption>Creation burst <span>half</span></figcaption>
-          <div class="frame"><iframe id="creation" src="creation.html" title="Creation burst" loading="lazy" scrolling="no"></iframe></div>
+        <figure class="window" id="win-left">
+          <figcaption><span class="role">Burst</span> <span class="sub">half</span></figcaption>
+          <div class="frame"><iframe id="winL" src="burst.html" title="left window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
-        <figure class="window">
-          <figcaption>Binary merger <span>half</span></figcaption>
-          <div class="frame"><iframe id="splash" src="splash.html" title="Binary merger" loading="lazy" scrolling="no"></iframe></div>
+        <figure class="window mid" id="win-mid">
+          <figcaption><span class="role">Moment</span> <span class="sub">the two combined</span></figcaption>
+          <div class="frame"><iframe id="winM" src="moment.html" title="middle window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
-        <figure class="window whole">
-          <figcaption>Moment of creation <span>together</span></figcaption>
-          <div class="frame"><iframe id="intro" src="intro.html" title="Moment of creation (full)" loading="lazy" scrolling="no"></iframe></div>
+        <figure class="window" id="win-right">
+          <figcaption><span class="role">Merger</span> <span class="sub">half</span></figcaption>
+          <div class="frame"><iframe id="winR" src="merger.html" title="right window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
       </section>
 
@@ -128,82 +132,153 @@
         <div class="bar">
           <label for="preset">Preset</label>
           <select id="preset"></select>
+          <button class="btn" id="swap" type="button" title="Swap Burst/Merger order in the Moment">⇄ Swap order</button>
+          <button class="btn" id="chain" type="button" title="Fold the current Moment into a new random one">⛓ Continue the chain</button>
           <button class="btn" id="reset" type="button">Reset</button>
+          <span class="pill" id="depth" hidden></span>
           <span class="spacer"></span>
-          <span id="status" class="muted" style="font-size: 12px; color: var(--muted)"></span>
+          <span id="status" style="font-size: 12px; color: var(--muted)"></span>
         </div>
         <div class="panels">
-          <div class="panel"><h2>Creation burst</h2><div class="dialgrid" id="grid-creation"></div></div>
-          <div class="panel"><h2>Binary merger</h2><div class="dialgrid" id="grid-splash"></div></div>
+          <div class="panel"><h2>Burst</h2><div class="dialgrid" id="grid-burst"></div></div>
+          <div class="panel"><h2>Merger</h2><div class="dialgrid" id="grid-merger"></div></div>
         </div>
       </section>
     </main>
 
     <footer>
-      The two halves and the whole are one overlay played in three modes — the same source the
-      <code>npm run export</code> single files use. Controls and presets are read from the engine's single source
+      Each window is the one overlay played in a mode (<code>burst</code> / <code>merger</code> / <code>moment</code>) — the
+      same source the <code>npm run export</code> single files use. The page conducts all three: Swap plays the Moment
+      Merger→Burst; Continue the chain freezes the current Moment as the left window, randomizes a new Moment on the
+      right, and plays both combined in the middle. Controls + presets come from one source
       (<code>dials.json</code> / <code>presets.json</code>). Built with the engine in this repo.
     </footer>
 
     <script>
       const $ = (id) => document.getElementById(id);
-      const FRAMES = ['creation', 'splash', 'intro'];
+      const POS = ['winL', 'winM', 'winR']; // left / middle / right window dom ids
 
-      // Which window(s) a dial drives, and which panel it lives in — from its scope.
-      const targetsOf = (scope) =>
-        scope === 'creation' ? ['creation', 'intro'] : scope === 'splash' ? ['splash', 'intro'] : ['intro'];
+      // Which panel a dial lives in (purely cosmetic grouping): burst-scoped + the
+      // burst-side sequencing dials go left; merger-scoped + merger-side sequencing go right.
       const panelOf = (key, scope) =>
-        scope === 'creation' || scope === 'splash' ? scope : key.indexOf('splash') === 0 ? 'splash' : 'creation';
+        scope === 'burst' ? 'burst' : scope === 'merger' ? 'merger' : key.indexOf('splash') === 0 ? 'merger' : 'burst';
 
       let SCHEMA = {}; // key -> { label, default, min, max, step, unit, scope, hint }
       let PRESETS = [];
       const inputs = {}; // key -> { num, range }
 
-      function setDial(key, value, targets) {
-        for (const id of targets) {
-          const frame = $(id);
-          try {
-            const dials = frame && frame.contentWindow && frame.contentWindow.__ospDials;
-            if (dials) dials[key] = value;
-          } catch (e) {
-            /* frame not ready */
-          }
-          pokeReplay(id);
+      // ----- engine state -----
+      let dials = {}; // the live control dials (the current, adjustable Moment)
+      let swapped = false;
+      let chain = []; // frozen dial-sets (saved Moments); [] = normal mode
+      const MAX_CHAIN = 4; // cap the saved chain so the middle's loop stays watchable
+
+      // ----- conducting the windows ------------------------------------------------
+      // Each window runs a "program": a list of {mode, dials} steps it plays in a loop.
+      // One mechanism serves the normal layout, Swap (a reversed 2-step Moment), and the
+      // chain (a sequence of whole Moments). All three windows load the full overlay, so
+      // we just clear their self-loop and drive them by role.
+      const snap = () => ({ ...dials });
+      const moments = (sets) => sets.map((d) => ({ mode: 'moment', dials: d }));
+
+      function stepMs(step) {
+        const d = step.dials || dials;
+        const ib = +d.initialBlackMs || 0, sb = +d.splitBlackMs || 0;
+        if (step.mode === 'burst') return ib + sb + 1200;
+        if (step.mode === 'merger') return 2400;
+        return ib + sb + (+d.creationBeatMs || 0) + 1700 + (+d.splashHoldMs || 0); // moment
+      }
+
+      // Compute each window's program + caption, given the current state.
+      function plan() {
+        if (chain.length) {
+          return {
+            winL: { steps: moments(chain), role: 'Chain', sub: chain.length + ' saved', live: false },
+            winM: { steps: moments([...chain, snap()]), role: 'Moment', sub: 'chain + new', live: true },
+            winR: { steps: [{ mode: 'moment', dials: snap() }], role: 'New Moment', sub: 'randomized', live: true },
+          };
         }
+        const burst = { mode: 'burst', dials: snap() };
+        const merger = { mode: 'merger', dials: snap() };
+        if (swapped) {
+          return {
+            winL: { steps: [merger], role: 'Merger', sub: 'half', live: true },
+            winM: { steps: [merger, burst], role: 'Moment', sub: 'reversed ⇄', live: true },
+            winR: { steps: [burst], role: 'Burst', sub: 'half', live: true },
+          };
+        }
+        return {
+          winL: { steps: [burst], role: 'Burst', sub: 'half', live: true },
+          winM: { steps: [{ mode: 'moment', dials: snap() }], role: 'Moment', sub: 'the two combined', live: true },
+          winR: { steps: [merger], role: 'Merger', sub: 'half', live: true },
+        };
       }
 
-      const replayTimers = {};
-      function pokeReplay(id) {
-        clearTimeout(replayTimers[id]);
-        replayTimers[id] = setTimeout(() => {
-          const frame = $(id);
+      let PLAN = {};
+      const driveTimers = {}; // per-window step timeout (parent-side)
+      const debounce = {}; // per-window re-drive debounce
+
+      function driveWindow(id) {
+        const spec = PLAN[id];
+        const frame = $(id);
+        if (!spec || !frame) return;
+        const win = frame.contentWindow;
+        if (!win || !win.__ospPlay) return; // not ready yet — the load handler will retry
+        try { if (win.__ospLoop) { win.clearInterval(win.__ospLoop); win.__ospLoop = 0; } } catch (e) {}
+        clearTimeout(driveTimers[id]);
+        let i = 0;
+        const steps = spec.steps;
+        (function run() {
+          const step = steps[i % steps.length];
           try {
-            frame && frame.contentWindow && frame.contentWindow.__ospPlay && frame.contentWindow.__ospPlay();
-          } catch (e) {
-            /* not ready */
-          }
-        }, 450);
+            win.__ospMode = step.mode;
+            if (win.__ospDials) for (const k in step.dials) win.__ospDials[k] = step.dials[k];
+            win.__ospPlay();
+          } catch (e) {}
+          driveTimers[id] = setTimeout(() => { i++; run(); }, Math.max(500, stepMs(step)));
+        })();
       }
 
-      // Push every current slider value into a freshly-loaded window (only the dials it cares about).
-      function syncFrame(id) {
-        for (const [key, meta] of Object.entries(SCHEMA)) {
-          if (!targetsOf(meta.scope).includes(id)) continue;
-          try {
-            const dials = $(id).contentWindow && $(id).contentWindow.__ospDials;
-            if (dials) dials[key] = Number(inputs[key].range.value);
-          } catch (e) {
-            /* not ready */
-          }
+      function scheduleDrive(id) {
+        clearTimeout(debounce[id]);
+        debounce[id] = setTimeout(() => driveWindow(id), 320);
+      }
+
+      // Re-plan and (re)drive. `liveOnly` = only the windows showing the current dials
+      // (a dial tweak shouldn't restart a frozen chain window).
+      function render(liveOnly) {
+        PLAN = plan();
+        for (const id of POS) {
+          const fig = $(id).closest('.window');
+          fig.querySelector('.role').textContent = PLAN[id].role;
+          fig.querySelector('.sub').textContent = PLAN[id].sub;
+          if (liveOnly && !PLAN[id].live) continue;
+          scheduleDrive(id);
+        }
+        $('swap').classList.toggle('on', swapped && !chain.length);
+        $('swap').disabled = !!chain.length;
+        const depth = $('depth');
+        if (chain.length) { depth.hidden = false; depth.textContent = '⛓ chain depth ' + chain.length; }
+        else depth.hidden = true;
+      }
+
+      // ----- dials → UI -----
+      function setDial(key, value) {
+        dials[key] = value;
+        render(true); // live windows re-read the dials
+      }
+
+      function setInputs(values) {
+        for (const key of Object.keys(SCHEMA)) {
+          const v = key in values ? values[key] : SCHEMA[key].default;
+          dials[key] = v;
+          if (inputs[key]) { inputs[key].num.value = v; inputs[key].range.value = v; }
         }
       }
 
       function buildDial(key, meta) {
-        const scope = meta.scope;
-        const targets = targetsOf(scope);
         const dial = document.createElement('div');
         dial.className = 'dial';
-
         const top = document.createElement('div');
         top.className = 'top';
         const label = document.createElement('label');
@@ -219,22 +294,18 @@
         unit.className = 'unit';
         unit.textContent = meta.unit;
         top.append(label, num, unit);
-
         const range = document.createElement('input');
         range.type = 'range';
         range.min = meta.min; range.max = meta.max; range.step = meta.step; range.value = meta.default;
         range.setAttribute('aria-label', meta.label);
         if (meta.hint) range.title = meta.hint;
-
         dial.append(top, range);
         inputs[key] = { num, range };
-
         const apply = (raw) => {
           const v = Number(raw);
           if (!Number.isFinite(v)) return;
-          num.value = raw;
-          range.value = raw;
-          setDial(key, v, targets);
+          num.value = raw; range.value = raw;
+          setDial(key, v);
         };
         range.addEventListener('input', () => apply(range.value));
         num.addEventListener('input', () => apply(num.value));
@@ -242,61 +313,79 @@
       }
 
       function applyPreset(preset) {
+        setInputs(preset.dials || {});
+        render(true);
+      }
+
+      // A new random Moment, tied to the current dials: each dial perturbed within ~40%
+      // of its range around the current value (snapped to step, clamped to range).
+      function randomize() {
+        const next = {};
         for (const [key, meta] of Object.entries(SCHEMA)) {
-          const v = preset.dials && key in preset.dials ? preset.dials[key] : meta.default;
-          inputs[key].num.value = v;
-          inputs[key].range.value = v;
-          setDial(key, v, targetsOf(meta.scope));
+          const range = meta.max - meta.min;
+          const jitter = (Math.random() * 2 - 1) * range * 0.4;
+          let v = (dials[key] ?? meta.default) + jitter;
+          v = Math.min(meta.max, Math.max(meta.min, v));
+          v = Math.round(v / meta.step) * meta.step;
+          next[key] = Number(v.toFixed(4));
         }
+        setInputs(next);
       }
 
       function build() {
-        // dials → two compact, grouped panels
         for (const [key, meta] of Object.entries(SCHEMA)) {
           $('grid-' + panelOf(key, meta.scope)).appendChild(buildDial(key, meta));
         }
-        // preset picker
+        setInputs({}); // dials = defaults
+
         const sel = $('preset');
         for (const p of PRESETS) {
           const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = p.name;
+          opt.value = p.id; opt.textContent = p.name;
           sel.appendChild(opt);
         }
         sel.addEventListener('change', () => {
           const p = PRESETS.find((x) => x.id === sel.value);
           if (p) applyPreset(p);
         });
-        $('reset').addEventListener('click', () => {
-          sel.value = PRESETS[0] ? PRESETS[0].id : '';
-          applyPreset(PRESETS[0] || { dials: {} });
+
+        $('swap').addEventListener('click', () => { if (!chain.length) { swapped = !swapped; render(false); } });
+
+        $('chain').addEventListener('click', () => {
+          chain.push(snap()); // freeze the current Moment as the saved left window
+          if (chain.length > MAX_CHAIN) chain.shift();
+          swapped = false;
+          randomize(); // the new, adjustable Moment for the right window
+          render(false);
         });
-        // when each window loads, push current values into it
-        for (const id of FRAMES) {
-          const f = $(id);
-          if (f) f.addEventListener('load', () => syncFrame(id));
-        }
-        // deep-link a preset with ?preset=<id>
-        const wanted = new URLSearchParams(location.search).get('preset');
-        const p0 = wanted && PRESETS.find((p) => p.id === wanted);
-        if (p0) {
-          sel.value = p0.id;
-          applyPreset(p0);
-        }
+
+        $('reset').addEventListener('click', () => {
+          chain = []; swapped = false;
+          sel.value = PRESETS[0] ? PRESETS[0].id : '';
+          setInputs(PRESETS[0] ? PRESETS[0].dials || {} : {});
+          render(false);
+        });
+
+        // Drive each window once it has loaded (and whenever we re-plan).
+        for (const id of POS) $(id).addEventListener('load', () => driveWindow(id));
+
+        // Deep-link initial state: ?preset=<id>, ?swap=1, ?chain=<n>.
+        const q = new URLSearchParams(location.search);
+        const p0 = q.get('preset') && PRESETS.find((p) => p.id === q.get('preset'));
+        if (p0) { sel.value = p0.id; setInputs(p0.dials || {}); }
+        if (q.get('swap') === '1') swapped = true;
+        const nChain = Math.min(MAX_CHAIN, parseInt(q.get('chain') || '0', 10) || 0);
+        for (let i = 0; i < nChain; i++) { chain.push(snap()); randomize(); }
+
+        render(false);
       }
 
       Promise.all([
         fetch('./src/intro/dials.json').then((r) => r.json()),
         fetch('./src/engine/presets.json').then((r) => r.json()),
       ])
-        .then(([dials, presets]) => {
-          SCHEMA = dials;
-          PRESETS = presets;
-          build();
-        })
-        .catch((e) => {
-          $('status').innerHTML = '<span class="err">Could not load controls: ' + e + '</span>';
-        });
+        .then(([d, p]) => { SCHEMA = d; PRESETS = p; build(); })
+        .catch((e) => { $('status').innerHTML = '<span class="err">Could not load controls: ' + e + '</span>'; });
     </script>
   </body>
 </html>

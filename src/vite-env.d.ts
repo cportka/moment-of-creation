@@ -10,7 +10,7 @@ declare global {
     __ospPlay?: () => void;
     /** The intro's full-sequence play function (creation → splash). */
     __ospIntro?: () => void;
-    /** Which slice of a multi-mode overlay to play (e.g. 'full' | 'creation' | 'splash'). */
+    /** Which slice of a multi-mode overlay to play (e.g. 'moment' | 'burst' | 'merger'). */
     __ospMode?: string;
     /** Intro: play just the moment-of-creation burst (splash hidden). */
     __ospCreation?: () => void;

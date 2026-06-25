@@ -1,28 +1,28 @@
 [
   {
-    "id": "creation",
-    "name": "Creation burst",
+    "id": "burst",
+    "name": "Burst",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "creation",
+    "mode": "burst",
     "background": "#05060a",
     "loopMs": 1970
   },
   {
-    "id": "splash",
-    "name": "Binary merger",
+    "id": "merger",
+    "name": "Merger",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "splash",
+    "mode": "merger",
     "background": "#05060a",
     "loopMs": 2600
   },
   {
-    "id": "intro",
-    "name": "Moment of creation",
+    "id": "moment",
+    "name": "Moment",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "full",
+    "mode": "moment",
     "background": "#05060a",
     "loopMs": 3410
   }
