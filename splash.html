@@ -81,9 +81,9 @@ canvas.osp-melting {
 }
 /* The white-hot seed at the centre. */
 .osp-cr-core {
-  width: 7vmax;
-  height: 7vmax;
-  margin: -3.5vmax;
+  width: var(--osp-cr-core, 7vmax);
+  height: var(--osp-cr-core, 7vmax);
+  margin: calc(var(--osp-cr-core, 7vmax) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, #fff6e0 38%, transparent 72%);
   animation: osp-cr-core calc(0.18s * var(--osp-cr-scale, 1)) ease-out;
@@ -95,9 +95,9 @@ canvas.osp-melting {
 }
 /* Full-screen flashes of light. */
 .osp-cr-flash {
-  width: 30vmax;
-  height: 30vmax;
-  margin: -15vmax;
+  width: var(--osp-cr-flash, 30vmax);
+  height: var(--osp-cr-flash, 30vmax);
+  margin: calc(var(--osp-cr-flash, 30vmax) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, var(--c, #fff) 0%, rgba(255, 255, 255, 0.28) 30%, transparent 62%);
   animation: osp-cr-flash calc(0.2s * var(--osp-cr-scale, 1)) ease-out var(--d, 0s);
@@ -109,9 +109,9 @@ canvas.osp-melting {
 }
 /* Neon beams sweeping out to the edges. */
 .osp-cr-ray {
-  width: 150vmax;
-  height: 0.7vmax;
-  margin: -0.35vmax 0 0 0;
+  width: var(--osp-cr-ray-len, 150vmax);
+  height: var(--osp-cr-ray-w, 0.7vmax);
+  margin: calc(var(--osp-cr-ray-w, 0.7vmax) / -2) 0 0 0;
   transform-origin: 0 50%;
   border-radius: 1vmax;
   background: linear-gradient(90deg, #fff 0%, var(--c, #fff) 16%, transparent 72%);
@@ -128,13 +128,13 @@ canvas.osp-melting {
   height: 12vmax;
   margin: -6vmax;
   border-radius: 50%;
-  border: 0.5vmax solid var(--c, #fff);
+  border: var(--osp-cr-ring-w, 0.5vmax) solid var(--c, #fff);
   animation: osp-cr-ring calc(0.28s * var(--osp-cr-scale, 1)) ease-out var(--d, 0s);
 }
 @keyframes osp-cr-ring {
   0% { transform: scale(0.1); opacity: 0; }
   18% { opacity: 0.85; }
-  100% { transform: scale(13); opacity: 0; }
+  100% { transform: scale(var(--osp-cr-ring-x, 13)); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .osp-cr {
@@ -149,7 +149,7 @@ canvas.osp-melting {
   position: absolute;
   inset: 0;
   z-index: 10; /* above the burst children within #osp-creation */
-  background: repeating-linear-gradient(180deg, #fff 0 40px, #000 40px 80px);
+  background: repeating-linear-gradient(180deg, #fff 0 var(--osp-lines-band, 40px), #000 var(--osp-lines-band, 40px) calc(var(--osp-lines-band, 40px) * 2));
   opacity: 0;
   pointer-events: none;
 }
@@ -208,9 +208,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 13vmin;
-  height: 13vmin;
-  margin: -6.5vmin;
+  width: var(--osp-sp-orb, 13vmin);
+  height: var(--osp-sp-orb, 13vmin);
+  margin: calc(var(--osp-sp-orb, 13vmin) / -2);
   border-radius: 50%;
   will-change: transform, opacity;
   animation: osp-orb calc(0.3s * var(--osp-splash-scale, 1)) cubic-bezier(0.55, 0, 0.78, 1) forwards;
@@ -269,9 +269,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 34vmin;
-  height: 34vmin;
-  margin: -17vmin;
+  width: var(--osp-sp-flash, 34vmin);
+  height: var(--osp-sp-flash, 34vmin);
+  margin: calc(var(--osp-sp-flash, 34vmin) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, #fff1d6 22%, rgba(255, 200, 120, 0.45) 46%, transparent 70%);
   opacity: 0;
@@ -353,7 +353,7 @@ canvas.osp-melting {
     opacity: 0.95;
   }
   100% {
-    transform: scale(7) rotateX(62deg) rotate(var(--rr, 0deg));
+    transform: scale(var(--osp-sp-shock-x, 7)) rotateX(62deg) rotate(var(--rr, 0deg));
     opacity: 0;
   }
 }
@@ -372,7 +372,7 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 58vmin;
+  width: var(--osp-sp-streak, 58vmin);
   height: 0.5vmin;
   margin: -0.25vmin 0 0 0;
   transform-origin: 0 50%;
@@ -422,7 +422,7 @@ canvas.osp-melting {
     opacity: 0.85;
   }
   100% {
-    transform: rotate(var(--a)) translateY(-24vmin) scale(1);
+    transform: rotate(var(--a)) translateY(calc(var(--osp-sp-plume, 24vmin) * -1)) scale(1);
     opacity: 0;
   }
 }
@@ -434,9 +434,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 44vmin;
-  height: 44vmin;
-  margin: -22vmin;
+  width: var(--osp-sp-disk, 44vmin);
+  height: var(--osp-sp-disk, 44vmin);
+  margin: calc(var(--osp-sp-disk, 44vmin) / -2);
   border-radius: 50%;
   border: 0.55vmin solid rgba(255, 201, 130, 0.92);
   box-shadow:
@@ -605,6 +605,31 @@ canvas.osp-melting {
      mostly-warm, lightly-saturated points that spiral inward then spiral back
      out. Capped backing resolution + small sprites keep it smooth. -->
 <script>
+  // Push the tunable dials onto CSS custom properties (read by intro.css). Defaults match
+  // the CSS var() fallbacks, so an un-tuned overlay (e.g. the verify-intro harness) looks
+  // identical. One place per half keeps __ospCreation / __ospIntro from drifting.
+  function ospSetCreationVars(cr, D) {
+    cr.style.setProperty('--osp-cr-core', (D.crCoreSize != null ? D.crCoreSize : 7) + 'vmax');
+    cr.style.setProperty('--osp-cr-flash', (D.crFlashSize != null ? D.crFlashSize : 30) + 'vmax');
+    cr.style.setProperty('--osp-cr-ray-len', (D.crRayLength != null ? D.crRayLength : 150) + 'vmax');
+    cr.style.setProperty('--osp-cr-ray-w', (D.crRayWidth != null ? D.crRayWidth : 0.7) + 'vmax');
+    cr.style.setProperty('--osp-cr-ring-w', (D.crRingThickness != null ? D.crRingThickness : 0.5) + 'vmax');
+    cr.style.setProperty('--osp-cr-ring-x', D.crRingExpand != null ? D.crRingExpand : 13);
+    cr.style.setProperty('--osp-lines-band', (D.linesBandPx != null ? D.linesBandPx : 40) + 'px');
+    cr.style.filter = 'hue-rotate(' + (D.crHue || 0) + 'deg) brightness(' + (D.crBright != null ? D.crBright : 1) + ')';
+  }
+  function ospSetSplashVars(splash, D) {
+    var stage = splash.querySelector('.osp-splash__stage');
+    if (stage) stage.style.setProperty('--core-d', (D.spCoreDiameter != null ? D.spCoreDiameter : 38) + 'vmin');
+    splash.style.setProperty('--osp-sp-orb', (D.spOrbSize != null ? D.spOrbSize : 13) + 'vmin');
+    splash.style.setProperty('--osp-sp-disk', (D.spDiskSize != null ? D.spDiskSize : 44) + 'vmin');
+    splash.style.setProperty('--osp-sp-shock-x', D.spShockExpand != null ? D.spShockExpand : 7);
+    splash.style.setProperty('--osp-sp-streak', (D.spStreakLength != null ? D.spStreakLength : 58) + 'vmin');
+    splash.style.setProperty('--osp-sp-plume', (D.spPlumeReach != null ? D.spPlumeReach : 24) + 'vmin');
+    splash.style.setProperty('--osp-sp-flash', (D.spFlashSize != null ? D.spFlashSize : 34) + 'vmin');
+    splash.style.filter = 'hue-rotate(' + (D.spHue || 0) + 'deg)';
+  }
+
   // Build the splash (and, unless `defer`, play it immediately). Passing defer=true
   // *prebuilds* it — stage + canvas ready but frozen (CSS paused via the
   // #osp-splash:not(--go) rule; canvas not yet drawing) — so it can be assembled on
@@ -615,6 +640,8 @@ canvas.osp-melting {
       var splash = document.getElementById('osp-splash');
       var stage = splash && splash.querySelector('.osp-splash__stage');
       if (!stage) return;
+      var D = window.__ospDials || {};
+      ospSetSplashVars(splash, D); // size/colour custom props + horizon diameter
       splash.classList.remove('osp-splash--hide');
       splash.classList.remove('osp-splash--go'); // a (re)build starts paused until __ospSplashPlay
       splash.__hideAt = 0; // reset the crossfade marker on (re)build
@@ -684,14 +711,15 @@ canvas.osp-melting {
       var warm = ['#fff3df', '#ffe6c2', '#ffd49a', '#ffcf86', '#fff7ec', '#ffdca8', '#ffc878'].map(sprite);
       var cool = ['#eef2ff', '#e4ecff'].map(sprite); // a few near-white sparkles, not blue
       var DIR = Math.random() < 0.5 ? 1 : -1; // one swirl direction for the whole field
-      var N = reduce ? 70 : 320;
+      var N = Math.max(0, Math.round(D.spDustCount != null ? D.spDustCount : 320));
+      if (reduce) N = Math.min(N, 70); // reduced motion caps the field
       var P = new Array(N);
       for (var k = 0; k < N; k++) {
         P[k] = {
           a: R(0, 6.2832), r0: R(22, 54), rmin: R(7, 20), rb: R(30, 86), // breathe r0 → annulus → rb (never the centre)
-          tn: DIR * (1.15 + R(-0.2, 0.2)), om: DIR * (0.5 + R(0, 0.9)), // inspiral wind + constant drift (rad/s)
+          tn: DIR * (1.15 + R(-0.2, 0.2)) * (D.spDustSpiral != null ? D.spDustSpiral : 1), om: DIR * (0.5 + R(0, 0.9)), // inspiral wind (× spDustSpiral) + drift
           mg: 0.2 + R(0, 0.16), // staggered turn time, so the field never converges/bursts in unison
-          sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin, dl: R(0, 0.05),
+          sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin * (D.spDustSize != null ? D.spDustSize : 1), dl: R(0, 0.05),
           spr: Math.random() < 0.05 ? cool[(Math.random() * cool.length) | 0] : warm[(Math.random() * warm.length) | 0],
         };
       }
@@ -769,15 +797,38 @@ canvas.osp-melting {
   // authored, 2 = twice as slow, 0.5 = twice as fast). Exposed on window so you can
   // tweak live in the console, then "Replay intro".
   window.__ospDials = {
-    initialBlackMs: 500, // (a) opening black-screen length
-    splitBlackMs: 70, // (b) the split-second of black after the interference pattern
-    creationSpeed: 1, // (c) moment-of-creation animation speed (× its durations)
-    splashSpeed: 1, // (d) splash animation speed (× its durations)
-    creationBeatMs: 240, // how long the creation plays before handing to the splash (splash reveals ~0.95s)
-    creationToSplashMs: -80, // (e) crossfade overlap: splash start vs the creation fade (− = overlap, + = gap)
-    creationFadeMs: 120, // (e) crossfade speed: how fast the creation fades into the splash
-    splashHoldMs: 600, // (f) how long the splash holds before the engine is revealed (read by main.ts)
-    splashFadeMs: 450, // (f) crossfade speed: how fast the splash fades into the engine
+    // creation half — timing + the burst's sizes/colour (mirror of dials.json scope:creation)
+    initialBlackMs: 500,
+    splitBlackMs: 70,
+    creationSpeed: 1,
+    crCoreSize: 7,
+    crFlashSize: 30,
+    crRayLength: 150,
+    crRayWidth: 0.7,
+    crRingThickness: 0.5,
+    crRingExpand: 13,
+    crHue: 0,
+    crBright: 1,
+    linesBandPx: 40,
+    // splash half — speed + the merger's sizes/colour/dust (scope:splash)
+    splashSpeed: 1,
+    spOrbSize: 13,
+    spCoreDiameter: 38,
+    spDiskSize: 44,
+    spShockExpand: 7,
+    spStreakLength: 58,
+    spPlumeReach: 24,
+    spFlashSize: 34,
+    spHue: 0,
+    spDustCount: 320,
+    spDustSize: 1,
+    spDustSpiral: 1,
+    // sequencing — how the two halves combine (scope:sequence)
+    creationBeatMs: 240,
+    creationToSplashMs: -80,
+    creationFadeMs: 120,
+    splashHoldMs: 600,
+    splashFadeMs: 450,
   };
 
   // The whole intro, sequenced off the *first painted frame* (so a deferred mobile
@@ -799,6 +850,7 @@ canvas.osp-melting {
         cr.className = 'osp-creation'; // reset for replay (drop --go / --hide)
         cr.style.setProperty('--osp-cr-scale', D.creationSpeed); // (c) creation speed
         cr.style.setProperty('--osp-cr-fade', D.creationFadeMs / 1000 + 's'); // (e) crossfade speed
+        ospSetCreationVars(cr, D); // burst sizes / colour from the dials
         // Restart the burst's CSS animations so **Replay** plays them again: they
         // completed on the first run (forwards), and toggling --go alone just resumes
         // them at 100% — a reflow on the parent doesn't restart the reused children.
@@ -866,6 +918,7 @@ canvas.osp-melting {
       cr.style.display = '';
       cr.className = 'osp-creation';
       cr.style.setProperty('--osp-cr-scale', D.creationSpeed);
+      ospSetCreationVars(cr, D); // burst sizes / colour from the dials
       var crs = cr.getElementsByClassName('osp-cr');
       for (var ci = 0; ci < crs.length; ci++) crs[ci].style.animation = 'none';
       void cr.offsetWidth; // reflow so the burst restarts on replay (see __ospIntro)

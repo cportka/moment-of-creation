@@ -1,12 +1,12 @@
 /**
- * The intro, as a registered animation. The markup + inline boot script
- * (`overlay.html`) and the stylesheet (`intro.css`) stay the single source of truth —
- * imported here `?raw` so this wrapper never duplicates them — joined with the dials
- * (`INTRO_DIALS`) and their UI schema (`INTRO_SCHEMA`). This is the object the engine
- * registry plays, the lab tunes, and the export packages.
+ * The intro, as a registered animation — the whole moment of creation (creation burst →
+ * binary-merger splash). The markup + inline boot script (`overlay.html`) and stylesheet
+ * (`intro.css`) stay the single source of truth (imported `?raw`); the dials/schema come
+ * from `dials.json` via `introTimeline`, and the named tunings from `presets.json`.
  */
-import type { Animation } from '../engine/types';
+import type { Animation, Preset } from '../engine/types';
 import { INTRO_DIALS, INTRO_SCHEMA } from './introTimeline';
+import presetsJson from '../engine/presets.json';
 import overlayHtml from './overlay.html?raw';
 import css from './intro.css?raw';
 
@@ -25,4 +25,5 @@ export const intro: Animation = {
   mode: 'full', // the whole thing — creation burst → binary-merger splash
   loopMs: (d) => d.initialBlackMs + d.splitBlackMs + d.creationBeatMs + ADMIRE_MS,
   background: '#05060a',
+  presets: presetsJson as Preset[],
 };

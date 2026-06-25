@@ -116,15 +116,53 @@ describe('registry ↔ export manifest stay in sync', () => {
   });
 });
 
-// The GitHub Pages showcase (root index.html) embeds a knob per dial. Guard against
-// adding a dial to an animation but forgetting to expose it in the showcase.
-describe('Pages showcase exposes every dial', () => {
+// Dials + presets live in one source (dials.json / presets.json); the lab imports them
+// and the showcase fetches them. Guard that single source instead of a hand-copied panel.
+describe('single-source dials + presets', () => {
+  const dials: Record<string, { min: number; max: number; step: number; scope: string }> = JSON.parse(
+    read('../intro/dials.json'),
+  );
+  const presets: Array<{ id: string; name: string; dials: Record<string, number> }> = JSON.parse(
+    read('../engine/presets.json'),
+  );
   const showcase = read('../../index.html');
-  for (const a of animations) {
-    it(`has a knob for every ${a.id} dial`, () => {
-      for (const key of Object.keys(a.dials)) {
-        expect(showcase).toContain(`'${key}'`);
+
+  it('dials.json covers every registered dial with a valid range + scope', () => {
+    for (const a of animations) {
+      for (const [key, def] of Object.entries(a.dials)) {
+        const meta = dials[key];
+        expect(meta, `dials.json missing ${key}`).toBeDefined();
+        expect(meta.min).toBeLessThanOrEqual(def);
+        expect(meta.max).toBeGreaterThanOrEqual(def);
+        expect(meta.step).toBeGreaterThan(0);
+        expect(['creation', 'splash', 'sequence']).toContain(meta.scope);
       }
-    });
-  }
+    }
+  });
+
+  it('there are at least 29 dials and 20 of them are the new parameters', () => {
+    expect(Object.keys(dials).length).toBeGreaterThanOrEqual(29);
+  });
+
+  it('the showcase fetches the single source (no hand-copied schema)', () => {
+    expect(showcase).toContain('dials.json');
+    expect(showcase).toContain('presets.json');
+  });
+
+  it('the intro carries 10 presets, "Original" first', () => {
+    const intro = byId('intro')!;
+    expect(intro.presets?.length).toBe(10);
+    expect(presets[0].id).toBe('original');
+  });
+
+  it('every preset overrides only real dials, within range', () => {
+    for (const p of presets) {
+      for (const [key, value] of Object.entries(p.dials)) {
+        const meta = dials[key];
+        expect(meta, `preset "${p.id}" → unknown dial ${key}`).toBeDefined();
+        expect(value).toBeGreaterThanOrEqual(meta.min);
+        expect(value).toBeLessThanOrEqual(meta.max);
+      }
+    }
+  });
 });

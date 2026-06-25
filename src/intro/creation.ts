@@ -2,26 +2,22 @@
  * The "moment of creation" burst, as its own animation — the first half of the intro
  * (black hold → one-frame test pattern → pure-CSS firework burst), with the splash
  * hidden. It shares the intro's overlay and stylesheet; `mode: 'creation'` tells the
- * overlay's boot script to play just this slice (window.__ospMode).
+ * overlay's boot script to play just this slice. Its dials are the `creation`-scoped
+ * ones, projected from the single source (dials.json) — add a dial there, tag its scope,
+ * and it shows up here for free.
  */
 import type { Animation } from '../engine/types';
-import { INTRO_DIALS, INTRO_SCHEMA } from './introTimeline';
+import { pickByScope } from './introTimeline';
 import overlayHtml from './overlay.html?raw';
 import css from './intro.css?raw';
+
+const { dials, schema } = pickByScope('creation');
 
 export const creation: Animation = {
   id: 'creation',
   name: 'Creation burst',
-  dials: {
-    initialBlackMs: INTRO_DIALS.initialBlackMs,
-    splitBlackMs: INTRO_DIALS.splitBlackMs,
-    creationSpeed: INTRO_DIALS.creationSpeed,
-  },
-  schema: {
-    initialBlackMs: INTRO_SCHEMA.initialBlackMs,
-    splitBlackMs: INTRO_SCHEMA.splitBlackMs,
-    creationSpeed: INTRO_SCHEMA.creationSpeed,
-  },
+  dials,
+  schema,
   overlayHtml,
   css,
   mode: 'creation',
