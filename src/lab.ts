@@ -67,6 +67,29 @@ function snippet(): string {
 // DOM the lab owns and rebuilds when the animation changes.
 let dialsBox!: HTMLDivElement;
 let snippetBox!: HTMLPreElement;
+let presetSel!: HTMLSelectElement;
+let presetRow!: HTMLDivElement;
+
+/** Populate the preset picker for the current animation (hidden if it has none). */
+function refreshPresets(): void {
+  presetSel.textContent = '';
+  const presets = current.presets;
+  presetRow.style.display = presets && presets.length ? '' : 'none';
+  for (const p of presets ?? []) presetSel.appendChild(el('option', { value: p.id }, p.name));
+}
+
+/** Apply a named preset: its overrides over the defaults, then re-render + replay. */
+function applyPreset(id: string): void {
+  const preset = current.presets?.find((p) => p.id === id);
+  if (!preset) return;
+  const store = window.__ospDials;
+  for (const key of Object.keys(current.schema)) {
+    const v = key in preset.dials ? preset.dials[key] : current.dials[key];
+    if (store) store[key] = v;
+  }
+  rebuildDials();
+  runCycle();
+}
 
 function updateSnippet(): void {
   snippetBox.textContent = snippet();
@@ -120,6 +143,7 @@ function switchTo(id: string): void {
   handle?.destroy();
   handle = mountAnimation(current); // defines window.__ospDials + auto-plays
   rebuildDials();
+  refreshPresets();
   window.clearTimeout(loopTimer);
   scheduleNext();
 }
@@ -158,6 +182,14 @@ function build(): void {
   picker.addEventListener('change', () => switchTo(picker.value));
   pickRow.appendChild(picker);
   panel.appendChild(pickRow);
+
+  // Preset picker — named tunings the animation declares (refreshed on switch).
+  presetRow = el('div', { class: 'osp-lab__row' });
+  presetRow.appendChild(el('label', { class: 'osp-lab__pickerlabel' }, 'Preset'));
+  presetSel = el('select', { class: 'osp-lab__select' });
+  presetSel.addEventListener('change', () => applyPreset(presetSel.value));
+  presetRow.appendChild(presetSel);
+  panel.appendChild(presetRow);
 
   // Transport: loop toggle + replay.
   const transport = el('div', { class: 'osp-lab__row osp-lab__transport' });
@@ -199,7 +231,7 @@ function build(): void {
   const exportBtn = el('button', { type: 'button', class: 'osp-lab__btn' }, 'Export .html');
   exportBtn.addEventListener('click', () => {
     const dials = { ...liveDials() };
-    download(`${current.id}.html`, buildStandaloneHtml(current, { dials, loopMs: current.loopMs?.(dials) }));
+    download(`${current.id}.html`, buildStandaloneHtml(current, { dials, loopMs: current.loopMs?.(dials), mode: current.mode }));
     flash(exportBtn, 'Saved!');
   });
   tools.appendChild(reset);

@@ -17,7 +17,10 @@ export function applyDials(overlayHtml, dials) {
   return overlayHtml.replace(/(__ospDials\s*=\s*\{)([\s\S]*?)(\s*\};)/, (_m, open, body, close) => {
     let out = body;
     for (const [key, value] of Object.entries(dials)) {
-      out = out.replace(new RegExp('(\\b' + key + '\\s*:\\s*)(-?[0-9.]+)'), '$1' + value);
+      const num = Number(value);
+      if (!Number.isFinite(num)) continue; // never bake a non-number into the inline script
+      // `\b<key>\s*:` anchors the property name (the trailing `:` rules out prefix collisions).
+      out = out.replace(new RegExp('(\\b' + key + '\\s*:\\s*)(-?[0-9.]+)'), '$1' + num);
     }
     return open + out + close;
   });

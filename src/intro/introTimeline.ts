@@ -20,6 +20,7 @@
  */
 
 import type { DialSchema } from '../engine/types';
+import dialsJson from './dials.json';
 
 /** Frame rate we aim the *intro story* (everything but the live physics model) at —
  *  uncapped, beyond the limit of human flicker detection. Documentation/intent: the
@@ -37,36 +38,34 @@ export const INTRO_BEATS = [
 ] as const;
 
 /**
- * The intro dials — the one place (with the `window.__ospDials` mirror in `index.html`)
- * to tune the load intro. Times are ms; *speeds* are duration multipliers (1 = as
- * authored, 2 = twice as slow, 0.5 = twice as fast). The inline boot script paints
- * before the bundle, so it can't import these — it hard-codes the same values; the
- * `introTimeline.test.ts` inline-sync guard keeps the two from drifting.
+ * The intro dials live in one place now — `dials.json` (each key carries its default, UI
+ * schema, and `scope`). `INTRO_SCHEMA` (key → metadata) and `INTRO_DIALS` (key → default)
+ * are derived from it, so the lab, the showcase and the tests share a single source.
+ * The inline boot script paints before the bundle, so it still hard-codes the same numbers
+ * on `window.__ospDials`; `introTimeline.test.ts` keeps the two in lockstep.
  */
-export const INTRO_DIALS = {
-  /** (a) Opening black-screen length. */
-  initialBlackMs: 500,
-  /** (b) The deliberate split-second of black after the interference pattern. */
-  splitBlackMs: 70,
-  /** (c) Moment-of-creation animation speed (× its CSS durations). */
-  creationSpeed: 1,
-  /** (d) Splash animation speed (× its CSS durations). */
-  splashSpeed: 1,
-  /** How long the creation plays as its own beat before handing to the splash. Tuned so
-   *  the splash reveals (creationBeatMs + creationFadeMs after the burst) by ~0.95s. */
-  creationBeatMs: 240,
-  /** (e) Creation→splash crossfade *overlap*: when the splash starts relative to the
-   *  creation fade — negative = splash a touch *before* the fade (overlap, no gap),
-   *  positive = a black gap. */
-  creationToSplashMs: -80,
-  /** (e) Creation→splash crossfade *speed*: how fast the creation fades into the splash. */
-  creationFadeMs: 120,
-  /** (f) Splash→engine crossfade *hold*: how long the splash stays up before the engine is
-   *  revealed (main.ts's MIN_SPLASH_MS, measured from the splash's first painted frame). */
-  splashHoldMs: 600,
-  /** (f) Splash→engine crossfade *speed*: how fast the splash fades into the engine. */
-  splashFadeMs: 450,
-} as const;
+export const INTRO_SCHEMA = dialsJson as Record<string, DialSchema>;
+
+export const INTRO_DIALS = Object.fromEntries(
+  Object.entries(dialsJson).map(([key, meta]) => [key, meta.default]),
+) as Record<keyof typeof dialsJson, number>;
+
+/** Project the dials/schema for the given scope(s) — how each half (creation / splash)
+ *  declares only the dials it owns without re-typing them. */
+export function pickByScope(...scopes: string[]): {
+  dials: Record<string, number>;
+  schema: Record<string, DialSchema>;
+} {
+  const dials: Record<string, number> = {};
+  const schema: Record<string, DialSchema> = {};
+  for (const [key, meta] of Object.entries(INTRO_SCHEMA)) {
+    if (scopes.includes(meta.scope ?? '')) {
+      dials[key] = INTRO_DIALS[key as keyof typeof INTRO_DIALS];
+      schema[key] = meta;
+    }
+  }
+  return { dials, schema };
+}
 
 /** Replay: the live view "melts" inward toward the One Still Point for this long before
  *  the intro replays from black (bundle-only; not part of the inline overlay). */
@@ -80,30 +79,3 @@ export const MELT_MS = 2000;
  */
 export const SPLASH_COVERS_AT_MS =
   INTRO_DIALS.initialBlackMs + INTRO_DIALS.splitBlackMs + INTRO_DIALS.creationBeatMs + 150;
-
-/**
- * The intro's per-dial UI schema — the metadata the tuning lab renders sliders from.
- * Promoted out of the lab (it used to hold a private `META` map) so the intro, like
- * every animation, *declares its own* schema; the generalized lab reads it from the
- * registry. Rows render in `INTRO_DIALS` order (also the copy-paste snippet order).
- */
-export const INTRO_SCHEMA: Record<keyof typeof INTRO_DIALS, DialSchema> = {
-  initialBlackMs: { label: 'Opening black', min: 0, max: 2000, step: 10, unit: 'ms',
-    hint: '(a) how long the screen holds pure black before the test pattern' },
-  splitBlackMs: { label: 'Split black', min: 0, max: 400, step: 5, unit: 'ms',
-    hint: '(b) the deliberate sliver of black after the test pattern' },
-  creationSpeed: { label: 'Creation speed', min: 0.25, max: 4, step: 0.05, unit: '×',
-    hint: '(c) stretch / compress the moment-of-creation burst (1 = as authored)' },
-  splashSpeed: { label: 'Splash speed', min: 0.25, max: 4, step: 0.05, unit: '×',
-    hint: '(d) stretch / compress the splash animation (1 = as authored)' },
-  creationBeatMs: { label: 'Creation beat', min: 0, max: 1200, step: 10, unit: 'ms',
-    hint: 'how long the creation plays as its own beat before the splash' },
-  creationToSplashMs: { label: 'Creation → splash overlap', min: -400, max: 400, step: 5, unit: 'ms',
-    hint: '(e) splash start vs the creation fade — negative = overlap (no black gap)' },
-  creationFadeMs: { label: 'Creation fade', min: 0, max: 800, step: 10, unit: 'ms',
-    hint: '(e) how fast the creation crossfades into the splash' },
-  splashHoldMs: { label: 'Splash hold', min: 0, max: 3000, step: 50, unit: 'ms',
-    hint: '(f) how long the splash holds before the engine is revealed (read by main.ts)' },
-  splashFadeMs: { label: 'Splash fade', min: 0, max: 1500, step: 10, unit: 'ms',
-    hint: '(f) how fast the splash crossfades into the engine' },
-};

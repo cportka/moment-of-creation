@@ -3,6 +3,31 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.3.0
+
+### Added
+
+- **20 new tunable parameters** (29 total) wired to real effects — creation: core/flash
+  sizes, ray length/width, ring thickness/expand, hue, brightness, test-pattern band;
+  splash: orb/horizon/disk sizes, shock/streak/plume/flash sizes, hue, and canvas dust
+  count/size/spiral. All default to today's look (CSS `var()` fallbacks).
+- **10 presets** (`presets.json`), `Original` as the default, surfaced as a dropdown in the
+  showcase and the lab.
+- **Single source for dials** — `src/intro/dials.json` (defaults + UI schema + `scope`).
+  `introTimeline.ts` derives `INTRO_DIALS`/`INTRO_SCHEMA`; `creation`/`splash` project their
+  dials by `scope` via `pickByScope()`. The keystone from `IMPROVEMENTS.md` §0.1.
+
+### Changed
+
+- **The showcase is data-driven** — it `fetch`es `dials.json` + `presets.json` and builds
+  its controls from them (the hand-copied panel literal is gone), with a **compact,
+  grouped two-column dial UI** and the **three windows pinned to one row**.
+- Dial labels/inputs are now associated for accessibility (`label[for]` + `aria-label`);
+  `applyDials` coerces values through `Number()` so a non-number can't be baked into the
+  inline export script.
+- A full pass over the code: see [`IMPROVEMENTS.md`](IMPROVEMENTS.md) (this version lands
+  §0.1, §0.2, §0.3 partial, §1.3, §2.4, §6.1/§6.2, §8.3/§8.4).
+
 ## 0.2.0
 
 ### Changed

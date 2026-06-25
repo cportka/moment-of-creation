@@ -7,7 +7,7 @@
     <title>moment of creation — animation engine</title>
     <meta
       name="description"
-      content="The moment of creation, as an engine: its two halves — the creation burst and the binary-merger splash — looping separately, and together as the original intro. Tune every parameter live."
+      content="The moment of creation, as an engine: its two halves — the creation burst and the binary-merger splash — looping separately and together, with 29 live parameters and 10 presets."
     />
     <style>
       :root {
@@ -19,213 +19,82 @@
         --muted: #99a2b4;
         --accent: #ff8a3c;
       }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
+      * { box-sizing: border-box; }
+      html, body {
         margin: 0;
         background: var(--bg);
         color: var(--ink);
         font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       }
-      a {
-        color: #ffd9a0;
-      }
-      header {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 30px 22px 8px;
-      }
-      header h1 {
-        margin: 0;
-        font-size: clamp(22px, 4vw, 34px);
-        letter-spacing: 0.02em;
-        font-weight: 650;
-      }
-      header h1 .dim {
-        color: var(--muted);
-        font-weight: 400;
-      }
-      header p {
-        margin: 8px 0 0;
-        color: var(--muted);
-        max-width: 72ch;
-      }
-      main {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 14px 22px 60px;
-      }
-      /* --- the three windows: the two halves + the whole --- */
+      a { color: #ffd9a0; }
+      header, main, footer { max-width: 1180px; margin: 0 auto; }
+      header { padding: 28px 22px 6px; }
+      header h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); letter-spacing: 0.02em; font-weight: 650; }
+      header h1 .dim { color: var(--muted); font-weight: 400; }
+      header p { margin: 8px 0 0; color: var(--muted); max-width: 72ch; }
+      main { padding: 14px 22px 50px; }
+
+      /* --- the three windows: the two halves + the whole, always on one row --- */
       .stage {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin: 18px 0 26px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 16px 0 22px;
       }
-      @media (max-width: 820px) {
-        .stage {
-          grid-template-columns: 1fr;
-          max-width: 460px;
-          margin-inline: auto;
-        }
-      }
-      .window {
-        margin: 0;
-      }
+      .window { margin: 0; min-width: 0; }
       .window figcaption {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 8px;
-        margin: 0 2px 7px;
-        font-size: 12.5px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #ffd9a0;
+        display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+        margin: 0 2px 6px; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffd9a0;
       }
-      .window figcaption span {
-        color: var(--muted);
-        text-transform: none;
-        letter-spacing: 0;
-        font-size: 11px;
-      }
-      .window.whole figcaption {
-        color: #ffe6c2;
-      }
+      .window figcaption span { color: var(--muted); text-transform: none; letter-spacing: 0; font-size: 10.5px; }
+      .window.whole figcaption { color: #ffe6c2; }
       .frame {
-        position: relative;
-        aspect-ratio: 1 / 1;
-        border-radius: 12px;
-        overflow: hidden;
-        background: var(--bg);
-        border: 1px solid var(--line);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        position: relative; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden;
+        background: var(--bg); border: 1px solid var(--line); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
       }
-      .window.whole .frame {
-        border-color: rgba(255, 200, 130, 0.32);
+      .window.whole .frame { border-color: rgba(255, 200, 130, 0.32); }
+      .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; }
+
+      /* --- controls --- */
+      .controls { display: flex; flex-direction: column; gap: 14px; }
+      .bar {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px;
+        position: sticky; top: 0; z-index: 5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       }
-      .frame iframe {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        border: 0;
-        display: block;
-        background: transparent;
+      .bar label { font-weight: 600; color: #d9dffb; font-size: 13px; }
+      .bar select {
+        appearance: none; cursor: pointer; background: rgba(0, 0, 0, 0.35); color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; min-width: 160px;
       }
-      /* --- knob panels (one per half; their dials also drive the whole) --- */
-      .knobs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
+      .bar .spacer { flex: 1; }
+      .btn {
+        cursor: pointer; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.06); color: var(--ink);
+        border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px;
       }
-      @media (max-width: 820px) {
-        .knobs {
-          grid-template-columns: 1fr;
-        }
+      .btn:hover { background: rgba(255, 255, 255, 0.13); }
+
+      .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
+      .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 16px; }
+      .panel h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffd9a0; }
+
+      /* compact, two-up dial grid */
+      .dialgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 16px; }
+      @media (max-width: 520px) { .dialgrid { grid-template-columns: 1fr; } }
+      .dial { min-width: 0; }
+      .dial .top { display: flex; align-items: baseline; gap: 6px; }
+      .dial .top label { flex: 1; font-size: 11.5px; font-weight: 600; color: #d9dffb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .dial .top input[type='number'] {
+        width: 56px; text-align: right; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 5px; color: #fff; font: inherit; font-size: 11px; padding: 2px 5px;
       }
-      .panel {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 16px 18px 20px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-      .panel header {
-        all: unset;
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: 4px;
-      }
-      .panel h2 {
-        margin: 0;
-        font-size: 14px;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: #ffd9a0;
-      }
-      .panel .reset {
-        cursor: pointer;
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--ink);
-        border-radius: 7px;
-        padding: 5px 10px;
-        font: inherit;
-        font-size: 12px;
-      }
-      .panel .reset:hover {
-        background: rgba(255, 255, 255, 0.13);
-      }
-      .panel .lead {
-        margin: 0 0 12px;
-        color: var(--muted);
-        font-size: 11px;
-      }
-      .dial {
-        margin: 0 0 12px;
-      }
-      .dial .row {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-      }
-      .dial .row label {
-        flex: 1;
-        font-weight: 600;
-        color: #d9dffb;
-        font-size: 13px;
-      }
-      .dial.whole-only .row label::after {
-        content: ' · together';
-        color: #8b93a6;
-        font-weight: 400;
-        font-size: 10px;
-      }
-      .dial .row input[type='number'] {
-        width: 72px;
-        text-align: right;
-        background: rgba(0, 0, 0, 0.35);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 6px;
-        color: #fff;
-        font: inherit;
-        font-size: 12px;
-        padding: 3px 6px;
-      }
-      .dial .row .unit {
-        min-width: 22px;
-        color: var(--muted);
-        font-size: 11px;
-      }
-      .dial input[type='range'] {
-        width: 100%;
-        margin: 6px 0 3px;
-        accent-color: var(--accent);
-      }
-      .dial .hint {
-        margin: 0;
-        color: #828b9d;
-        font-size: 10.5px;
-        line-height: 1.35;
-      }
-      footer {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 22px 50px;
-        color: var(--muted);
-        font-size: 12.5px;
-      }
-      code {
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        padding: 1px 5px;
-        font-size: 12px;
-      }
+      .dial .top .unit { width: 22px; color: var(--muted); font-size: 10px; }
+      .dial input[type='range'] { width: 100%; margin: 3px 0 0; accent-color: var(--accent); height: 16px; }
+
+      footer { padding: 0 22px 48px; color: var(--muted); font-size: 12.5px; }
+      code { background: rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+      .err { color: #ff9a9a; }
     </style>
   </head>
   <body>
@@ -233,74 +102,63 @@
       <h1>moment of creation <span class="dim">· animation engine</span></h1>
       <p>
         The intro is two animations in sequence — a pure-CSS <strong>creation burst</strong> and a
-        <strong>binary-merger splash</strong>. Here they loop on their own, and <em>together</em> as the original
-        moment of creation. Each runs as a separate engine animation off one overlay; turn the knobs and every window
-        updates live. <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
+        <strong>binary-merger splash</strong>. Here they loop on their own and <em>together</em> as the original moment
+        of creation. <strong>29 parameters</strong> and <strong>10 presets</strong> drive all three windows live.
+        <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
       </p>
     </header>
 
     <main>
       <section class="stage">
         <figure class="window">
-          <figcaption>Creation burst <span>half · looping</span></figcaption>
-          <div class="frame"><iframe id="creation" src="creation.html" title="Creation burst" scrolling="no"></iframe></div>
+          <figcaption>Creation burst <span>half</span></figcaption>
+          <div class="frame"><iframe id="creation" src="creation.html" title="Creation burst" loading="lazy" scrolling="no"></iframe></div>
         </figure>
         <figure class="window">
-          <figcaption>Binary merger <span>half · looping</span></figcaption>
-          <div class="frame"><iframe id="splash" src="splash.html" title="Binary merger" scrolling="no"></iframe></div>
+          <figcaption>Binary merger <span>half</span></figcaption>
+          <div class="frame"><iframe id="splash" src="splash.html" title="Binary merger" loading="lazy" scrolling="no"></iframe></div>
         </figure>
         <figure class="window whole">
-          <figcaption>Moment of creation <span>the two together</span></figcaption>
-          <div class="frame"><iframe id="intro" src="intro.html" title="Moment of creation (full)" scrolling="no"></iframe></div>
+          <figcaption>Moment of creation <span>together</span></figcaption>
+          <div class="frame"><iframe id="intro" src="intro.html" title="Moment of creation (full)" loading="lazy" scrolling="no"></iframe></div>
         </figure>
       </section>
 
-      <section class="knobs">
-        <div class="panel" id="panel-creation"></div>
-        <div class="panel" id="panel-splash"></div>
+      <section class="controls">
+        <div class="bar">
+          <label for="preset">Preset</label>
+          <select id="preset"></select>
+          <button class="btn" id="reset" type="button">Reset</button>
+          <span class="spacer"></span>
+          <span id="status" class="muted" style="font-size: 12px; color: var(--muted)"></span>
+        </div>
+        <div class="panels">
+          <div class="panel"><h2>Creation burst</h2><div class="dialgrid" id="grid-creation"></div></div>
+          <div class="panel"><h2>Binary merger</h2><div class="dialgrid" id="grid-splash"></div></div>
+        </div>
       </section>
     </main>
 
     <footer>
-      The two halves and the whole are one overlay played in three modes (<code>creation</code> / <code>splash</code> /
-      <code>full</code>) — the same source the <code>npm run export</code> single files use. A knob marked “together”
-      only shapes how the halves combine, so it drives the full window. Built with the engine in this repo.
+      The two halves and the whole are one overlay played in three modes — the same source the
+      <code>npm run export</code> single files use. Controls and presets are read from the engine's single source
+      (<code>dials.json</code> / <code>presets.json</code>). Built with the engine in this repo.
     </footer>
 
     <script>
-      // Knob groups — the two halves of the moment of creation. Each dial lists which
-      // window(s) it drives: a half + the whole, or (for the sequencing dials) just the
-      // whole. Defaults mirror the engine registry (INTRO_DIALS).
-      // [key, label, min, max, step, unit, default, hint, targets]
-      const PANELS = [
-        {
-          id: 'creation',
-          title: 'Creation burst',
-          lead: 'Drives the creation window and the creation half of the full intro.',
-          dials: [
-            ['initialBlackMs', 'Opening black', 0, 2000, 10, 'ms', 500, 'black hold before the test pattern', ['creation', 'intro']],
-            ['splitBlackMs', 'Split black', 0, 400, 5, 'ms', 70, 'sliver of black after the test pattern', ['creation', 'intro']],
-            ['creationSpeed', 'Creation speed', 0.25, 4, 0.05, '×', 1, 'stretch / compress the burst (1 = as authored)', ['creation', 'intro']],
-            ['creationBeatMs', 'Creation beat', 0, 1200, 10, 'ms', 240, 'how long the burst plays before the splash', ['intro']],
-            ['creationToSplashMs', 'Creation → splash', -400, 400, 5, 'ms', -80, 'overlap — negative = no black gap', ['intro']],
-            ['creationFadeMs', 'Creation fade', 0, 800, 10, 'ms', 120, 'creation → splash crossfade speed', ['intro']],
-          ],
-        },
-        {
-          id: 'splash',
-          title: 'Binary merger',
-          lead: 'Drives the merger window and the splash half of the full intro.',
-          dials: [
-            ['splashSpeed', 'Splash speed', 0.25, 4, 0.05, '×', 1, 'stretch / compress the merger (1 = as authored)', ['splash', 'intro']],
-            ['splashHoldMs', 'Splash hold', 0, 3000, 50, 'ms', 600, 'how long the splash holds before the reveal', ['intro']],
-            ['splashFadeMs', 'Splash fade', 0, 1500, 10, 'ms', 450, 'splash → reveal crossfade speed', ['intro']],
-          ],
-        },
-      ];
-
       const $ = (id) => document.getElementById(id);
+      const FRAMES = ['creation', 'splash', 'intro'];
 
-      // Write one dial into each target window's live window.__ospDials (same-origin).
+      // Which window(s) a dial drives, and which panel it lives in — from its scope.
+      const targetsOf = (scope) =>
+        scope === 'creation' ? ['creation', 'intro'] : scope === 'splash' ? ['splash', 'intro'] : ['intro'];
+      const panelOf = (key, scope) =>
+        scope === 'creation' || scope === 'splash' ? scope : key.indexOf('splash') === 0 ? 'splash' : 'creation';
+
+      let SCHEMA = {}; // key -> { label, default, min, max, step, unit, scope, hint }
+      let PRESETS = [];
+      const inputs = {}; // key -> { num, range }
+
       function setDial(key, value, targets) {
         for (const id of targets) {
           const frame = $(id);
@@ -314,8 +172,6 @@
         }
       }
 
-      // Debounced replay per window so a tweak previews quickly (each is a looping animation
-      // that reads its dials at the start of every play).
       const replayTimers = {};
       function pokeReplay(id) {
         clearTimeout(replayTimers[id]);
@@ -329,100 +185,118 @@
         }, 450);
       }
 
-      // On load, push the current slider values into a freshly-loaded window.
+      // Push every current slider value into a freshly-loaded window (only the dials it cares about).
       function syncFrame(id) {
-        for (const panel of PANELS) {
-          for (const [key, , , , , , , , targets] of panel.dials) {
-            if (!targets.includes(id)) continue;
-            const input = document.querySelector(`[data-key="${key}"]`);
-            if (!input) continue;
-            try {
-              const dials = $(id).contentWindow && $(id).contentWindow.__ospDials;
-              if (dials) dials[key] = Number(input.value);
-            } catch (e) {
-              /* not ready */
-            }
+        for (const [key, meta] of Object.entries(SCHEMA)) {
+          if (!targetsOf(meta.scope).includes(id)) continue;
+          try {
+            const dials = $(id).contentWindow && $(id).contentWindow.__ospDials;
+            if (dials) dials[key] = Number(inputs[key].range.value);
+          } catch (e) {
+            /* not ready */
           }
         }
       }
 
-      function buildPanel(spec) {
-        const panel = $('panel-' + spec.id);
-        const head = document.createElement('header');
-        const h2 = document.createElement('h2');
-        h2.textContent = spec.title;
-        const reset = document.createElement('button');
-        reset.className = 'reset';
-        reset.type = 'button';
-        reset.textContent = 'Reset';
-        head.append(h2, reset);
-        panel.append(head);
-        const lead = document.createElement('p');
-        lead.className = 'lead';
-        lead.textContent = spec.lead;
-        panel.append(lead);
+      function buildDial(key, meta) {
+        const scope = meta.scope;
+        const targets = targetsOf(scope);
+        const dial = document.createElement('div');
+        dial.className = 'dial';
 
-        const rows = [];
-        for (const [key, label, min, max, step, unit, def, hint, targets] of spec.dials) {
-          const dial = document.createElement('div');
-          dial.className = 'dial' + (targets.length === 1 && targets[0] === 'intro' ? ' whole-only' : '');
+        const top = document.createElement('div');
+        top.className = 'top';
+        const label = document.createElement('label');
+        label.textContent = meta.label;
+        label.title = meta.hint || '';
+        label.htmlFor = 'd-' + key;
+        const num = document.createElement('input');
+        num.type = 'number';
+        num.id = 'd-' + key;
+        num.min = meta.min; num.max = meta.max; num.step = meta.step; num.value = meta.default;
+        num.setAttribute('aria-label', meta.label);
+        const unit = document.createElement('span');
+        unit.className = 'unit';
+        unit.textContent = meta.unit;
+        top.append(label, num, unit);
 
-          const row = document.createElement('div');
-          row.className = 'row';
-          const lab = document.createElement('label');
-          lab.textContent = label;
-          const num = document.createElement('input');
-          num.type = 'number';
-          num.min = min;
-          num.max = max;
-          num.step = step;
-          num.value = def;
-          num.dataset.key = key;
-          const u = document.createElement('span');
-          u.className = 'unit';
-          u.textContent = unit;
-          row.append(lab, num, u);
+        const range = document.createElement('input');
+        range.type = 'range';
+        range.min = meta.min; range.max = meta.max; range.step = meta.step; range.value = meta.default;
+        range.setAttribute('aria-label', meta.label);
+        if (meta.hint) range.title = meta.hint;
 
-          const range = document.createElement('input');
-          range.type = 'range';
-          range.min = min;
-          range.max = max;
-          range.step = step;
-          range.value = def;
+        dial.append(top, range);
+        inputs[key] = { num, range };
 
-          const p = document.createElement('p');
-          p.className = 'hint';
-          p.textContent = hint;
+        const apply = (raw) => {
+          const v = Number(raw);
+          if (!Number.isFinite(v)) return;
+          num.value = raw;
+          range.value = raw;
+          setDial(key, v, targets);
+        };
+        range.addEventListener('input', () => apply(range.value));
+        num.addEventListener('input', () => apply(num.value));
+        return dial;
+      }
 
-          dial.append(row, range, p);
-          panel.append(dial);
-
-          const apply = (raw) => {
-            const v = Number(raw);
-            if (!Number.isFinite(v)) return;
-            num.value = raw;
-            range.value = raw;
-            setDial(key, v, targets);
-          };
-          range.addEventListener('input', () => apply(range.value));
-          num.addEventListener('input', () => apply(num.value));
-          rows.push({ key, def, num, range, targets });
+      function applyPreset(preset) {
+        for (const [key, meta] of Object.entries(SCHEMA)) {
+          const v = preset.dials && key in preset.dials ? preset.dials[key] : meta.default;
+          inputs[key].num.value = v;
+          inputs[key].range.value = v;
+          setDial(key, v, targetsOf(meta.scope));
         }
+      }
 
-        reset.addEventListener('click', () => {
-          for (const { key, def, num, range, targets } of rows) {
-            num.value = def;
-            range.value = def;
-            setDial(key, def, targets);
-          }
+      function build() {
+        // dials → two compact, grouped panels
+        for (const [key, meta] of Object.entries(SCHEMA)) {
+          $('grid-' + panelOf(key, meta.scope)).appendChild(buildDial(key, meta));
+        }
+        // preset picker
+        const sel = $('preset');
+        for (const p of PRESETS) {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.name;
+          sel.appendChild(opt);
+        }
+        sel.addEventListener('change', () => {
+          const p = PRESETS.find((x) => x.id === sel.value);
+          if (p) applyPreset(p);
         });
+        $('reset').addEventListener('click', () => {
+          sel.value = PRESETS[0] ? PRESETS[0].id : '';
+          applyPreset(PRESETS[0] || { dials: {} });
+        });
+        // when each window loads, push current values into it
+        for (const id of FRAMES) {
+          const f = $(id);
+          if (f) f.addEventListener('load', () => syncFrame(id));
+        }
+        // deep-link a preset with ?preset=<id>
+        const wanted = new URLSearchParams(location.search).get('preset');
+        const p0 = wanted && PRESETS.find((p) => p.id === wanted);
+        if (p0) {
+          sel.value = p0.id;
+          applyPreset(p0);
+        }
       }
 
-      for (const spec of PANELS) buildPanel(spec);
-      for (const id of ['creation', 'splash', 'intro']) {
-        const frame = $(id);
-        if (frame) frame.addEventListener('load', () => syncFrame(id));
-      }
+      Promise.all([
+        fetch('./src/intro/dials.json').then((r) => r.json()),
+        fetch('./src/engine/presets.json').then((r) => r.json()),
+      ])
+        .then(([dials, presets]) => {
+          SCHEMA = dials;
+          PRESETS = presets;
+          build();
+        })
+        .catch((e) => {
+          $('status').innerHTML = '<span class="err">Could not load controls: ' + e + '</span>';
+        });
     </script>
   </body>
 </html>

@@ -73,9 +73,9 @@ canvas.osp-melting {
 }
 /* The white-hot seed at the centre. */
 .osp-cr-core {
-  width: 7vmax;
-  height: 7vmax;
-  margin: -3.5vmax;
+  width: var(--osp-cr-core, 7vmax);
+  height: var(--osp-cr-core, 7vmax);
+  margin: calc(var(--osp-cr-core, 7vmax) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, #fff6e0 38%, transparent 72%);
   animation: osp-cr-core calc(0.18s * var(--osp-cr-scale, 1)) ease-out;
@@ -87,9 +87,9 @@ canvas.osp-melting {
 }
 /* Full-screen flashes of light. */
 .osp-cr-flash {
-  width: 30vmax;
-  height: 30vmax;
-  margin: -15vmax;
+  width: var(--osp-cr-flash, 30vmax);
+  height: var(--osp-cr-flash, 30vmax);
+  margin: calc(var(--osp-cr-flash, 30vmax) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, var(--c, #fff) 0%, rgba(255, 255, 255, 0.28) 30%, transparent 62%);
   animation: osp-cr-flash calc(0.2s * var(--osp-cr-scale, 1)) ease-out var(--d, 0s);
@@ -101,9 +101,9 @@ canvas.osp-melting {
 }
 /* Neon beams sweeping out to the edges. */
 .osp-cr-ray {
-  width: 150vmax;
-  height: 0.7vmax;
-  margin: -0.35vmax 0 0 0;
+  width: var(--osp-cr-ray-len, 150vmax);
+  height: var(--osp-cr-ray-w, 0.7vmax);
+  margin: calc(var(--osp-cr-ray-w, 0.7vmax) / -2) 0 0 0;
   transform-origin: 0 50%;
   border-radius: 1vmax;
   background: linear-gradient(90deg, #fff 0%, var(--c, #fff) 16%, transparent 72%);
@@ -120,13 +120,13 @@ canvas.osp-melting {
   height: 12vmax;
   margin: -6vmax;
   border-radius: 50%;
-  border: 0.5vmax solid var(--c, #fff);
+  border: var(--osp-cr-ring-w, 0.5vmax) solid var(--c, #fff);
   animation: osp-cr-ring calc(0.28s * var(--osp-cr-scale, 1)) ease-out var(--d, 0s);
 }
 @keyframes osp-cr-ring {
   0% { transform: scale(0.1); opacity: 0; }
   18% { opacity: 0.85; }
-  100% { transform: scale(13); opacity: 0; }
+  100% { transform: scale(var(--osp-cr-ring-x, 13)); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .osp-cr {
@@ -141,7 +141,7 @@ canvas.osp-melting {
   position: absolute;
   inset: 0;
   z-index: 10; /* above the burst children within #osp-creation */
-  background: repeating-linear-gradient(180deg, #fff 0 40px, #000 40px 80px);
+  background: repeating-linear-gradient(180deg, #fff 0 var(--osp-lines-band, 40px), #000 var(--osp-lines-band, 40px) calc(var(--osp-lines-band, 40px) * 2));
   opacity: 0;
   pointer-events: none;
 }
@@ -200,9 +200,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 13vmin;
-  height: 13vmin;
-  margin: -6.5vmin;
+  width: var(--osp-sp-orb, 13vmin);
+  height: var(--osp-sp-orb, 13vmin);
+  margin: calc(var(--osp-sp-orb, 13vmin) / -2);
   border-radius: 50%;
   will-change: transform, opacity;
   animation: osp-orb calc(0.3s * var(--osp-splash-scale, 1)) cubic-bezier(0.55, 0, 0.78, 1) forwards;
@@ -261,9 +261,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 34vmin;
-  height: 34vmin;
-  margin: -17vmin;
+  width: var(--osp-sp-flash, 34vmin);
+  height: var(--osp-sp-flash, 34vmin);
+  margin: calc(var(--osp-sp-flash, 34vmin) / -2);
   border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, #fff1d6 22%, rgba(255, 200, 120, 0.45) 46%, transparent 70%);
   opacity: 0;
@@ -345,7 +345,7 @@ canvas.osp-melting {
     opacity: 0.95;
   }
   100% {
-    transform: scale(7) rotateX(62deg) rotate(var(--rr, 0deg));
+    transform: scale(var(--osp-sp-shock-x, 7)) rotateX(62deg) rotate(var(--rr, 0deg));
     opacity: 0;
   }
 }
@@ -364,7 +364,7 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 58vmin;
+  width: var(--osp-sp-streak, 58vmin);
   height: 0.5vmin;
   margin: -0.25vmin 0 0 0;
   transform-origin: 0 50%;
@@ -414,7 +414,7 @@ canvas.osp-melting {
     opacity: 0.85;
   }
   100% {
-    transform: rotate(var(--a)) translateY(-24vmin) scale(1);
+    transform: rotate(var(--a)) translateY(calc(var(--osp-sp-plume, 24vmin) * -1)) scale(1);
     opacity: 0;
   }
 }
@@ -426,9 +426,9 @@ canvas.osp-melting {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 44vmin;
-  height: 44vmin;
-  margin: -22vmin;
+  width: var(--osp-sp-disk, 44vmin);
+  height: var(--osp-sp-disk, 44vmin);
+  margin: calc(var(--osp-sp-disk, 44vmin) / -2);
   border-radius: 50%;
   border: 0.55vmin solid rgba(255, 201, 130, 0.92);
   box-shadow:

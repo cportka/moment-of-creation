@@ -20,6 +20,18 @@ export interface DialSchema {
   unit: string;
   /** One-line explanation under the slider. */
   hint: string;
+  /** Which part of the animation the dial belongs to — drives grouping + which window
+   *  it targets in the showcase. */
+  scope?: string;
+  /** The default value (carried alongside the schema so dials live in one place). */
+  default?: number;
+}
+
+/** A named tuning — a partial override over an animation's default dials. */
+export interface Preset {
+  id: string;
+  name: string;
+  dials: Record<string, number>;
 }
 
 /** A registered animation — everything the engine, lab and export need, as data. */
@@ -46,4 +58,6 @@ export interface Animation {
    *  overlay as window.__ospMode (e.g. the intro's 'creation' / 'splash' halves, or
    *  'full'). Omit for single-mode animations. */
   mode?: string;
+  /** Named tunings the lab + showcase offer in a preset picker. */
+  presets?: Preset[];
 }

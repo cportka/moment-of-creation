@@ -1,0 +1,12 @@
+[
+  { "id": "original", "name": "Original", "dials": {} },
+  { "id": "supernova", "name": "Supernova", "dials": { "crCoreSize": 14, "crFlashSize": 60, "crRayLength": 260, "crRingExpand": 20, "crBright": 1.5, "spCoreDiameter": 54, "spDiskSize": 64, "spDustCount": 520 } },
+  { "id": "calm", "name": "Calm", "dials": { "creationSpeed": 2, "splashSpeed": 1.8, "initialBlackMs": 900, "spDustSpiral": 0.6, "spDustCount": 200 } },
+  { "id": "neon", "name": "Neon", "dials": { "crHue": 150, "spHue": 170, "crBright": 1.2, "spStreakLength": 80 } },
+  { "id": "minimal", "name": "Minimal", "dials": { "crCoreSize": 4, "crFlashSize": 14, "crRayLength": 70, "crRingExpand": 7, "spOrbSize": 8, "spDiskSize": 24, "spDustCount": 90 } },
+  { "id": "frenetic", "name": "Frenetic", "dials": { "creationSpeed": 0.4, "splashSpeed": 0.5, "initialBlackMs": 150, "splitBlackMs": 30, "creationBeatMs": 150 } },
+  { "id": "singularity", "name": "Singularity", "dials": { "spCoreDiameter": 64, "spDiskSize": 72, "spOrbSize": 18, "spDustSpiral": 1.8, "splashSpeed": 1.2 } },
+  { "id": "embers", "name": "Embers", "dials": { "spDustCount": 240, "spDustSize": 1.8, "spHue": -25, "spPlumeReach": 40, "crHue": -15 } },
+  { "id": "strobe", "name": "Strobe", "dials": { "crRingExpand": 22, "crRingThickness": 1.2, "crFlashSize": 46, "splitBlackMs": 120, "spShockExpand": 12 } },
+  { "id": "cathedral", "name": "Cathedral", "dials": { "creationSpeed": 1.6, "splashSpeed": 1.6, "spDiskSize": 64, "spStreakLength": 84, "splashHoldMs": 1300, "crHue": 160, "spHue": 150 } }
+]

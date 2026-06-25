@@ -68,8 +68,15 @@ interface Animation {
   loopMs?: (dials) => number;              // one play's length, if finite (drives the lab loop)
   background?: string;
   mode?: string;                           // which slice a multi-mode overlay plays (window.__ospMode)
+  presets?: Preset[];                      // named tunings (the lab + showcase offer a picker)
 }
 ```
+
+Dials, their UI schema (`label`/`min`/`max`/`step`/`unit`/`hint`/`scope`) and the presets
+live as **data in one place** — [`src/intro/dials.json`](src/intro/dials.json) and
+[`src/engine/presets.json`](src/engine/presets.json). The overlay mirrors the defaults
+(kept in lockstep by a test), the lab imports them, and the static showcase `fetch`es them —
+so the 29 parameters and 10 presets are declared once.
 
 They're collected in [`src/engine/registry.ts`](src/engine/registry.ts); the lab, the
 export and the tests all read from that one list. The engine plays a **selected**
