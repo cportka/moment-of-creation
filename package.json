@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
+    "export": "node scripts/export-animation.mjs",
     "verify:intro": "node scripts/verify-intro.mjs",
     "capture:creation": "node scripts/capture-creation.mjs",
     "capture:splash": "node scripts/capture-splash.mjs"

@@ -281,5 +281,8 @@
       window.__ospSplash(); // never let the intro break the page
     }
   };
+  // The generic engine entry: the registry + lab play any animation through
+  // window.__ospPlay (the intro keeps __ospIntro; __ospPlay is its alias).
+  window.__ospPlay = window.__ospIntro;
   window.__ospIntro();
 </script>

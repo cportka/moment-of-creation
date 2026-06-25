@@ -14,16 +14,23 @@ Point consumes these exact files, so this directory is the live source — it ne
 > Names are prefixed `osp-` / `__osp` (One Still Point). They're just namespaces; rename
 > them in a fork if you like (one find-and-replace across this directory + `intro.css`).
 
+> **This repo grew past the intro.** It's now a general [animation engine](../../README.md):
+> the intro is one registered animation, and the tuning lab is engine-wide. This file stays
+> the intro unit's spec + integration contract — still current. What moved: the dev lab is
+> now [`../lab.ts`](../lab.ts) (general, driven by each animation's schema), the intro's
+> per-dial schema lives beside its dials as `INTRO_SCHEMA` in
+> [`introTimeline.ts`](introTimeline.ts), and [`intro.ts`](intro.ts) wraps it all as an `Animation`.
+
 ---
 
 ## What's here
 
 | File | What it is |
 | --- | --- |
-| [`overlay.html`](overlay.html) | **The intro itself** — the creation + splash markup and the inline boot script that sequences them (`window.__ospSplash` / `__ospSplashPlay` / `__ospDials` / `__ospIntro`). Designed to be **inlined into your HTML before the bundle** so it paints first. |
+| [`overlay.html`](overlay.html) | **The intro itself** — the creation + splash markup and the inline boot script that sequences them (`window.__ospSplash` / `__ospSplashPlay` / `__ospDials` / `__ospIntro`, plus the generic `__ospPlay` alias). Designed to be **inlined into your HTML before the bundle** so it paints first. |
 | [`intro.css`](intro.css) | All the intro styles (creation burst, splash, Replay melt). Namespaced selectors only; driven by `--osp-*` custom properties. Load it as its own `<link>`. |
-| [`introTimeline.ts`](introTimeline.ts) | The **dials** (`INTRO_DIALS`) and beat metadata — the one source of timing, mirrored by `window.__ospDials` in `overlay.html` (a test keeps them in lockstep). |
-| [`lab.ts`](lab.ts) | The **intro lab** controller — sliders bound live to every dial over a looping preview (see [`../../intro-lab.html`](../../intro-lab.html)). Dev-only. |
+| [`introTimeline.ts`](introTimeline.ts) | The **dials** (`INTRO_DIALS`), their per-dial UI **schema** (`INTRO_SCHEMA`, rendered by the lab) and beat metadata — the one source of timing, mirrored by `window.__ospDials` in `overlay.html` (a test keeps them in lockstep). |
+| [`intro.ts`](intro.ts) | Wraps the intro as a registry **`Animation`** — `overlay.html` + `intro.css` imported `?raw`, joined with `INTRO_DIALS` + `INTRO_SCHEMA`. |
 | [`melt.ts`](melt.ts) | The **Replay melt** — collapses a canvas inward toward the centre, then restores it. Host-agnostic (`meltInward(el, onComplete, opts)`). |
 | `*.test.ts` | Unit tests for the timeline (incl. the inline-sync guard) and the melt. |
 | [`README.md`](README.md) | This file. |

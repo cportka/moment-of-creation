@@ -19,6 +19,8 @@
  *   E · Engine     ~0.6s onward the model settling in   engine/physics rate
  */
 
+import type { DialSchema } from '../engine/types';
+
 /** Frame rate we aim the *intro story* (everything but the live physics model) at —
  *  uncapped, beyond the limit of human flicker detection. Documentation/intent: the
  *  CSS + canvas overlay runs every animation frame, so it's as smooth as the display
@@ -78,3 +80,30 @@ export const MELT_MS = 2000;
  */
 export const SPLASH_COVERS_AT_MS =
   INTRO_DIALS.initialBlackMs + INTRO_DIALS.splitBlackMs + INTRO_DIALS.creationBeatMs + 150;
+
+/**
+ * The intro's per-dial UI schema — the metadata the tuning lab renders sliders from.
+ * Promoted out of the lab (it used to hold a private `META` map) so the intro, like
+ * every animation, *declares its own* schema; the generalized lab reads it from the
+ * registry. Rows render in `INTRO_DIALS` order (also the copy-paste snippet order).
+ */
+export const INTRO_SCHEMA: Record<keyof typeof INTRO_DIALS, DialSchema> = {
+  initialBlackMs: { label: 'Opening black', min: 0, max: 2000, step: 10, unit: 'ms',
+    hint: '(a) how long the screen holds pure black before the test pattern' },
+  splitBlackMs: { label: 'Split black', min: 0, max: 400, step: 5, unit: 'ms',
+    hint: '(b) the deliberate sliver of black after the test pattern' },
+  creationSpeed: { label: 'Creation speed', min: 0.25, max: 4, step: 0.05, unit: '×',
+    hint: '(c) stretch / compress the moment-of-creation burst (1 = as authored)' },
+  splashSpeed: { label: 'Splash speed', min: 0.25, max: 4, step: 0.05, unit: '×',
+    hint: '(d) stretch / compress the splash animation (1 = as authored)' },
+  creationBeatMs: { label: 'Creation beat', min: 0, max: 1200, step: 10, unit: 'ms',
+    hint: 'how long the creation plays as its own beat before the splash' },
+  creationToSplashMs: { label: 'Creation → splash overlap', min: -400, max: 400, step: 5, unit: 'ms',
+    hint: '(e) splash start vs the creation fade — negative = overlap (no black gap)' },
+  creationFadeMs: { label: 'Creation fade', min: 0, max: 800, step: 10, unit: 'ms',
+    hint: '(e) how fast the creation crossfades into the splash' },
+  splashHoldMs: { label: 'Splash hold', min: 0, max: 3000, step: 50, unit: 'ms',
+    hint: '(f) how long the splash holds before the engine is revealed (read by main.ts)' },
+  splashFadeMs: { label: 'Splash fade', min: 0, max: 1500, step: 10, unit: 'ms',
+    hint: '(f) how fast the splash crossfades into the engine' },
+};

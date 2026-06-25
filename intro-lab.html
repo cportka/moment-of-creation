@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <title>Intro Lab · One Still Point</title>
-    <!-- Just the intro stylesheet (no app UI styles needed) — the same one index.html
-         loads, so the overlay animates exactly as it does on the real page. -->
-    <link rel="stylesheet" href="/src/intro/intro.css" />
+    <title>Animation Lab</title>
+    <!-- No build-time overlay marker and no animation stylesheet here: the general lab
+         (src/lab.ts) mounts the selected animation dynamically from the engine registry,
+         injecting that animation's own CSS + overlay (so it can switch between them). -->
     <style>
       /* Lab chrome only — never shipped (intro-lab.html isn't a build input). */
       :root {
@@ -15,7 +15,7 @@
       }
       #osp-lab {
         position: fixed;
-        z-index: 3000; /* above the intro overlay (creation 2100 / splash 2000) */
+        z-index: 3000; /* above the animations (creation 2100 / splash + canvases 2000) */
         top: 0;
         right: 0;
         width: min(360px, 92vw);
@@ -48,6 +48,22 @@
         align-items: center;
         margin: 10px 0 14px;
         flex-wrap: wrap;
+      }
+      .osp-lab__pickerlabel {
+        font-weight: 600;
+        color: #d9dffb;
+      }
+      .osp-lab__select {
+        flex: 1;
+        appearance: none;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 7px;
+        padding: 6px 9px;
+        font: inherit;
+        font-size: 12px;
       }
       .osp-lab__transport {
         position: sticky;
@@ -106,7 +122,7 @@
         padding: 3px 6px;
       }
       .osp-lab__unit {
-        width: 18px;
+        min-width: 18px;
         color: #8b93a6;
         font-size: 11px;
       }
@@ -135,9 +151,8 @@
     </style>
   </head>
   <body>
-    <!-- The real intro overlay (same source as index.html). src/intro/lab.ts loops it
-         and binds the sliders to window.__ospDials. -->
-    <!-- @osp-intro-overlay -->
-    <script type="module" src="/src/intro/lab.ts"></script>
+    <!-- src/lab.ts mounts the selected animation behind the panel and binds the sliders
+         to its window.__ospDials. -->
+    <script type="module" src="/src/lab.ts"></script>
   </body>
 </html>

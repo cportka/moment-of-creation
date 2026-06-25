@@ -48,7 +48,6 @@ describe('inline window.__ospDials mirrors INTRO_DIALS', () => {
   const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
   const overlay = read('./overlay.html');
   const index = read('../../index.html');
-  const lab = read('../../intro-lab.html');
 
   it('defines window.__ospDials', () => {
     expect(overlay).toContain('window.__ospDials = {');
@@ -71,12 +70,12 @@ describe('inline window.__ospDials mirrors INTRO_DIALS', () => {
     expect(overlay).toContain('window.__ospSplashStart = undefined');
   });
 
-  // The overlay is the single source: index.html (shipped) and intro-lab.html (the dev
-  // tuning page) both inline it via the marker the vite plugin replaces — so the lab can
-  // never drift from the real intro.
-  it('inlines the one overlay into index.html and intro-lab.html via the build-time marker', () => {
+  // The shipped page inlines the one overlay via the marker the vite plugin replaces, so
+  // it paints before the bundle. (The dev lab no longer uses the marker — it mounts the
+  // selected animation dynamically from the registry; engine.test.ts guards that the
+  // registry's intro overlay is the very same overlay.html, so it still can't drift.)
+  it('inlines the overlay into index.html via the build-time marker (first paint)', () => {
     expect(index).toContain('<!-- @osp-intro-overlay -->');
-    expect(lab).toContain('<!-- @osp-intro-overlay -->');
   });
 
   // The heavy engine bundle must be deferred behind window.__ospBoot (no eager <script src>),
