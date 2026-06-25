@@ -5,6 +5,8 @@ export interface StandaloneOptions {
   dials?: Record<string, number>;
   /** If set, the export auto-replays every `loopMs` (for finite animations like the intro). */
   loopMs?: number;
+  /** For multi-mode overlays: the slice to play, baked as window.__ospMode before it runs. */
+  mode?: string;
 }
 
 /** Bake dial overrides into an overlay's `window.__ospDials` block. */

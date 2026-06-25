@@ -23,6 +23,9 @@ function resetGlobals(): void {
   window.__ospDials = undefined;
   window.__ospPlay = undefined;
   window.__ospIntro = undefined;
+  window.__ospMode = undefined;
+  window.__ospCreation = undefined;
+  window.__ospSplashOnly = undefined;
   window.__ospBoot = undefined;
   window.__ospBooted = undefined;
   window.__ospSplash = undefined;
@@ -59,6 +62,7 @@ export function mountAnimation(anim: Animation): MountHandle {
   tpl.innerHTML = anim.overlayHtml;
   stage.appendChild(tpl.content);
   document.body.appendChild(stage);
+  window.__ospMode = anim.mode; // the overlay's auto-play reads this to pick its slice
   for (const old of Array.from(stage.querySelectorAll('script'))) {
     const fresh = document.createElement('script');
     for (const attr of Array.from(old.attributes)) fresh.setAttribute(attr.name, attr.value);

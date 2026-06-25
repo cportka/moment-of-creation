@@ -22,6 +22,7 @@ export const intro: Animation = {
   schema: INTRO_SCHEMA,
   overlayHtml,
   css,
+  mode: 'full', // the whole thing — creation burst → binary-merger splash
   loopMs: (d) => d.initialBlackMs + d.splitBlackMs + d.creationBeatMs + ADMIRE_MS,
   background: '#05060a',
 };

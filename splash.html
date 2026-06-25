@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <title>Moment of creation</title>
+    <title>Binary merger</title>
     <style>
 /*
  * The intro stylesheet — the moment of creation, the binary-merger splash, and the
@@ -558,12 +558,12 @@ canvas.osp-melting {
     </style>
   </head>
   <body style="margin: 0; background: #05060a">
-    <!-- Moment of creation — self-contained export from the moment-of-creation engine. The
+    <!-- Binary merger — self-contained export from the moment-of-creation engine. The
          inline script below paints on the first frame; there is no external app, so
          __ospBoot is a no-op. Zero external dependencies. -->
     <script>
       window.__ospBoot = function () {};
-      window.__ospMode = "full";
+      window.__ospMode = "splash";
     </script>
 <!-- THE INTRO OVERLAY — one source of truth (src/intro/overlay.html), inlined into
      index.html and intro-lab.html by the introOverlay() plugin in vite.config.ts, so
@@ -917,7 +917,7 @@ canvas.osp-melting {
 
     <script>
       (function () {
-      window.setInterval(function () { if (window.__ospPlay) window.__ospPlay(); }, 3410);
+      window.setInterval(function () { if (window.__ospPlay) window.__ospPlay(); }, 2600);
       })();
     </script>
   </body>

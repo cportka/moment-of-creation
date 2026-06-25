@@ -7,11 +7,12 @@ import { applyDials, buildStandaloneHtml } from './standalone.js';
 const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
 
 describe('engine registry — animation as data', () => {
-  it('registers the intro plus at least one more, unrelated animation', () => {
+  it('registers the moment of creation as its two halves and the whole', () => {
     const ids = animations.map((a) => a.id);
+    expect(ids).toContain('creation');
+    expect(ids).toContain('splash');
     expect(ids).toContain('intro');
-    expect(ids).toContain('lissajous');
-    expect(ids.length).toBeGreaterThanOrEqual(2);
+    expect(ids.length).toBeGreaterThanOrEqual(3);
     expect(new Set(ids).size).toBe(ids.length); // ids are unique
   });
 
@@ -56,28 +57,34 @@ describe.each(animations.map((a) => [a.id, a] as const))('animation "%s" is self
 });
 
 // The registry uses the animations' real overlay.html / css as the single source of
-// truth (imported ?raw), so the lab, export and shipped page can never drift from them.
-describe('registry overlays are the real source files', () => {
-  it('intro', () => {
-    const intro = byId('intro')!;
-    expect(intro.overlayHtml).toBe(read('../intro/overlay.html'));
-    expect(intro.css).toBe(read('../intro/intro.css'));
-  });
-  it('lissajous', () => {
-    const liss = byId('lissajous')!;
-    expect(liss.overlayHtml).toBe(read('../animations/lissajous/overlay.html'));
-    expect(liss.css).toBe(read('../animations/lissajous/lissajous.css'));
+// truth (imported ?raw), so the lab, export and shipped page can never drift. The three
+// animations are one overlay played in three modes — same file, no duplication.
+describe('registry overlays are the real source files (one overlay, three modes)', () => {
+  const overlay = read('../intro/overlay.html');
+  const introCss = read('../intro/intro.css');
+  for (const a of animations) {
+    it(`${a.id} uses the shared overlay + stylesheet`, () => {
+      expect(a.overlayHtml).toBe(overlay);
+      expect(a.css).toBe(introCss);
+    });
+  }
+  it('the overlay implements every registered mode', () => {
+    expect(overlay).toContain('window.__ospMode');
+    expect(overlay).toContain('__ospCreation');
+    expect(overlay).toContain('__ospSplashOnly');
+    for (const a of animations) expect(['full', 'creation', 'splash']).toContain(a.mode);
   });
 });
 
 describe('single-file export', () => {
   it.each(animations.map((a) => [a.id, a] as const))('packages "%s" as a self-contained .html', (_id, a) => {
-    const html = buildStandaloneHtml(a, { loopMs: a.loopMs?.(a.dials) });
+    const html = buildStandaloneHtml(a, { loopMs: a.loopMs?.(a.dials), mode: a.mode });
     expect(html).toMatch(/^<!doctype html>/i);
     expect(html).toContain('<style>');
     expect(html).toContain(a.css); // CSS inlined verbatim
     expect(html).toContain(a.overlayHtml); // overlay (markup + inline script) inlined
     expect(html).toContain('window.__ospBoot'); // the contract hook is defined
+    if (a.mode) expect(html).toContain(`__ospMode = ${JSON.stringify(a.mode)}`); // slice baked in
     // Zero external dependencies: no stylesheet links, no external scripts. Check the
     // structural markup (drop the inlined <style> + HTML comments, where the word "<link>"
     // legitimately appears in CSS prose) so we test real tags, not inlined text.

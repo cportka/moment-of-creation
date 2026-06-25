@@ -42,4 +42,8 @@ export interface Animation {
   loopMs?: (dials: Record<string, number>) => number;
   /** Page background behind the animation (lab stage + standalone export). */
   background?: string;
+  /** For overlays that can play more than one way: the slice to play, exposed to the
+   *  overlay as window.__ospMode (e.g. the intro's 'creation' / 'splash' halves, or
+   *  'full'). Omit for single-mode animations. */
+  mode?: string;
 }
