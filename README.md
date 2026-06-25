@@ -11,10 +11,11 @@ then generalized so it can play *many* animations, not just that one.
 
 |  | |
 | --- | --- |
-| `npm run dev` | the selected animation at **localhost:5173**, the tuning lab at **/intro-lab.html** |
+| `npm run dev` | the showcase at **localhost:5173**, the first-paint demo at **/demo.html**, the tuning lab at **/intro-lab.html** |
 | `npm test` | unit tests (engine, intro timeline, melt) |
 | `npm run build` | type-check + production bundle |
 | `npm run export -- <id>` | write a self-contained `dist/<id>.html` (omit `<id>` to export all) |
+| `npm run build:pages` | regenerate the showcase's embedded `intro.html` / `lissajous.html` |
 
 ```bash
 npm install
@@ -23,12 +24,14 @@ npm run dev
 
 ## Live showcase (GitHub Pages)
 
-[`docs/`](docs/) is a static, build-free showcase served by GitHub Pages (Settings → Pages
-→ *Deploy from a branch* → `main` / `/docs`): the intro and the Lissajous looping
-**separately and composited together** (the intro screen-blended over the curve), with live
-knob panels for every dial. It embeds the `npm run build:pages` single-file exports as
-same-origin iframes, so the sliders drive the running animations in real time. Regenerate
-the embedded files after changing an animation with `npm run build:pages`.
+The repo **root** is a static, build-free site served by GitHub Pages (*Deploy from a
+branch* → `main` / root): [`index.html`](index.html) is the showcase — the intro and the
+Lissajous looping **separately and composited together** (the intro screen-blended over the
+curve), with live knob panels for every dial. It embeds the single-file exports
+([`intro.html`](intro.html), [`lissajous.html`](lissajous.html)) as same-origin iframes, so
+the sliders drive the running animations in real time. Regenerate the exports after changing
+an animation with `npm run build:pages`. (The Vite first-paint demo lives in
+[`demo.html`](demo.html); it needs a build step, so it isn't the static homepage.)
 
 ## The two animations
 
@@ -120,7 +123,9 @@ and it exports to a self-contained file.
 ## Layout
 
 ```
-index.html                 demo: the intro, inlined for first paint
+index.html                 the GitHub Pages showcase (static; served from root)
+intro.html · lissajous.html  the single-file exports the showcase embeds (npm run build:pages)
+demo.html                  Vite first-paint demo: the intro inlined before the bundle
 intro-lab.html             the general tuning lab (loads src/lab.ts)
 src/
   engine/                  types · registry · mount · standalone export · manifest

@@ -41,13 +41,13 @@ describe('intro dials', () => {
 });
 
 // The inline boot script paints before the bundle, so it can't import this module — it
-// hard-codes the same dials on window.__ospDials. The overlay now lives in one place
-// (src/intro/overlay.html), inlined into index.html + intro-lab.html by the introOverlay()
-// plugin in vite.config.ts. These guards keep the mirror in lockstep and the wiring intact.
+// hard-codes the same dials on window.__ospDials. The overlay lives in one place
+// (src/intro/overlay.html), inlined into the Vite first-paint demo (demo.html) by the
+// introOverlay() plugin. These guards keep the mirror in lockstep and the wiring intact.
 describe('inline window.__ospDials mirrors INTRO_DIALS', () => {
   const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
   const overlay = read('./overlay.html');
-  const index = read('../../index.html');
+  const demo = read('../../demo.html');
 
   it('defines window.__ospDials', () => {
     expect(overlay).toContain('window.__ospDials = {');
@@ -70,19 +70,19 @@ describe('inline window.__ospDials mirrors INTRO_DIALS', () => {
     expect(overlay).toContain('window.__ospSplashStart = undefined');
   });
 
-  // The shipped page inlines the one overlay via the marker the vite plugin replaces, so
-  // it paints before the bundle. (The dev lab no longer uses the marker — it mounts the
-  // selected animation dynamically from the registry; engine.test.ts guards that the
-  // registry's intro overlay is the very same overlay.html, so it still can't drift.)
-  it('inlines the overlay into index.html via the build-time marker (first paint)', () => {
-    expect(index).toContain('<!-- @osp-intro-overlay -->');
+  // The demo inlines the one overlay via the marker the vite plugin replaces, so it paints
+  // before the bundle. (The dev lab no longer uses the marker — it mounts the selected
+  // animation dynamically from the registry; engine.test.ts guards that the registry's
+  // intro overlay is the very same overlay.html, so it still can't drift.)
+  it('inlines the overlay into demo.html via the build-time marker (first paint)', () => {
+    expect(demo).toContain('<!-- @osp-intro-overlay -->');
   });
 
   // The heavy engine bundle must be deferred behind window.__ospBoot (no eager <script src>),
-  // defined in index.html and called from the overlay so its parse runs under the black hold.
+  // defined in demo.html and called from the overlay so its parse runs under the black hold.
   it('defers the engine bundle behind window.__ospBoot (no eager <script src=main>)', () => {
-    expect(index).not.toMatch(/<script[^>]*\bsrc=["'][^"']*main\.ts["']/);
-    expect(index).toContain('window.__ospBoot');
+    expect(demo).not.toMatch(/<script[^>]*\bsrc=["'][^"']*main\.ts["']/);
+    expect(demo).toContain('window.__ospBoot');
     expect(overlay).toMatch(/__ospBoot\(\)/);
   });
 });
@@ -96,10 +96,10 @@ describe('inline window.__ospDials mirrors INTRO_DIALS', () => {
 describe('intro stylesheet (forkable unit)', () => {
   const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
   const introCss = read('./intro.css');
-  const index = read('../../index.html');
+  const demo = read('../../demo.html');
 
-  it('index.html links the intro stylesheet', () => {
-    expect(index).toMatch(/<link[^>]+href="\/src\/intro\/intro\.css"/);
+  it('the demo links the intro stylesheet', () => {
+    expect(demo).toMatch(/<link[^>]+href="\/src\/intro\/intro\.css"/);
   });
 
   it('intro.css owns the creation + splash + Replay-melt styles', () => {

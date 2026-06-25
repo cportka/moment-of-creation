@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>The intro — first-paint demo</title>
+    <link rel="stylesheet" href="/src/intro/intro.css" />
+  </head>
+  <body style="margin: 0; background: #05060a">
+    <!-- @osp-intro-overlay -->
+    <script type="module">
+      // The Vite first-paint demo (run via `npm run dev` / `npm run build`): the overlay
+      // above is inlined at build time so the intro paints before this module parses. This
+      // page needs the build step — the live, build-free site is the showcase in index.html.
+      // We guard on window.__ospDials so a raw/static view degrades instead of throwing.
+      window.__ospBoot = () => {
+        /* import('./your-app.ts') */
+      };
+      const splash = document.getElementById('osp-splash');
+      if (splash && window.__ospDials) {
+        const hold = window.__ospDials.splashHoldMs;
+        (function whenPainted() {
+          const t = window.__ospSplashStart;
+          if (t === undefined) return requestAnimationFrame(whenPainted);
+          setTimeout(() => splash.classList.add('osp-splash--hide'), Math.max(0, t + hold - performance.now()));
+        })();
+      }
+    </script>
+  </body>
+</html>
