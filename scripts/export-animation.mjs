@@ -26,7 +26,7 @@ function exportOne(entry, out) {
   const css = readFileSync(join(ROOT, entry.css), 'utf8');
   const html = buildStandaloneHtml(
     { name: entry.name, css, overlayHtml, background: entry.background },
-    { loopMs: entry.loopMs },
+    { loopMs: entry.loopMs, mode: entry.mode },
   );
   const dest = out || join(ROOT, 'dist', `${entry.id}.html`);
   mkdirSync(dirname(dest), { recursive: true });

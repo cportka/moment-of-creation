@@ -3,6 +3,30 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.2.0
+
+### Changed
+
+- **The showcase now shows the moment of creation's own two halves.** The intro is two
+  animations in sequence — the **creation burst** and the **binary-merger splash**. The
+  engine now registers each half plus the whole as three animations driven from one
+  overlay via `window.__ospMode` (`creation` / `splash` / `full`) — no duplicated markup.
+  The Pages showcase shows the two halves looping separately and the original intro
+  together (three windows), with a knob panel per half whose dials drive the matching
+  windows live.
+
+### Removed
+
+- The **Lissajous** animation (an unrelated "does the engine generalize?" demo). Parked,
+  not gone — see [`IMPROVEMENTS.md`](IMPROVEMENTS.md); the code is in git history.
+
+### Added
+
+- [`IMPROVEMENTS.md`](IMPROVEMENTS.md) — a running, prioritized list of code and
+  architecture improvements from a full pass over the repo.
+- `Animation.mode` + a mode dispatcher in the intro overlay so one overlay can play
+  several ways.
+
 ## 0.1.1
 
 ### Fixed

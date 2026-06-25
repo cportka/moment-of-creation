@@ -1,17 +1,29 @@
 [
   {
+    "id": "creation",
+    "name": "Creation burst",
+    "overlay": "src/intro/overlay.html",
+    "css": "src/intro/intro.css",
+    "mode": "creation",
+    "background": "#05060a",
+    "loopMs": 1970
+  },
+  {
+    "id": "splash",
+    "name": "Binary merger",
+    "overlay": "src/intro/overlay.html",
+    "css": "src/intro/intro.css",
+    "mode": "splash",
+    "background": "#05060a",
+    "loopMs": 2600
+  },
+  {
     "id": "intro",
     "name": "Moment of creation",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
+    "mode": "full",
     "background": "#05060a",
     "loopMs": 3410
-  },
-  {
-    "id": "lissajous",
-    "name": "Lissajous",
-    "overlay": "src/animations/lissajous/overlay.html",
-    "css": "src/animations/lissajous/lissajous.css",
-    "background": "#05060a"
   }
 ]

@@ -1,6 +1,6 @@
 {
   "name": "intro",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "export": "node scripts/export-animation.mjs",
-    "build:pages": "node scripts/export-animation.mjs intro intro.html && node scripts/export-animation.mjs lissajous lissajous.html",
+    "build:pages": "node scripts/export-animation.mjs creation creation.html && node scripts/export-animation.mjs splash splash.html && node scripts/export-animation.mjs intro intro.html",
     "verify:intro": "node scripts/verify-intro.mjs",
     "capture:creation": "node scripts/capture-creation.mjs",
     "capture:splash": "node scripts/capture-splash.mjs"

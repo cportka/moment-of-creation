@@ -281,8 +281,69 @@
       window.__ospSplash(); // never let the intro break the page
     }
   };
-  // The generic engine entry: the registry + lab play any animation through
-  // window.__ospPlay (the intro keeps __ospIntro; __ospPlay is its alias).
-  window.__ospPlay = window.__ospIntro;
-  window.__ospIntro();
+
+  // ===== The two halves of the moment of creation, playable on their own ===========
+  // The intro is two animations in sequence — the creation burst and the binary-merger
+  // splash. These play either half alone (selected by window.__ospMode); 'full' (the
+  // default, __ospIntro above) is the whole thing. Same markup + intro.css throughout.
+
+  // Just the moment-of-creation burst: black hold → test pattern → burst, splash hidden.
+  window.__ospCreation = function () {
+    var D = window.__ospDials;
+    try {
+      var cr = document.getElementById('osp-creation');
+      var splash = document.getElementById('osp-splash');
+      var lines = cr && cr.querySelector('.osp-lines');
+      if (splash) splash.style.display = 'none';
+      if (!cr) return;
+      cr.style.display = '';
+      cr.className = 'osp-creation';
+      cr.style.setProperty('--osp-cr-scale', D.creationSpeed);
+      var crs = cr.getElementsByClassName('osp-cr');
+      for (var ci = 0; ci < crs.length; ci++) crs[ci].style.animation = 'none';
+      void cr.offsetWidth; // reflow so the burst restarts on replay (see __ospIntro)
+      for (var cj = 0; cj < crs.length; cj++) crs[cj].style.animation = '';
+      if (lines) lines.className = 'osp-lines';
+      requestAnimationFrame(function () {
+        window.setTimeout(function () {
+          if (lines) lines.classList.add('osp-lines--on');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              if (lines) lines.classList.remove('osp-lines--on');
+              window.setTimeout(function () { cr.classList.add('osp-creation--go'); }, D.splitBlackMs);
+            });
+          });
+        }, D.initialBlackMs);
+      });
+    } catch (e) {
+      /* the burst is non-essential — never let it break the page */
+    }
+  };
+
+  // Just the binary-merger splash: creation hidden, build + play the merger.
+  window.__ospSplashOnly = function () {
+    var D = window.__ospDials;
+    try {
+      var cr = document.getElementById('osp-creation');
+      var splash = document.getElementById('osp-splash');
+      if (cr) cr.style.display = 'none';
+      if (splash) {
+        splash.style.display = '';
+        splash.style.setProperty('--osp-splash-scale', D.splashSpeed);
+      }
+      window.__ospSplash(); // build + play
+    } catch (e) {
+      window.__ospSplash();
+    }
+  };
+
+  // The generic engine entry: play the whole intro, or one half, per window.__ospMode
+  // (set by the registry/lab/export). Default 'full' is the original moment of creation.
+  window.__ospPlay = function () {
+    var mode = window.__ospMode || 'full';
+    if (mode === 'creation') return window.__ospCreation();
+    if (mode === 'splash') return window.__ospSplashOnly();
+    return window.__ospIntro();
+  };
+  window.__ospPlay();
 </script>

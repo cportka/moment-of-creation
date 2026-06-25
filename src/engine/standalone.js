@@ -25,12 +25,14 @@ export function applyDials(overlayHtml, dials) {
 
 /**
  * @param {{ name: string, css: string, overlayHtml: string, background?: string }} anim
- * @param {{ dials?: Record<string, number>, loopMs?: number }} [opts]
+ * @param {{ dials?: Record<string, number>, loopMs?: number, mode?: string }} [opts]
  * @returns {string} a complete, self-contained HTML document
  */
 export function buildStandaloneHtml(anim, opts = {}) {
   const overlay = applyDials(anim.overlayHtml, opts.dials);
   const bg = anim.background || '#05060a';
+  // Pick the overlay slice before it auto-plays (multi-mode overlays read window.__ospMode).
+  const modeLine = opts.mode ? `\n      window.__ospMode = ${JSON.stringify(opts.mode)};` : '';
   const loop =
     opts.loopMs && opts.loopMs > 0
       ? `\n      window.setInterval(function () { if (window.__ospPlay) window.__ospPlay(); }, ${Math.round(opts.loopMs)});`
@@ -52,7 +54,7 @@ ${anim.css}
          inline script below paints on the first frame; there is no external app, so
          __ospBoot is a no-op. Zero external dependencies. -->
     <script>
-      window.__ospBoot = function () {};
+      window.__ospBoot = function () {};${modeLine}
     </script>
 ${overlay}${tail}
   </body>

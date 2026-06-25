@@ -4,10 +4,13 @@ A small engine for **first-paint web animations**: each animation paints on the 
 first frame (before any bundle parses), can be tuned live in a general lab, and can be
 exported as **one self-contained `.html`** with zero external dependencies.
 
+### ▶ Live showcase — https://cportka.github.io/moment-of-creation/
+
 It grew out of the load **intro** of [One Still Point](https://onestillpoint.app) — a
 black hold, a one-frame test pattern, a pure-CSS *moment of creation* burst, and a
 colourful binary-merger splash — which was lifted into this repo (history intact) and
-then generalized so it can play *many* animations, not just that one.
+generalized into an engine. The intro is itself **two animations** — the creation burst
+and the binary-merger splash — which the engine can play apart or together.
 
 |  | |
 | --- | --- |
@@ -15,7 +18,7 @@ then generalized so it can play *many* animations, not just that one.
 | `npm test` | unit tests (engine, intro timeline, melt) |
 | `npm run build` | type-check + production bundle |
 | `npm run export -- <id>` | write a self-contained `dist/<id>.html` (omit `<id>` to export all) |
-| `npm run build:pages` | regenerate the showcase's embedded `intro.html` / `lissajous.html` |
+| `npm run build:pages` | regenerate the showcase's embedded `creation.html` / `splash.html` / `intro.html` |
 
 ```bash
 npm install
@@ -24,21 +27,30 @@ npm run dev
 
 ## Live showcase (GitHub Pages)
 
-The repo **root** is a static, build-free site served by GitHub Pages (*Deploy from a
-branch* → `main` / root): [`index.html`](index.html) is the showcase — the intro and the
-Lissajous looping **separately and composited together** (the intro screen-blended over the
-curve), with live knob panels for every dial. It embeds the single-file exports
-([`intro.html`](intro.html), [`lissajous.html`](lissajous.html)) as same-origin iframes, so
-the sliders drive the running animations in real time. Regenerate the exports after changing
-an animation with `npm run build:pages`. (The Vite first-paint demo lives in
-[`demo.html`](demo.html); it needs a build step, so it isn't the static homepage.)
+**https://cportka.github.io/moment-of-creation/** — the repo **root** is a static,
+build-free site served by GitHub Pages (*Deploy from a branch* → `main` / root).
+[`index.html`](index.html) shows the moment of creation's two halves — the **creation
+burst** and the **binary-merger splash** — looping on their own, and **together** as the
+original intro (three windows), with live knob panels for every dial. It embeds the
+single-file exports ([`creation.html`](creation.html), [`splash.html`](splash.html),
+[`intro.html`](intro.html)) as same-origin iframes, so the sliders drive the running
+animations in real time. Regenerate the exports with `npm run build:pages`. (The Vite
+first-paint demo lives in [`demo.html`](demo.html); it needs a build step, so it isn't the
+static homepage.)
 
-## The two animations
+## The animations
 
-| id | what it is |
-| --- | --- |
-| `intro` | the **moment of creation** — black hold → 1-frame test pattern → CSS firework burst → binary-merger splash, then a crossfade hand-off and a melt-inward Replay. Its own unit lives in [`src/intro/`](src/intro/README.md). |
-| `lissajous` | a glowing **Lissajous curve** on a canvas — deliberately unrelated to the intro. It shares the engine and *nothing else*: its own overlay, CSS and dials. It's the proof the abstraction generalizes. |
+The moment of creation is two animations in sequence; the engine registers each half and
+the whole — one overlay ([`src/intro/overlay.html`](src/intro/overlay.html)) played in
+three **modes** (selected by `window.__ospMode`):
+
+| id | mode | what it is |
+| --- | --- | --- |
+| `creation` | `creation` | the **creation burst** — black hold → 1-frame test pattern → pure-CSS firework burst. |
+| `splash` | `splash` | the **binary-merger splash** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field). |
+| `intro` | `full` | the whole **moment of creation** — both halves in sequence, the crossfade hand-off, and the melt-inward Replay. |
+
+The intro unit has its own [README](src/intro/README.md).
 
 ## The idea — an animation is data
 
@@ -55,6 +67,7 @@ interface Animation {
   css: string;                             // the stylesheet (imported ?raw)
   loopMs?: (dials) => number;              // one play's length, if finite (drives the lab loop)
   background?: string;
+  mode?: string;                           // which slice a multi-mode overlay plays (window.__ospMode)
 }
 ```
 
@@ -78,8 +91,9 @@ a handful of `window.__osp*` globals:
 
 Keep the inline script inline. Converting it to an imported module loses the
 first-paint guarantee that makes the intro (and the single-file export) work. The intro
-adds a few more globals (`__ospSplash*`, `__ospSplashStart`) — see
-[`src/intro/README.md`](src/intro/README.md) for its full contract and reveal/Replay wiring.
+adds a few more globals (`__ospSplash*`, `__ospSplashStart`, and `__ospMode` to pick which
+half to play) — see [`src/intro/README.md`](src/intro/README.md) for its full contract and
+reveal/Replay wiring.
 
 ## The lab
 
@@ -95,7 +109,7 @@ paints + plays).
 
 ```bash
 npm run export -- intro        # → dist/intro.html
-npm run export -- lissajous    # → dist/lissajous.html
+npm run export -- creation     # → dist/creation.html
 npm run export                 # all registered animations
 ```
 
@@ -107,30 +121,35 @@ button and the CLI use the **same** assembly ([`src/engine/standalone.js`](src/e
 
 ## Add an animation
 
+A new **standalone** animation:
+
 1. Make `src/animations/<id>/overlay.html` — first-paint markup + an inline `<script>`
-   that defines `window.__ospDials`, defines `window.__ospPlay()`, calls `window.__ospBoot`
-   once, and paints frame 0 synchronously. (Copy `src/animations/lissajous/overlay.html`.)
+   that defines `window.__ospDials` and `window.__ospPlay()`, calls `window.__ospBoot`
+   once, and paints frame 0 synchronously.
 2. Make its `.css` (namespaced; opaque background so it paints first).
 3. Make `<id>.ts` exporting an `Animation` (import `overlay.html?raw` + the css `?raw`,
    declare `dials` + `schema`).
-4. Register it in `src/engine/registry.ts`, and add it to
-   `src/engine/manifest.json` (the Node export CLI reads that JSON).
+4. Register it in [`src/engine/registry.ts`](src/engine/registry.ts) and add it to
+   [`src/engine/manifest.json`](src/engine/manifest.json) (the Node export CLI reads that JSON).
 
-A test in [`src/engine/engine.test.ts`](src/engine/engine.test.ts) then checks it for
-free: schema covers its dials, the overlay defines the contract and mirrors the dials,
+A new **mode** of an existing overlay (how `creation` / `splash` share the intro): have the
+overlay's boot script branch on `window.__ospMode`, then register an `Animation` with that
+`mode` (see [`src/intro/creation.ts`](src/intro/creation.ts)).
+
+Either way, a test in [`src/engine/engine.test.ts`](src/engine/engine.test.ts) then checks it
+for free: schema covers its dials, the overlay defines the contract and mirrors the dials,
 and it exports to a self-contained file.
 
 ## Layout
 
 ```
 index.html                 the GitHub Pages showcase (static; served from root)
-intro.html · lissajous.html  the single-file exports the showcase embeds (npm run build:pages)
+creation.html · splash.html · intro.html   single-file exports the showcase embeds (npm run build:pages)
 demo.html                  Vite first-paint demo: the intro inlined before the bundle
 intro-lab.html             the general tuning lab (loads src/lab.ts)
 src/
   engine/                  types · registry · mount · standalone export · manifest
-  intro/                   the moment-of-creation intro (its own README) + intro.ts wrapper
-  animations/lissajous/    the second animation
+  intro/                   the intro overlay + intro.ts / creation.ts / splash.ts (its three modes)
   lab.ts                   the general lab
 scripts/                   export-animation.mjs · verify-intro.mjs · capture-*.mjs
 docs/intro-script.md       the intro's beat-by-beat storyboard

@@ -31,6 +31,7 @@ Point consumes these exact files, so this directory is the live source — it ne
 | [`intro.css`](intro.css) | All the intro styles (creation burst, splash, Replay melt). Namespaced selectors only; driven by `--osp-*` custom properties. Load it as its own `<link>`. |
 | [`introTimeline.ts`](introTimeline.ts) | The **dials** (`INTRO_DIALS`), their per-dial UI **schema** (`INTRO_SCHEMA`, rendered by the lab) and beat metadata — the one source of timing, mirrored by `window.__ospDials` in `overlay.html` (a test keeps them in lockstep). |
 | [`intro.ts`](intro.ts) | Wraps the intro as a registry **`Animation`** — `overlay.html` + `intro.css` imported `?raw`, joined with `INTRO_DIALS` + `INTRO_SCHEMA`. |
+| [`creation.ts`](creation.ts) · [`splash.ts`](splash.ts) | The intro's **two halves** as their own `Animation`s — the same `overlay.html` + `intro.css`, with `mode: 'creation'` / `'splash'` so the overlay's boot script plays just that slice (`window.__ospMode`). |
 | [`melt.ts`](melt.ts) | The **Replay melt** — collapses a canvas inward toward the centre, then restores it. Host-agnostic (`meltInward(el, onComplete, opts)`). |
 | `*.test.ts` | Unit tests for the timeline (incl. the inline-sync guard) and the melt. |
 | [`README.md`](README.md) | This file. |

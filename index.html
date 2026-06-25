@@ -7,7 +7,7 @@
     <title>moment of creation — animation engine</title>
     <meta
       name="description"
-      content="A first-paint animation engine: tune the moment-of-creation intro and a Lissajous curve live, separately and together."
+      content="The moment of creation, as an engine: its two halves — the creation burst and the binary-merger splash — looping separately, and together as the original intro. Tune every parameter live."
     />
     <style>
       :root {
@@ -50,14 +50,14 @@
       header p {
         margin: 8px 0 0;
         color: var(--muted);
-        max-width: 70ch;
+        max-width: 72ch;
       }
       main {
         max-width: 1180px;
         margin: 0 auto;
         padding: 14px 22px 60px;
       }
-      /* --- the three animation windows --- */
+      /* --- the three windows: the two halves + the whole --- */
       .stage {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -91,6 +91,9 @@
         letter-spacing: 0;
         font-size: 11px;
       }
+      .window.whole figcaption {
+        color: #ffe6c2;
+      }
       .frame {
         position: relative;
         aspect-ratio: 1 / 1;
@@ -99,6 +102,9 @@
         background: var(--bg);
         border: 1px solid var(--line);
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      }
+      .window.whole .frame {
+        border-color: rgba(255, 200, 130, 0.32);
       }
       .frame iframe {
         position: absolute;
@@ -109,15 +115,7 @@
         display: block;
         background: transparent;
       }
-      /* the composite window: the intro is screened over the Lissajous, so the near-black
-         intro background drops out and only its bright bursts bloom over the curve. */
-      .frame.together {
-        isolation: isolate;
-      }
-      .frame.together .blend {
-        mix-blend-mode: screen;
-      }
-      /* --- knob panels --- */
+      /* --- knob panels (one per half; their dials also drive the whole) --- */
       .knobs {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -141,7 +139,7 @@
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        margin-bottom: 12px;
+        margin-bottom: 4px;
       }
       .panel h2 {
         margin: 0;
@@ -163,6 +161,11 @@
       .panel .reset:hover {
         background: rgba(255, 255, 255, 0.13);
       }
+      .panel .lead {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 11px;
+      }
       .dial {
         margin: 0 0 12px;
       }
@@ -176,6 +179,12 @@
         font-weight: 600;
         color: #d9dffb;
         font-size: 13px;
+      }
+      .dial.whole-only .row label::after {
+        content: ' · together';
+        color: #8b93a6;
+        font-weight: 400;
+        font-size: 10px;
       }
       .dial .row input[type='number'] {
         width: 72px;
@@ -223,133 +232,122 @@
     <header>
       <h1>moment of creation <span class="dim">· animation engine</span></h1>
       <p>
-        Each animation paints on the first frame, tunes live, and exports to one self-contained file. Below: the
-        <strong>moment-of-creation</strong> intro and a <strong>Lissajous</strong> curve, looping separately and
-        composited <em>together</em>. Turn the knobs — the windows update in real time.
-        <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
+        The intro is two animations in sequence — a pure-CSS <strong>creation burst</strong> and a
+        <strong>binary-merger splash</strong>. Here they loop on their own, and <em>together</em> as the original
+        moment of creation. Each runs as a separate engine animation off one overlay; turn the knobs and every window
+        updates live. <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
       </p>
     </header>
 
     <main>
       <section class="stage">
         <figure class="window">
-          <figcaption>Moment of creation <span>looping</span></figcaption>
-          <div class="frame"><iframe id="introA" src="intro.html" title="Moment of creation" scrolling="no"></iframe></div>
+          <figcaption>Creation burst <span>half · looping</span></figcaption>
+          <div class="frame"><iframe id="creation" src="creation.html" title="Creation burst" scrolling="no"></iframe></div>
         </figure>
         <figure class="window">
-          <figcaption>Lissajous <span>looping</span></figcaption>
-          <div class="frame"><iframe id="lissB" src="lissajous.html" title="Lissajous" scrolling="no"></iframe></div>
+          <figcaption>Binary merger <span>half · looping</span></figcaption>
+          <div class="frame"><iframe id="splash" src="splash.html" title="Binary merger" scrolling="no"></iframe></div>
         </figure>
-        <figure class="window">
-          <figcaption>Together <span>screen blend</span></figcaption>
-          <div class="frame together">
-            <iframe id="lissC" src="lissajous.html" title="Lissajous (composite)" scrolling="no"></iframe>
-            <iframe id="introC" class="blend" src="intro.html" title="Intro (composite)" scrolling="no"></iframe>
-          </div>
+        <figure class="window whole">
+          <figcaption>Moment of creation <span>the two together</span></figcaption>
+          <div class="frame"><iframe id="intro" src="intro.html" title="Moment of creation (full)" scrolling="no"></iframe></div>
         </figure>
       </section>
 
       <section class="knobs">
-        <div class="panel" id="panel-intro"></div>
-        <div class="panel" id="panel-lissajous"></div>
+        <div class="panel" id="panel-creation"></div>
+        <div class="panel" id="panel-splash"></div>
       </section>
     </main>
 
     <footer>
-      Built with the engine in this repo — the same overlays power these windows and the
-      <code>npm run export</code> single-file outputs. The intro applies a knob change on its next loop; the Lissajous
-      updates every frame.
+      The two halves and the whole are one overlay played in three modes (<code>creation</code> / <code>splash</code> /
+      <code>full</code>) — the same source the <code>npm run export</code> single files use. A knob marked “together”
+      only shapes how the halves combine, so it drives the full window. Built with the engine in this repo.
     </footer>
 
     <script>
-      // Per-animation dial schema — mirrors the engine registry (INTRO_SCHEMA in
-      // src/intro/introTimeline.ts and the schema in src/animations/lissajous/lissajous.ts).
-      // `value` is the default the standalone export ships with.
-      const SCHEMAS = {
-        intro: {
-          title: 'Moment of creation',
-          frames: ['introA', 'introC'],
-          replay: true, // the intro is finite — re-play it so a tweak previews quickly
+      // Knob groups — the two halves of the moment of creation. Each dial lists which
+      // window(s) it drives: a half + the whole, or (for the sequencing dials) just the
+      // whole. Defaults mirror the engine registry (INTRO_DIALS).
+      // [key, label, min, max, step, unit, default, hint, targets]
+      const PANELS = [
+        {
+          id: 'creation',
+          title: 'Creation burst',
+          lead: 'Drives the creation window and the creation half of the full intro.',
           dials: [
-            ['initialBlackMs', 'Opening black', 0, 2000, 10, 'ms', 500, '(a) black hold before the test pattern'],
-            ['splitBlackMs', 'Split black', 0, 400, 5, 'ms', 70, '(b) sliver of black after the test pattern'],
-            ['creationSpeed', 'Creation speed', 0.25, 4, 0.05, '×', 1, '(c) stretch/compress the creation burst'],
-            ['splashSpeed', 'Splash speed', 0.25, 4, 0.05, '×', 1, '(d) stretch/compress the splash'],
-            ['creationBeatMs', 'Creation beat', 0, 1200, 10, 'ms', 240, 'how long the creation plays before the splash'],
-            ['creationToSplashMs', 'Creation → splash', -400, 400, 5, 'ms', -80, '(e) overlap — negative = no black gap'],
-            ['creationFadeMs', 'Creation fade', 0, 800, 10, 'ms', 120, '(e) creation→splash crossfade speed'],
-            ['splashHoldMs', 'Splash hold', 0, 3000, 50, 'ms', 600, '(f) how long the splash holds'],
-            ['splashFadeMs', 'Splash fade', 0, 1500, 10, 'ms', 450, '(f) splash→engine crossfade speed'],
+            ['initialBlackMs', 'Opening black', 0, 2000, 10, 'ms', 500, 'black hold before the test pattern', ['creation', 'intro']],
+            ['splitBlackMs', 'Split black', 0, 400, 5, 'ms', 70, 'sliver of black after the test pattern', ['creation', 'intro']],
+            ['creationSpeed', 'Creation speed', 0.25, 4, 0.05, '×', 1, 'stretch / compress the burst (1 = as authored)', ['creation', 'intro']],
+            ['creationBeatMs', 'Creation beat', 0, 1200, 10, 'ms', 240, 'how long the burst plays before the splash', ['intro']],
+            ['creationToSplashMs', 'Creation → splash', -400, 400, 5, 'ms', -80, 'overlap — negative = no black gap', ['intro']],
+            ['creationFadeMs', 'Creation fade', 0, 800, 10, 'ms', 120, 'creation → splash crossfade speed', ['intro']],
           ],
         },
-        lissajous: {
-          title: 'Lissajous',
-          frames: ['lissB', 'lissC'],
-          replay: false, // continuous — it reads the dials every frame
+        {
+          id: 'splash',
+          title: 'Binary merger',
+          lead: 'Drives the merger window and the splash half of the full intro.',
           dials: [
-            ['freqX', 'Frequency X', 1, 12, 1, '', 3, 'horizontal frequency — lobes across'],
-            ['freqY', 'Frequency Y', 1, 12, 1, '', 2, 'vertical frequency — lobes down'],
-            ['phase', 'Phase', 0, 360, 1, '°', 90, 'phase offset between the X and Y waves'],
-            ['spin', 'Spin', 0, 90, 1, '°/s', 6, 'how fast the phase drifts — keeps it alive'],
-            ['speed', 'Speed', 0, 4, 0.05, '×', 1, 'overall time multiplier (0 = frozen)'],
-            ['trail', 'Trail', 0, 100, 1, '%', 90, 'motion-trail persistence (100 = never fades)'],
-            ['points', 'Points', 50, 4000, 10, '', 900, 'samples along the curve (smoothness)'],
-            ['width', 'Line width', 0.5, 8, 0.5, 'px', 2.5, 'stroke width'],
-            ['hue', 'Hue', 0, 360, 1, '°', 190, 'base colour; drifts over time'],
+            ['splashSpeed', 'Splash speed', 0.25, 4, 0.05, '×', 1, 'stretch / compress the merger (1 = as authored)', ['splash', 'intro']],
+            ['splashHoldMs', 'Splash hold', 0, 3000, 50, 'ms', 600, 'how long the splash holds before the reveal', ['intro']],
+            ['splashFadeMs', 'Splash fade', 0, 1500, 10, 'ms', 450, 'splash → reveal crossfade speed', ['intro']],
           ],
         },
-      };
+      ];
 
       const $ = (id) => document.getElementById(id);
-      const framesOf = (anim) => SCHEMAS[anim].frames.map($).filter(Boolean);
 
-      // Write a dial to every iframe running this animation. Same-origin, so we reach
-      // into each frame's window.__ospDials directly.
-      function setDial(anim, key, value) {
-        for (const frame of framesOf(anim)) {
+      // Write one dial into each target window's live window.__ospDials (same-origin).
+      function setDial(key, value, targets) {
+        for (const id of targets) {
+          const frame = $(id);
           try {
-            const dials = frame.contentWindow && frame.contentWindow.__ospDials;
+            const dials = frame && frame.contentWindow && frame.contentWindow.__ospDials;
             if (dials) dials[key] = value;
           } catch (e) {
-            /* frame not ready yet */
+            /* frame not ready */
           }
+          pokeReplay(id);
         }
-        if (SCHEMAS[anim].replay) pokeReplay(anim);
       }
 
-      // Push the whole current dial set into a frame (on load, so it matches the sliders).
-      function syncFrame(anim, frame) {
-        for (const [key] of SCHEMAS[anim].dials) {
-          const input = document.querySelector(`[data-anim="${anim}"][data-key="${key}"]`);
-          if (!input) continue;
+      // Debounced replay per window so a tweak previews quickly (each is a looping animation
+      // that reads its dials at the start of every play).
+      const replayTimers = {};
+      function pokeReplay(id) {
+        clearTimeout(replayTimers[id]);
+        replayTimers[id] = setTimeout(() => {
+          const frame = $(id);
           try {
-            const dials = frame.contentWindow && frame.contentWindow.__ospDials;
-            if (dials) dials[key] = Number(input.value);
+            frame && frame.contentWindow && frame.contentWindow.__ospPlay && frame.contentWindow.__ospPlay();
           } catch (e) {
             /* not ready */
-          }
-        }
-      }
-
-      // Debounced replay so a finite animation (the intro) previews a change quickly
-      // rather than waiting for its next natural loop.
-      const replayTimers = {};
-      function pokeReplay(anim) {
-        clearTimeout(replayTimers[anim]);
-        replayTimers[anim] = setTimeout(() => {
-          for (const frame of framesOf(anim)) {
-            try {
-              frame.contentWindow && frame.contentWindow.__ospPlay && frame.contentWindow.__ospPlay();
-            } catch (e) {
-              /* not ready */
-            }
           }
         }, 450);
       }
 
-      function buildPanel(anim) {
-        const spec = SCHEMAS[anim];
-        const panel = $('panel-' + anim);
+      // On load, push the current slider values into a freshly-loaded window.
+      function syncFrame(id) {
+        for (const panel of PANELS) {
+          for (const [key, , , , , , , , targets] of panel.dials) {
+            if (!targets.includes(id)) continue;
+            const input = document.querySelector(`[data-key="${key}"]`);
+            if (!input) continue;
+            try {
+              const dials = $(id).contentWindow && $(id).contentWindow.__ospDials;
+              if (dials) dials[key] = Number(input.value);
+            } catch (e) {
+              /* not ready */
+            }
+          }
+        }
+      }
+
+      function buildPanel(spec) {
+        const panel = $('panel-' + spec.id);
         const head = document.createElement('header');
         const h2 = document.createElement('h2');
         h2.textContent = spec.title;
@@ -359,11 +357,15 @@
         reset.textContent = 'Reset';
         head.append(h2, reset);
         panel.append(head);
+        const lead = document.createElement('p');
+        lead.className = 'lead';
+        lead.textContent = spec.lead;
+        panel.append(lead);
 
-        const inputs = [];
-        for (const [key, label, min, max, step, unit, def, hint] of spec.dials) {
+        const rows = [];
+        for (const [key, label, min, max, step, unit, def, hint, targets] of spec.dials) {
           const dial = document.createElement('div');
-          dial.className = 'dial';
+          dial.className = 'dial' + (targets.length === 1 && targets[0] === 'intro' ? ' whole-only' : '');
 
           const row = document.createElement('div');
           row.className = 'row';
@@ -375,7 +377,6 @@
           num.max = max;
           num.step = step;
           num.value = def;
-          num.dataset.anim = anim;
           num.dataset.key = key;
           const u = document.createElement('span');
           u.className = 'unit';
@@ -401,29 +402,26 @@
             if (!Number.isFinite(v)) return;
             num.value = raw;
             range.value = raw;
-            setDial(anim, key, v);
+            setDial(key, v, targets);
           };
           range.addEventListener('input', () => apply(range.value));
           num.addEventListener('input', () => apply(num.value));
-          inputs.push({ key, def, num, range });
+          rows.push({ key, def, num, range, targets });
         }
 
         reset.addEventListener('click', () => {
-          for (const { key, def, num, range } of inputs) {
+          for (const { key, def, num, range, targets } of rows) {
             num.value = def;
             range.value = def;
-            setDial(anim, key, def);
+            setDial(key, def, targets);
           }
         });
       }
 
-      for (const anim of Object.keys(SCHEMAS)) {
-        buildPanel(anim);
-        // When each iframe finishes loading, push the current slider values into it.
-        for (const id of SCHEMAS[anim].frames) {
-          const frame = $(id);
-          if (frame) frame.addEventListener('load', () => syncFrame(anim, frame));
-        }
+      for (const spec of PANELS) buildPanel(spec);
+      for (const id of ['creation', 'splash', 'intro']) {
+        const frame = $(id);
+        if (frame) frame.addEventListener('load', () => syncFrame(id));
       }
     </script>
   </body>
