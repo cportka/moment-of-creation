@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>The intro</title>
+    <link rel="stylesheet" href="/src/intro/intro.css" />
+  </head>
+  <body style="margin: 0; background: #05060a">
+    <!-- @osp-intro-overlay -->
+    <script type="module">
+      // Where your real app would load. Here we just reveal a placeholder once the
+      // splash has played its minimum time, to show the full handoff.
+      window.__ospBoot = () => {
+        /* import('./your-app.ts') */
+      };
+      const splash = document.getElementById('osp-splash');
+      const hold = window.__ospDials.splashHoldMs;
+      (function whenPainted() {
+        const t = window.__ospSplashStart;
+        if (t === undefined) return requestAnimationFrame(whenPainted);
+        setTimeout(() => splash.classList.add('osp-splash--hide'), Math.max(0, t + hold - performance.now()));
+      })();
+    </script>
+  </body>
+</html>
