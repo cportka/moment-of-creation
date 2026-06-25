@@ -36,9 +36,11 @@ export function buildStandaloneHtml(anim, opts = {}) {
   const bg = anim.background || '#05060a';
   // Pick the overlay slice before it auto-plays (multi-mode overlays read window.__ospMode).
   const modeLine = opts.mode ? `\n      window.__ospMode = ${JSON.stringify(opts.mode)};` : '';
+  // Store the loop handle on window.__ospLoop so a host (the showcase) can clearInterval
+  // it and conduct the window itself (swap order / continue-the-chain sequences).
   const loop =
     opts.loopMs && opts.loopMs > 0
-      ? `\n      window.setInterval(function () { if (window.__ospPlay) window.__ospPlay(); }, ${Math.round(opts.loopMs)});`
+      ? `\n      window.__ospLoop = window.setInterval(function () { if (window.__ospPlay) window.__ospPlay(); }, ${Math.round(opts.loopMs)});`
       : '';
   const tail = loop ? `\n    <script>\n      (function () {${loop}\n      })();\n    </script>` : '';
   return `<!doctype html>

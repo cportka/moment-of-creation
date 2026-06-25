@@ -3,8 +3,8 @@
  * Export an animation as one self-contained `.html` — inline CSS, inline overlay script,
  * canvas, zero external dependencies:
  *
- *     npm run export -- intro            # → dist/intro.html
- *     npm run export -- lissajous out.html
+ *     npm run export -- moment           # → dist/moment.html
+ *     npm run export -- burst out.html
  *     npm run export                     # all registered animations → dist/<id>.html
  *
  * It reads src/engine/manifest.json (the Node-readable index of animations) and uses the

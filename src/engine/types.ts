@@ -55,8 +55,8 @@ export interface Animation {
   /** Page background behind the animation (lab stage + standalone export). */
   background?: string;
   /** For overlays that can play more than one way: the slice to play, exposed to the
-   *  overlay as window.__ospMode (e.g. the intro's 'creation' / 'splash' halves, or
-   *  'full'). Omit for single-mode animations. */
+   *  overlay as window.__ospMode (e.g. the Moment's 'burst' / 'merger' halves, or
+   *  'moment'). Omit for single-mode animations. */
   mode?: string;
   /** Named tunings the lab + showcase offer in a preset picker. */
   presets?: Preset[];

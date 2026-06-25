@@ -7,11 +7,11 @@ import { applyDials, buildStandaloneHtml } from './standalone.js';
 const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
 
 describe('engine registry — animation as data', () => {
-  it('registers the moment of creation as its two halves and the whole', () => {
+  it('registers the two animations the toolkit combines (Burst, Merger) and the Moment', () => {
     const ids = animations.map((a) => a.id);
-    expect(ids).toContain('creation');
-    expect(ids).toContain('splash');
-    expect(ids).toContain('intro');
+    expect(ids).toContain('burst');
+    expect(ids).toContain('merger');
+    expect(ids).toContain('moment');
     expect(ids.length).toBeGreaterThanOrEqual(3);
     expect(new Set(ids).size).toBe(ids.length); // ids are unique
   });
@@ -70,9 +70,9 @@ describe('registry overlays are the real source files (one overlay, three modes)
   }
   it('the overlay implements every registered mode', () => {
     expect(overlay).toContain('window.__ospMode');
-    expect(overlay).toContain('__ospCreation');
-    expect(overlay).toContain('__ospSplashOnly');
-    for (const a of animations) expect(['full', 'creation', 'splash']).toContain(a.mode);
+    expect(overlay).toContain('__ospCreation'); // internal play fn for the Burst slice
+    expect(overlay).toContain('__ospSplashOnly'); // internal play fn for the Merger slice
+    for (const a of animations) expect(['moment', 'burst', 'merger']).toContain(a.mode);
   });
 });
 
@@ -94,8 +94,8 @@ describe('single-file export', () => {
   });
 
   it('bakes tuned dials into the exported overlay', () => {
-    const intro = byId('intro')!;
-    const html = buildStandaloneHtml(intro, { dials: { initialBlackMs: 1234 } });
+    const moment = byId('moment')!;
+    const html = buildStandaloneHtml(moment, { dials: { initialBlackMs: 1234 } });
     expect(html).toMatch(/initialBlackMs:\s*1234/);
     expect(html).not.toMatch(/initialBlackMs:\s*500\b/); // the default was replaced
   });
@@ -135,7 +135,7 @@ describe('single-source dials + presets', () => {
         expect(meta.min).toBeLessThanOrEqual(def);
         expect(meta.max).toBeGreaterThanOrEqual(def);
         expect(meta.step).toBeGreaterThan(0);
-        expect(['creation', 'splash', 'sequence']).toContain(meta.scope);
+        expect(['burst', 'merger', 'moment']).toContain(meta.scope);
       }
     }
   });
@@ -149,9 +149,9 @@ describe('single-source dials + presets', () => {
     expect(showcase).toContain('presets.json');
   });
 
-  it('the intro carries 10 presets, "Original" first', () => {
-    const intro = byId('intro')!;
-    expect(intro.presets?.length).toBe(10);
+  it('the Moment carries 10 presets, "Original" first', () => {
+    const moment = byId('moment')!;
+    expect(moment.presets?.length).toBe(10);
     expect(presets[0].id).toBe('original');
   });
 

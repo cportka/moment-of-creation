@@ -1,16 +1,17 @@
-# moment-of-creation — an animation engine
+# moment-of-creation — an animation toolkit
 
-A small engine for **first-paint web animations**: each animation paints on the very
-first frame (before any bundle parses), can be tuned live in a general lab, and can be
-exported as **one self-contained `.html`** with zero external dependencies.
+A toolkit for **first-paint web animations**: it generates two animations — a pure-CSS
+**Burst** and a binary **Merger** — and combines them into a **Moment**. Each paints on the
+very first frame (before any bundle parses), tunes live, and exports as **one self-contained
+`.html`** with zero external dependencies.
 
 ### ▶ Live showcase — https://cportka.github.io/moment-of-creation/
 
-It grew out of the load **intro** of [One Still Point](https://onestillpoint.app) — a
-black hold, a one-frame test pattern, a pure-CSS *moment of creation* burst, and a
-colourful binary-merger splash — which was lifted into this repo (history intact) and
-generalized into an engine. The intro is itself **two animations** — the creation burst
-and the binary-merger splash — which the engine can play apart or together.
+It grew out of the load **intro** of [One Still Point](https://onestillpoint.app) — that
+intro *is* a Burst (a one-frame test pattern → a firework burst) followed by a Merger (two
+orbs spiralling into an event horizon). Lifted into this repo (history intact) and
+generalized, the engine can play either half, the combined Moment, **swap** their order, or
+**chain** Moments together.
 
 |  | |
 | --- | --- |
@@ -18,7 +19,7 @@ and the binary-merger splash — which the engine can play apart or together.
 | `npm test` | unit tests (engine, intro timeline, melt) |
 | `npm run build` | type-check + production bundle |
 | `npm run export -- <id>` | write a self-contained `dist/<id>.html` (omit `<id>` to export all) |
-| `npm run build:pages` | regenerate the showcase's embedded `creation.html` / `splash.html` / `intro.html` |
+| `npm run build:pages` | regenerate the showcase's embedded `burst.html` / `merger.html` / `moment.html` |
 
 ```bash
 npm install
@@ -29,28 +30,30 @@ npm run dev
 
 **https://cportka.github.io/moment-of-creation/** — the repo **root** is a static,
 build-free site served by GitHub Pages (*Deploy from a branch* → `main` / root).
-[`index.html`](index.html) shows the moment of creation's two halves — the **creation
-burst** and the **binary-merger splash** — looping on their own, and **together** as the
-original intro (three windows), with live knob panels for every dial. It embeds the
-single-file exports ([`creation.html`](creation.html), [`splash.html`](splash.html),
-[`intro.html`](intro.html)) as same-origin iframes, so the sliders drive the running
-animations in real time. Regenerate the exports with `npm run build:pages`. (The Vite
-first-paint demo lives in [`demo.html`](demo.html); it needs a build step, so it isn't the
-static homepage.)
+[`index.html`](index.html) shows three windows on one row — left the **Burst**, middle the
+**Moment** (the two combined), right the **Merger** — each looping, with compact knob panels
+for all 29 parameters and a 10-preset picker. **⇄ Swap order** reverses the two in the
+Moment (middle plays Merger→Burst); **⛓ Continue the chain** folds the current Moment into a
+new randomized one (the current becomes the saved left window, a new Moment the right, both
+combined in the middle). It embeds the single-file exports
+([`burst.html`](burst.html), [`merger.html`](merger.html), [`moment.html`](moment.html)) as
+same-origin iframes and conducts them live; deep-link state with `?preset=`, `?swap=1`,
+`?chain=<n>`. Regenerate the exports with `npm run build:pages`. (The Vite first-paint demo
+lives in [`demo.html`](demo.html); it needs a build step, so it isn't the static homepage.)
 
 ## The animations
 
-The moment of creation is two animations in sequence; the engine registers each half and
-the whole — one overlay ([`src/intro/overlay.html`](src/intro/overlay.html)) played in
-three **modes** (selected by `window.__ospMode`):
+The toolkit makes two animations and combines them — one overlay
+([`src/intro/overlay.html`](src/intro/overlay.html)) played in three **modes** (selected by
+`window.__ospMode`):
 
 | id | mode | what it is |
 | --- | --- | --- |
-| `creation` | `creation` | the **creation burst** — black hold → 1-frame test pattern → pure-CSS firework burst. |
-| `splash` | `splash` | the **binary-merger splash** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field). |
-| `intro` | `full` | the whole **moment of creation** — both halves in sequence, the crossfade hand-off, and the melt-inward Replay. |
+| `burst` | `burst` | the **Burst** — black hold → 1-frame test pattern → pure-CSS firework burst. |
+| `merger` | `merger` | the **Merger** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field). |
+| `moment` | `moment` | the **Moment** — the Burst then the Merger, with the crossfade hand-off and the melt-inward Replay. |
 
-The intro unit has its own [README](src/intro/README.md).
+The intro unit (the source of all three) has its own [README](src/intro/README.md).
 
 ## The idea — an animation is data
 
@@ -115,8 +118,8 @@ paints + plays).
 ## Single-file export
 
 ```bash
-npm run export -- intro        # → dist/intro.html
-npm run export -- creation     # → dist/creation.html
+npm run export -- moment       # → dist/moment.html
+npm run export -- burst        # → dist/burst.html
 npm run export                 # all registered animations
 ```
 
@@ -139,9 +142,9 @@ A new **standalone** animation:
 4. Register it in [`src/engine/registry.ts`](src/engine/registry.ts) and add it to
    [`src/engine/manifest.json`](src/engine/manifest.json) (the Node export CLI reads that JSON).
 
-A new **mode** of an existing overlay (how `creation` / `splash` share the intro): have the
-overlay's boot script branch on `window.__ospMode`, then register an `Animation` with that
-`mode` (see [`src/intro/creation.ts`](src/intro/creation.ts)).
+A new **mode** of an existing overlay (how `burst` / `merger` share the Moment's overlay):
+have the overlay's boot script branch on `window.__ospMode`, then register an `Animation`
+with that `mode` (see [`src/intro/burst.ts`](src/intro/burst.ts)).
 
 Either way, a test in [`src/engine/engine.test.ts`](src/engine/engine.test.ts) then checks it
 for free: schema covers its dials, the overlay defines the contract and mirrors the dials,
@@ -151,15 +154,15 @@ and it exports to a self-contained file.
 
 ```
 index.html                 the GitHub Pages showcase (static; served from root)
-creation.html · splash.html · intro.html   single-file exports the showcase embeds (npm run build:pages)
-demo.html                  Vite first-paint demo: the intro inlined before the bundle
+burst.html · merger.html · moment.html   single-file exports the showcase embeds (npm run build:pages)
+demo.html                  Vite first-paint demo: the Moment inlined before the bundle
 intro-lab.html             the general tuning lab (loads src/lab.ts)
 src/
   engine/                  types · registry · mount · standalone export · manifest
-  intro/                   the intro overlay + intro.ts / creation.ts / splash.ts (its three modes)
+  intro/                   the one overlay + burst.ts / merger.ts / moment.ts (its modes) + dials.json
   lab.ts                   the general lab
 scripts/                   export-animation.mjs · verify-intro.mjs · capture-*.mjs
-docs/intro-script.md       the intro's beat-by-beat storyboard
+docs/intro-script.md       the Moment's beat-by-beat storyboard
 ```
 
 ## Provenance

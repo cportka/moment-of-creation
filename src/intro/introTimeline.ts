@@ -32,8 +32,8 @@ export const INTRO_STORY_FPS = 200;
 export const INTRO_BEATS = [
   { id: 'black', label: 'Black hold', fps: INTRO_STORY_FPS },
   { id: 'lines', label: 'Test pattern', fps: INTRO_STORY_FPS },
-  { id: 'creation', label: 'Moment of creation', fps: INTRO_STORY_FPS },
-  { id: 'splash', label: 'The splash', fps: INTRO_STORY_FPS },
+  { id: 'burst', label: 'Burst', fps: INTRO_STORY_FPS },
+  { id: 'merger', label: 'Merger', fps: INTRO_STORY_FPS },
   { id: 'engine', label: 'Engine takeover', fps: 0 /* 0 = the physics model's own rate */ },
 ] as const;
 

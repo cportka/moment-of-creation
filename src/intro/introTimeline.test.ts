@@ -5,13 +5,13 @@ import { INTRO_BEATS, INTRO_DIALS, INTRO_STORY_FPS, MELT_MS, SPLASH_COVERS_AT_MS
 
 describe('intro dials', () => {
   it('orders the beats black → lines → creation → splash → engine', () => {
-    expect(INTRO_BEATS.map((b) => b.id)).toEqual(['black', 'lines', 'creation', 'splash', 'engine']);
+    expect(INTRO_BEATS.map((b) => b.id)).toEqual(['black', 'lines', 'burst', 'merger', 'engine']);
   });
 
   it('targets 200fps for the whole intro story, and the engine at its own rate', () => {
     const fps = Object.fromEntries(INTRO_BEATS.map((b) => [b.id, b.fps]));
     expect(INTRO_STORY_FPS).toBe(200);
-    for (const id of ['black', 'lines', 'creation', 'splash']) expect(fps[id]).toBe(INTRO_STORY_FPS);
+    for (const id of ['black', 'lines', 'burst', 'merger']) expect(fps[id]).toBe(INTRO_STORY_FPS);
     expect(fps.engine).toBe(0); // 0 = the physics model's own (cappable) rate
   });
 

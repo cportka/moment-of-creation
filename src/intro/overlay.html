@@ -390,12 +390,14 @@
     }
   };
 
-  // The generic engine entry: play the whole intro, or one half, per window.__ospMode
-  // (set by the registry/lab/export). Default 'full' is the original moment of creation.
+  // The generic engine entry: play the whole Moment, or one half, per window.__ospMode
+  // (set by the registry/lab/showcase/export). Default 'moment' is the full sequence.
+  // Accepts the current vocabulary (burst / merger / moment) and the older internal
+  // names (creation / splash / full) so nothing breaks mid-rename.
   window.__ospPlay = function () {
-    var mode = window.__ospMode || 'full';
-    if (mode === 'creation') return window.__ospCreation();
-    if (mode === 'splash') return window.__ospSplashOnly();
+    var mode = window.__ospMode || 'moment';
+    if (mode === 'burst' || mode === 'creation') return window.__ospCreation();
+    if (mode === 'merger' || mode === 'splash') return window.__ospSplashOnly();
     return window.__ospIntro();
   };
   window.__ospPlay();

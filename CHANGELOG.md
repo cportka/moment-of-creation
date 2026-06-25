@@ -3,6 +3,30 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.4.0
+
+### Changed
+
+- **Standardized the vocabulary.** The toolkit makes two animations — a **Burst** and a
+  **Merger** — and combines them into a **Moment**. Renamed the registered animations,
+  modes, files (`burst.ts` / `merger.ts` / `moment.ts`), dial scopes, exports
+  (`burst.html` / `merger.html` / `moment.html`) and all UI/docs to match. (Deep internals
+  — the `osp-creation` / `osp-splash` CSS classes and `cr*` / `sp*` dial keys — stay as
+  implementation detail; see the roadmap.)
+- **Three windows, fixed roles, one row:** left **Burst**, middle **Moment** (the two
+  combined), right **Merger**.
+
+### Added
+
+- **Swap order** — reverses the two animations in the Moment (the middle plays
+  Merger→Burst) and swaps the side windows.
+- **Continue the chain** — folds the current Moment into a new one: the current Moment
+  becomes the saved left window, a new **randomized** Moment (perturbed from the current
+  dials) becomes the right window, and the middle plays them combined. Repeatable (depth
+  capped so the loop stays watchable). Deep-linkable via `?swap=1` / `?chain=<n>`.
+- The showcase now **conducts** all three windows (one sequence player drives the Swap
+  reversal and the chain), via a clearable `window.__ospLoop` handle on the export loop.
+
 ## 0.3.0
 
 ### Added
