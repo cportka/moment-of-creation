@@ -21,6 +21,15 @@ npm install
 npm run dev
 ```
 
+## Live showcase (GitHub Pages)
+
+[`docs/`](docs/) is a static, build-free showcase served by GitHub Pages (Settings → Pages
+→ *Deploy from a branch* → `main` / `/docs`): the intro and the Lissajous looping
+**separately and composited together** (the intro screen-blended over the curve), with live
+knob panels for every dial. It embeds the `npm run build:pages` single-file exports as
+same-origin iframes, so the sliders drive the running animations in real time. Regenerate
+the embedded files after changing an animation with `npm run build:pages`.
+
 ## The two animations
 
 | id | what it is |
