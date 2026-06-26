@@ -3,6 +3,39 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.5.0
+
+### Added
+
+- **11 dynamic Merger knobs (40 dials total)** — pattern/geometry parameters that *actively
+  change* the dust field rather than just sizing it: **Spiral arms** (quantise the dust into
+  N arms), **Arm twist**, **Petal wave** (flower modulation off the arm count), **Swirl
+  oscillation**, **Twinkle**, **Colour cycle**, **Radial pulse**, **Drift out**, **Dust
+  trail** (motion-smear), **Dust warmth** and **Dust fade**. Wired into the canvas dust
+  generator + draw loop; all default to today's look.
+- **🎲 Randomize per half** — a button on the Burst and Merger panels rolls fresh values
+  across the full range for *that half's* parameters only.
+- **A visual, clickable chain (max 10).** The chain is now a strip of link chips — each a
+  swatch of its Moment's colours — that you **click to select and edit**. The middle window
+  plays the whole composition; the side windows show the selected link's Burst/Merger halves.
+  `+` adds a Moment (up to ten), `×` removes one. Deep-link with `?chain=<n>` (n Moments).
+- **12 presets, dramatically retuned**, each with a distinct visual identity built on the new
+  dynamic knobs — `Genesis`, `Supernova`, `Pinwheel`, `Bloom`, `Comet trails`, `Prism`,
+  `Embers`, `Singularity`, `Strobe`, `Zen`, `Frenetic`.
+
+### Changed
+
+- **New default preset.** `Genesis` — a colour-cycling spiral galaxy — is the default,
+  differentiating the toolkit from One Still Point. The original intro is kept as a
+  selectable preset, **`Original (One Still Point)`**, no longer the default.
+
+### Fixed
+
+- **Swap order could drop the Burst from the Moment.** Playing the Merger (or Burst) half
+  alone sets the other layer `display:none`; the full Moment's `__ospIntro` never restored
+  it, so after a few Swaps the middle Moment lost its Burst. It now resets both layers'
+  visibility on every play.
+
 ## 0.4.0
 
 ### Changed

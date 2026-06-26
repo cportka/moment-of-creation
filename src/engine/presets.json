@@ -1,12 +1,14 @@
 [
-  { "id": "original", "name": "Original", "dials": {} },
-  { "id": "supernova", "name": "Supernova", "dials": { "crCoreSize": 14, "crFlashSize": 60, "crRayLength": 260, "crRingExpand": 20, "crBright": 1.5, "spCoreDiameter": 54, "spDiskSize": 64, "spDustCount": 520 } },
-  { "id": "calm", "name": "Calm", "dials": { "creationSpeed": 2, "splashSpeed": 1.8, "initialBlackMs": 900, "spDustSpiral": 0.6, "spDustCount": 200 } },
-  { "id": "neon", "name": "Neon", "dials": { "crHue": 150, "spHue": 170, "crBright": 1.2, "spStreakLength": 80 } },
-  { "id": "minimal", "name": "Minimal", "dials": { "crCoreSize": 4, "crFlashSize": 14, "crRayLength": 70, "crRingExpand": 7, "spOrbSize": 8, "spDiskSize": 24, "spDustCount": 90 } },
-  { "id": "frenetic", "name": "Frenetic", "dials": { "creationSpeed": 0.4, "splashSpeed": 0.5, "initialBlackMs": 150, "splitBlackMs": 30, "creationBeatMs": 150 } },
-  { "id": "singularity", "name": "Singularity", "dials": { "spCoreDiameter": 64, "spDiskSize": 72, "spOrbSize": 18, "spDustSpiral": 1.8, "splashSpeed": 1.2 } },
-  { "id": "embers", "name": "Embers", "dials": { "spDustCount": 240, "spDustSize": 1.8, "spHue": -25, "spPlumeReach": 40, "crHue": -15 } },
-  { "id": "strobe", "name": "Strobe", "dials": { "crRingExpand": 22, "crRingThickness": 1.2, "crFlashSize": 46, "splitBlackMs": 120, "spShockExpand": 12 } },
-  { "id": "cathedral", "name": "Cathedral", "dials": { "creationSpeed": 1.6, "splashSpeed": 1.6, "spDiskSize": 64, "spStreakLength": 84, "splashHoldMs": 1300, "crHue": 160, "spHue": 150 } }
+  { "id": "genesis", "name": "Genesis ✦ default", "dials": { "crHue": -40, "crBright": 1.2, "crRayLength": 200, "crRingExpand": 16, "spHue": 30, "spCoreDiameter": 46, "spDiskSize": 56, "spDustCount": 500, "spDustSpiral": 1.6, "spArms": 5, "spArmTwist": 55, "spColorCycle": 28, "spTwinkle": 45, "spPulse": 22, "spWarmth": 55, "spDriftOut": 65, "spDustFade": 50 } },
+  { "id": "original", "name": "Original (One Still Point)", "dials": {} },
+  { "id": "supernova", "name": "Supernova", "dials": { "crCoreSize": 16, "crFlashSize": 70, "crRayLength": 300, "crRayWidth": 1.4, "crRingExpand": 24, "crBright": 1.7, "spCoreDiameter": 58, "spDiskSize": 70, "spShockExpand": 14, "spFlashSize": 60, "spDustCount": 620, "spDriftOut": 95, "spPulse": 35, "spDustFade": 60 } },
+  { "id": "pinwheel", "name": "Pinwheel", "dials": { "crHue": 30, "spArms": 7, "spArmTwist": 95, "spDustSpiral": 2.4, "spDustCount": 560, "spTwinkle": 30, "spColorCycle": 12, "spWarmth": 65, "spDriftOut": 45, "spDustFade": 70, "spCoreDiameter": 40 } },
+  { "id": "bloom", "name": "Bloom", "dials": { "spHue": -60, "spArms": 6, "spWave": 85, "spArmTwist": 25, "spSwirlOsc": 35, "spDustCount": 600, "spDustSize": 1.3, "spColorCycle": 18, "spWarmth": 40, "spDriftOut": 55, "spDustFade": 65, "spDiskSize": 60 } },
+  { "id": "comet", "name": "Comet trails", "dials": { "crHue": 20, "spDustTrail": 78, "spDriftOut": 90, "spDustSpiral": 2.6, "spDustCount": 280, "spDustSize": 1.4, "spTwinkle": 25, "spColorCycle": 20, "spWarmth": 70, "spDustFade": 80 } },
+  { "id": "prism", "name": "Prism", "dials": { "crHue": 100, "crBright": 1.3, "spColorCycle": 92, "spTwinkle": 55, "spArms": 4, "spArmTwist": 40, "spDustCount": 460, "spWarmth": 30, "spDriftOut": 60, "spDustFade": 55 } },
+  { "id": "embers", "name": "Embers", "dials": { "crHue": -20, "spHue": -25, "spPlumeReach": 42, "spDustCount": 260, "spDustSize": 1.9, "spDustSpiral": 0.8, "spWarmth": 100, "spTwinkle": 60, "spDriftOut": 35, "spDustFade": 85, "splashHoldMs": 1000 } },
+  { "id": "singularity", "name": "Singularity", "dials": { "spOrbSize": 20, "spCoreDiameter": 66, "spDiskSize": 74, "spDustSpiral": 2.8, "spArms": 3, "spArmTwist": 70, "spPulse": 45, "spDriftOut": 12, "spDustCount": 420, "spWarmth": 60, "spDustFade": 45, "splashSpeed": 1.3 } },
+  { "id": "strobe", "name": "Strobe", "dials": { "crFlashSize": 50, "crRingExpand": 26, "crRingThickness": 1.4, "crBright": 1.5, "splitBlackMs": 200, "creationBeatMs": 160, "spShockExpand": 14, "spPulse": 70, "spTwinkle": 80, "spColorCycle": 60, "spDustCount": 360, "spDustFade": 20 } },
+  { "id": "zen", "name": "Zen", "dials": { "creationSpeed": 2.4, "splashSpeed": 2.2, "initialBlackMs": 1000, "splashHoldMs": 1400, "spDustSpiral": 0.6, "spDustCount": 180, "spSwirlOsc": 70, "spPulse": 30, "spTwinkle": 15, "spWarmth": 80, "spDriftOut": 40, "spDustFade": 90 } },
+  { "id": "frenetic", "name": "Frenetic", "dials": { "creationSpeed": 0.4, "splashSpeed": 0.5, "initialBlackMs": 120, "splitBlackMs": 25, "creationBeatMs": 140, "spArms": 9, "spArmTwist": 80, "spWave": 50, "spSwirlOsc": 60, "spTwinkle": 70, "spColorCycle": 70, "spPulse": 55, "spDustCount": 500, "spDriftOut": 80, "spDustFade": 30 } }
 ]

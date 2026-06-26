@@ -146,14 +146,19 @@
       var DIR = Math.random() < 0.5 ? 1 : -1; // one swirl direction for the whole field
       var N = Math.max(0, Math.round(D.spDustCount != null ? D.spDustCount : 320));
       if (reduce) N = Math.min(N, 70); // reduced motion caps the field
+      // ---- pattern/geometry, read once at build ----
+      var ARMS = Math.round(D.spArms || 0); // quantise particles into N spiral arms (0 = free)
+      var COOL = (1 - (D.spWarmth != null ? D.spWarmth : 90) / 100) * 0.5; // cool-spark fraction
       var P = new Array(N);
       for (var k = 0; k < N; k++) {
+        var a0 = ARMS > 0 ? (((Math.random() * ARMS) | 0) / ARMS) * 6.2832 + R(-0.12, 0.12) : R(0, 6.2832);
         P[k] = {
-          a: R(0, 6.2832), r0: R(22, 54), rmin: R(7, 20), rb: R(30, 86), // breathe r0 → annulus → rb (never the centre)
+          a: a0, r0: R(22, 54), rmin: R(7, 20), rb: R(30, 86), // breathe r0 → annulus → rb (never the centre)
           tn: DIR * (1.15 + R(-0.2, 0.2)) * (D.spDustSpiral != null ? D.spDustSpiral : 1), om: DIR * (0.5 + R(0, 0.9)), // inspiral wind (× spDustSpiral) + drift
           mg: 0.2 + R(0, 0.16), // staggered turn time, so the field never converges/bursts in unison
           sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin * (D.spDustSize != null ? D.spDustSize : 1), dl: R(0, 0.05),
-          spr: Math.random() < 0.05 ? cool[(Math.random() * cool.length) | 0] : warm[(Math.random() * warm.length) | 0],
+          tw: R(0, 6.2832), // twinkle phase
+          spr: Math.random() < COOL ? cool[(Math.random() * cool.length) | 0] : warm[(Math.random() * warm.length) | 0],
         };
       }
       var t0 = 0, STOP = 1.7;
@@ -170,7 +175,15 @@
           splash.classList.add('osp-splash--go');
         }
         var t = (now - t0) / 1000;
-        ctx.clearRect(0, 0, W, H);
+        var DD = window.__ospDials || {};
+        var TRAIL = (DD.spDustTrail || 0) / 100, CYCLE = DD.spColorCycle || 0;
+        var TWK = (DD.spTwinkle || 0) / 100, OSC = (DD.spSwirlOsc || 0) / 100;
+        var PUL = (DD.spPulse || 0) / 100, WAV = (DD.spWave || 0) / 100, TWIST = (DD.spArmTwist || 0) / 100;
+        var DRIFT = DD.spDriftOut != null ? DD.spDriftOut : 50, FADE = (DD.spDustFade != null ? DD.spDustFade : 34) / 100;
+        // Trail: fade the prior frame instead of clearing (motion smear); else hard clear.
+        if (TRAIL > 0) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(0,0,0,' + (1 - TRAIL * 0.92).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
+        else ctx.clearRect(0, 0, W, H);
+        ctx.filter = CYCLE ? 'hue-rotate(' + ((t * CYCLE * 4) | 0) + 'deg)' : 'none'; // colour cycle
         ctx.globalCompositeOperation = 'lighter';
         for (var j = 0; j < N; j++) {
           var p = P[j], tt = t - p.dl;
@@ -187,23 +200,29 @@
           } else {
             var td = tt - p.mg, k = td / 0.35; // smoothstep out of the turn, then gaseous drift
             var eo = k < 1 ? k * k * (3 - 2 * k) : 1;
-            r = p.rmin + (p.rb - p.rmin) * eo + (td > 0.35 ? (td - 0.35) * 12 : 0);
+            r = p.rmin + (p.rb - p.rmin) * eo + (td > 0.35 ? (td - 0.35) * 12 * (DRIFT / 50) : 0);
             grow = 1 + eo + (td > 0.35 ? (td - 0.35) * 0.8 : 0);
           }
           // Alpha: quick in, hold across the turn, then a gentle gaseous fade —
           // no pop in or out.
-          var al = Math.min(1, tt * 12), fs = p.mg + 0.34;
+          var al = Math.min(1, tt * 12), fs = p.mg + FADE;
           if (tt > fs) al *= Math.max(0, 1 - (tt - fs));
+          if (TWK) al = Math.max(0, al * (1 + TWK * Math.sin(t * 7 + p.tw))); // twinkle
           if (al <= 0.02) continue;
           // Always rotating: the inspiral wind (caps after the turn) plus a
           // constant drift, so nothing is ever momentarily static.
           var w = Math.min(1, tt / p.mg); w = w * (2 - w);
           var ang = p.a + p.tn * 6.2832 * w + p.om * tt;
+          if (TWIST) ang += TWIST * r * 0.05; // twist arms with radius → tighter spirals
+          if (PUL) r *= 1 + PUL * 0.12 * Math.sin(t * 3); // global radial pulse
+          if (OSC) r += OSC * 7 * Math.sin(t * 2.4 + p.a); // swirl oscillation in/out
+          if (WAV) r *= 1 + WAV * 0.18 * Math.sin((ARMS > 1 ? ARMS : 5) * ang); // petal / flower wave
           var z = p.sz * grow;
           ctx.globalAlpha = al;
           ctx.drawImage(p.spr, cx + Math.cos(ang) * r * vmin - z, cy + Math.sin(ang) * r * vmin - z, z * 2, z * 2);
         }
         ctx.globalAlpha = 1;
+        ctx.filter = 'none';
         // Keep drifting *through* the crossfade — the div's opacity fades the
         // dust out as the engine is revealed — then stop to free the GPU.
         if (splash.classList.contains('osp-splash--hide') && !splash.__hideAt) splash.__hideAt = t;
@@ -256,7 +275,19 @@
     spDustCount: 320,
     spDustSize: 1,
     spDustSpiral: 1,
-    // sequencing — how the two halves combine (scope:sequence)
+    // merger dust — pattern / geometry that actively changes (scope:merger)
+    spArms: 0,
+    spArmTwist: 0,
+    spWave: 0,
+    spSwirlOsc: 0,
+    spTwinkle: 0,
+    spColorCycle: 0,
+    spPulse: 0,
+    spDriftOut: 50,
+    spDustTrail: 0,
+    spWarmth: 90,
+    spDustFade: 34,
+    // sequencing — how the two halves combine (scope:moment)
     creationBeatMs: 240,
     creationToSplashMs: -80,
     creationFadeMs: 120,
@@ -279,6 +310,10 @@
       var cr = document.getElementById('osp-creation');
       var splash = document.getElementById('osp-splash');
       var lines = cr && cr.querySelector('.osp-lines');
+      // The full Moment shows both halves: a prior burst-only / merger-only play (or a
+      // Swap, which sequences merger→burst) may have left a layer display:none — restore.
+      if (cr) cr.style.display = '';
+      if (splash) splash.style.display = '';
       if (cr) {
         cr.className = 'osp-creation'; // reset for replay (drop --go / --hide)
         cr.style.setProperty('--osp-cr-scale', D.creationSpeed); // (c) creation speed

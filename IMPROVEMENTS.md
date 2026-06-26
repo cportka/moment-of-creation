@@ -19,6 +19,12 @@ The toolkit makes two animations — a **Burst** and a **Merger** — and combin
   exports, UI, docs); fixed window roles (left Burst · middle Moment · right Merger);
   **Swap order**; **Continue the chain**; a showcase "conductor" (one sequence player drives the
   swap reversal and the chain) via a clearable `window.__ospLoop`.
+- **0.5** — **11 dynamic Merger knobs (40 total)** — pattern/geometry that *actively changes*
+  (spiral arms, arm twist, petal wave, swirl oscillation, twinkle, colour cycle, radial pulse,
+  drift, dust trail, warmth, fade) wired into the canvas dust. **🎲 Randomize per half**;
+  a **visual, clickable chain** (a strip of per-Moment swatch chips, select to edit, max 10);
+  **12 dramatically-retuned presets** with a new default (**Genesis**, the OG kept as
+  `Original`); fixed the **Swap-drops-the-Burst** bug (half-only plays left a layer hidden).
 
 ---
 
@@ -39,7 +45,7 @@ The toolkit makes two animations — a **Burst** and a **Merger** — and combin
   manifest hard-codes the result; a future `export --preset` would loop at the wrong interval. Recompute
   in the CLI (or derive, don't duplicate) + a test that `manifest.loopMs === registry.loopMs(defaults)`.
 
-## Chain & swap — follow-ups (new in 0.4)
+## Chain & swap — follow-ups (0.4–0.5)
 
 - **Per-step crossfades in the conductor.** The Moment's default (single `moment` step) keeps the
   polished burst→merger crossfade, but the Swap reversal and chain sequences are hard cuts between
@@ -47,10 +53,14 @@ The toolkit makes two animations — a **Burst** and a **Merger** — and combin
 - **Step timing is approximate.** `stepMs()` estimates each step's length from a few dials; if a dial
   makes a beat much longer/shorter the next step can clip or lag. Have the overlay signal "done"
   (a `window.__ospDone` callback / postMessage) and advance on that instead of a timer.
-- **Chain persistence + rewind.** The chain lives in memory only. Add a "rewind one", and persist it
-  (URL/localStorage) so a chained composition is shareable like `?preset=`.
-- **Swap inside chain mode** is disabled today (it only reorders the Burst/Merger halves). Decide what
-  swap means for a chain (e.g. swap saved ↔ new) or leave it normal-mode-only by design.
+- **Live chain thumbnails.** 0.5's chain chips are a colour swatch derived from each link's hue dials,
+  not a render of the Moment. A real (cheap, throttled) thumbnail — a tiny live iframe or a cached
+  canvas frame per link — would make the chain genuinely previewable.
+- **Chain persistence.** 0.5 added per-link **rewind** (the `×` on a chip) and `?chain=<n>` seeds a
+  randomized chain, but a hand-built chain still lives in memory only. Serialize the links (URL hash /
+  localStorage) so a specific composition is shareable like `?preset=`.
+- **Swap inside chain mode** is still normal-mode-only (chain mode shows the selected link's two halves
+  in the side windows instead). Decide whether a per-link swap belongs in the chain, or leave by design.
 
 ## Later — bigger / structural
 
@@ -58,7 +68,7 @@ The toolkit makes two animations — a **Burst** and a **Merger** — and combin
   `introOverlay()` Vite plugin), so the overlay's numbers stop being hand-typed while staying inline.
   Today they're hard-coded, guarded by the inline-sync test.
 - **JSON-blob dial baking.** `applyDials` rewrites each dial with a per-key regex; bake a single
-  `JSON.stringify`'d blob the overlay reads instead — robust at 29 dials + presets.
+  `JSON.stringify`'d blob the overlay reads instead — robust at 40 dials + presets.
 - **One slider renderer.** The lab (`src/lab.ts`, Vite-served) and the showcase (`index.html`, static)
   each build sliders; they share the *data* but not the code. Build the showcase JS through Vite too.
 - **`Animation.mode` is a loose `string`** — `mode: 'mergr'` silently falls through to the Moment.

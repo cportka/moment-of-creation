@@ -140,8 +140,8 @@ describe('single-source dials + presets', () => {
     }
   });
 
-  it('there are at least 29 dials and 20 of them are the new parameters', () => {
-    expect(Object.keys(dials).length).toBeGreaterThanOrEqual(29);
+  it('there are at least 40 dials (the pattern/geometry knobs included)', () => {
+    expect(Object.keys(dials).length).toBeGreaterThanOrEqual(40);
   });
 
   it('the showcase fetches the single source (no hand-copied schema)', () => {
@@ -149,10 +149,12 @@ describe('single-source dials + presets', () => {
     expect(showcase).toContain('presets.json');
   });
 
-  it('the Moment carries 10 presets, "Original" first', () => {
+  it('the Moment carries 12 presets — a new default first, the OG kept selectable', () => {
     const moment = byId('moment')!;
-    expect(moment.presets?.length).toBe(10);
-    expect(presets[0].id).toBe('original');
+    expect(moment.presets?.length).toBe(12);
+    expect(presets[0].id).toBe('genesis'); // the new default, distinct from One Still Point
+    expect(presets[0].id).not.toBe('original'); // ...the OG is no longer the default
+    expect(presets.some((p) => p.id === 'original')).toBe(true); // ...but stays selectable
   });
 
   it('every preset overrides only real dials, within range', () => {
