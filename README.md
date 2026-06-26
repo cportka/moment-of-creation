@@ -10,8 +10,8 @@ very first frame (before any bundle parses), tunes live, and exports as **one se
 It grew out of the load **intro** of [One Still Point](https://onestillpoint.app) — that
 intro *is* a Burst (a one-frame test pattern → a firework burst) followed by a Merger (two
 orbs spiralling into an event horizon). Lifted into this repo (history intact) and
-generalized, the engine can play either half, the combined Moment, **swap** their order, or
-**chain** Moments together.
+generalized, the engine can play either half, the combined Moment, **randomize** or **swap**
+their order, or **chain** up to ten Moments together.
 
 |  | |
 | --- | --- |
@@ -32,10 +32,11 @@ npm run dev
 build-free site served by GitHub Pages (*Deploy from a branch* → `main` / root).
 [`index.html`](index.html) shows three windows on one row — left the **Burst**, middle the
 **Moment** (the two combined), right the **Merger** — each looping, with compact knob panels
-for all 29 parameters and a 10-preset picker. **⇄ Swap order** reverses the two in the
-Moment (middle plays Merger→Burst); **⛓ Continue the chain** folds the current Moment into a
-new randomized one (the current becomes the saved left window, a new Moment the right, both
-combined in the middle). It embeds the single-file exports
+for all 40 parameters and a 12-preset picker (default **Genesis**). **🎲 Randomize** rolls
+fresh values for one half; **⇄ Swap order** reverses the two in the Moment (middle plays
+Merger→Burst); **⛓ Continue the chain** builds a **visual chain of up to ten Moments** —
+a strip of clickable link chips you select to tune (the middle plays the whole composition,
+the side windows show the selected link's two halves). It embeds the single-file exports
 ([`burst.html`](burst.html), [`merger.html`](merger.html), [`moment.html`](moment.html)) as
 same-origin iframes and conducts them live; deep-link state with `?preset=`, `?swap=1`,
 `?chain=<n>`. Regenerate the exports with `npm run build:pages`. (The Vite first-paint demo
@@ -79,7 +80,7 @@ Dials, their UI schema (`label`/`min`/`max`/`step`/`unit`/`hint`/`scope`) and th
 live as **data in one place** — [`src/intro/dials.json`](src/intro/dials.json) and
 [`src/engine/presets.json`](src/engine/presets.json). The overlay mirrors the defaults
 (kept in lockstep by a test), the lab imports them, and the static showcase `fetch`es them —
-so the 29 parameters and 10 presets are declared once.
+so the 40 parameters and 12 presets are declared once.
 
 They're collected in [`src/engine/registry.ts`](src/engine/registry.ts); the lab, the
 export and the tests all read from that one list. The engine plays a **selected**

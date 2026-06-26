@@ -33,7 +33,7 @@ Point consumes these exact files, so this directory is the live source — it ne
 | [`introTimeline.ts`](introTimeline.ts) | The **dials** (`INTRO_DIALS`), their per-dial UI **schema** (`INTRO_SCHEMA`, rendered by the lab) and beat metadata — the one source of timing, mirrored by `window.__ospDials` in `overlay.html` (a test keeps them in lockstep). |
 | [`moment.ts`](moment.ts) | Wraps the whole **Moment** as a registry **`Animation`** — `overlay.html` + `intro.css` imported `?raw`, joined with `INTRO_DIALS` + `INTRO_SCHEMA` + the presets. |
 | [`burst.ts`](burst.ts) · [`merger.ts`](merger.ts) | The **two animations** the toolkit combines (Burst, Merger) as their own `Animation`s — the same `overlay.html` + `intro.css`, with `mode: 'burst'` / `'merger'` so the overlay's boot script plays just that slice (`window.__ospMode`). |
-| [`dials.json`](dials.json) | The single source for all 29 dials (default + UI schema + `scope`); `introTimeline.ts` derives `INTRO_DIALS`/`INTRO_SCHEMA` from it. |
+| [`dials.json`](dials.json) | The single source for all 40 dials (default + UI schema + `scope`); `introTimeline.ts` derives `INTRO_DIALS`/`INTRO_SCHEMA` from it. |
 | [`melt.ts`](melt.ts) | The **Replay melt** — collapses a canvas inward toward the centre, then restores it. Host-agnostic (`meltInward(el, onComplete, opts)`). |
 | `*.test.ts` | Unit tests for the timeline (incl. the inline-sync guard) and the melt. |
 | [`README.md`](README.md) | This file. |
