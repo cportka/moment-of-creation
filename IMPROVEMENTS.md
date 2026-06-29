@@ -25,6 +25,12 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   a **visual, clickable chain** (a strip of per-Moment swatch chips, select to edit, max 10);
   **12 dramatically-retuned presets** with a new default (**Genesis**, the OG kept as
   `Original`); fixed the **Swap-drops-the-Burst** bug (half-only plays left a layer hidden).
+- **0.7** — **outside the box + snappy.** The Last stopped being a heavy particle field — dust is now
+  a capped **Sparkle** accent and the show is **neon vectors**: the First explodes six ways (**Blast** —
+  cone/shockwave/shards/lightning/nova) and the Last resolves into eight **Forms** (ring/polygon/star/
+  slit/lens/lattice/spiral/cross) framed by **Beams** (slices of light). Cut to **40 knobs** with macros
+  that chain internally (**Texture** = smooth→water→flame→crumble→disintegrate; **Flux** = inspiral),
+  **Mandala** is now a cheap whole-canvas composite, and the UI is **emoji-free** (CSS die).
 - **0.6** — renamed the vocabulary **First / Last / Together** (was Burst / Merger / Moment);
   turned the dials into **abstract, pedal-style sculptors** (Void, Ignition, Gravity, Vortex,
   Bloom, Breath, Shimmer, Mood, Mortality…); added **10 texture behaviours (50 total)** to the
@@ -78,7 +84,7 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   `introOverlay()` Vite plugin), so the overlay's numbers stop being hand-typed while staying inline.
   Today they're hard-coded, guarded by the inline-sync test.
 - **JSON-blob dial baking.** `applyDials` rewrites each dial with a per-key regex; bake a single
-  `JSON.stringify`'d blob the overlay reads instead — robust at 50 dials + presets.
+  `JSON.stringify`'d blob the overlay reads instead — robust at 40 dials + presets.
 - **One slider renderer.** The lab (`src/lab.ts`, Vite-served) and the showcase (`index.html`, static)
   each build sliders; they share the *data* but not the code. Build the showcase JS through Vite too.
 - **`Animation.mode` is a loose `string`** — `mode: 'mergr'` silently falls through to the Moment.
@@ -88,9 +94,11 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   `OSP_GLOBALS` array shared with `vite-env.d.ts`.
 - **More Last parameters** (dust hue spread, jet angle, orb turns) promoted to dials/`--osp-*`.
   0.6 added ten texture/geometry knobs; the CSS-structured bits (jet, orbs, plumes) are still fixed.
-- **Texture knobs are Last-only.** Tide/Pyre/Mandala/Facet etc. sculpt the canvas dust; the First is
-  pure CSS, so it only got `Ignition`. A canvas layer in the First (or CSS filters driven by the same
-  knobs) would let water/flame/crumble shape the birth too.
+- **The First's canvas is Blast-only.** 0.7 gave the First a canvas layer for the `Blast` geometries,
+  but the `Texture`/`Form` sculpting still lives on the Last. The First could share more of the Last's
+  vocabulary (a Form it bursts *from*, texture on its shards).
+- **Forms could nest / morph.** `Form` is a hard switch between eight geometries; cross-fading or
+  morphing between two (and letting the chain transition Form→Form) would make compositions sing.
 - **Stale provenance:** `intro.css` says `INTRO_TIMING.meltMs` (it's `MELT_MS`); `docs/intro-script.md`
   references the origin app (`main.ts`, `MIN_SPLASH_MS`, `src/core/…`). Fix the comment; banner/trim the
   storyboard. The `1400ms` boot safety-net is the one timing that isn't a dial — derive or comment it.

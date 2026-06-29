@@ -3,6 +3,37 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.7.0
+
+A creative + performance pass: stop leaning on a dust field of tiny particles (which dragged
+the framerate down) and move to **snappy neon vector geometry** — more ways to explode, more
+things to resolve into.
+
+### Changed
+
+- **Snappy.** The Last is no longer a heavy particle field. The dust is now a small, hard-capped
+  *accent* (`Sparkle`, ~170 motes max); the show is bold neon vectors — a handful of strokes per
+  frame. `Mandala` is now a whole-canvas composite (K blits, not K×N redraws). No more presets
+  that grind to a near-standstill.
+- **40 knobs (down from 50), with macros that chain sub-params internally** — e.g. `Texture` is
+  one knob that journeys smooth → water → flame → crumble → disintegrate; `Flux` folds the inspiral
+  + swirl. The dial labels stay abstract and pedal-style.
+- **No emojis in the UI.** The showcase text is glyph-free; the dice is a small CSS die that still
+  tumbles on a roll.
+
+### Added
+
+- **The First explodes six ways — `Blast`:** classic (the CSS firework), cone (directional),
+  shockwave (expanding rings), shards (flying fragments), lightning (branching bolts), nova (a
+  bloom of light). Plus `Spread` (tight ↔ full radial) and `Shards` (fragment count).
+- **The Last resolves into eight neon `Form`s** — ring, polygon, star, slit (a portal), lens (an
+  eye), lattice (a grid), spiral, cross — sized by `Scale`, detailed by `Facets`, haloed by `Halo`.
+  It no longer always ends on a circle.
+- **Slices of light — `Beams`** (count) + `Sweep` (rotation) + `Neon` (glow/weight): light wedges
+  that frame the Form.
+- **12 presets retuned** around the Forms/Blasts — `Genesis`, `Portal`, `Prism`, `Mandala`, `Nova`,
+  `Lightning`, `Bloom`, `Ember`, `Singularity`, `Zen`, `Maelstrom` — keeping `Original`.
+
 ## 0.6.0
 
 ### Changed
