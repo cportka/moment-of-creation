@@ -42,14 +42,15 @@
   // the CSS var() fallbacks, so an un-tuned overlay (e.g. the verify-intro harness) looks
   // identical. One place per half keeps __ospCreation / __ospIntro from drifting.
   function ospSetCreationVars(cr, D) {
+    var IG = (D.crIgnition || 0) / 100; // "Ignition" — how violent the birth is (flares flash / rays / rings / glow)
     cr.style.setProperty('--osp-cr-core', (D.crCoreSize != null ? D.crCoreSize : 7) + 'vmax');
-    cr.style.setProperty('--osp-cr-flash', (D.crFlashSize != null ? D.crFlashSize : 30) + 'vmax');
-    cr.style.setProperty('--osp-cr-ray-len', (D.crRayLength != null ? D.crRayLength : 150) + 'vmax');
+    cr.style.setProperty('--osp-cr-flash', (D.crFlashSize != null ? D.crFlashSize : 30) * (1 + IG * 1.2) + 'vmax');
+    cr.style.setProperty('--osp-cr-ray-len', (D.crRayLength != null ? D.crRayLength : 150) * (1 + IG * 0.8) + 'vmax');
     cr.style.setProperty('--osp-cr-ray-w', (D.crRayWidth != null ? D.crRayWidth : 0.7) + 'vmax');
     cr.style.setProperty('--osp-cr-ring-w', (D.crRingThickness != null ? D.crRingThickness : 0.5) + 'vmax');
-    cr.style.setProperty('--osp-cr-ring-x', D.crRingExpand != null ? D.crRingExpand : 13);
+    cr.style.setProperty('--osp-cr-ring-x', (D.crRingExpand != null ? D.crRingExpand : 13) * (1 + IG * 0.7));
     cr.style.setProperty('--osp-lines-band', (D.linesBandPx != null ? D.linesBandPx : 40) + 'px');
-    cr.style.filter = 'hue-rotate(' + (D.crHue || 0) + 'deg) brightness(' + (D.crBright != null ? D.crBright : 1) + ')';
+    cr.style.filter = 'hue-rotate(' + (D.crHue || 0) + 'deg) brightness(' + (D.crBright != null ? D.crBright : 1) * (1 + IG * 0.5) + ')';
   }
   function ospSetSplashVars(splash, D) {
     var stage = splash.querySelector('.osp-splash__stage');
@@ -141,24 +142,51 @@
         g.fill();
         return c;
       }
-      var warm = ['#fff3df', '#ffe6c2', '#ffd49a', '#ffcf86', '#fff7ec', '#ffdca8', '#ffc878'].map(sprite);
-      var cool = ['#eef2ff', '#e4ecff'].map(sprite); // a few near-white sparkles, not blue
+      // A crisp 6-point star sprite (for "Facet" — soft motes harden into crystalline shapes).
+      function starSprite(color) {
+        var z = 40, c = document.createElement('canvas');
+        c.width = c.height = z;
+        var g = c.getContext('2d'), rg = g.createRadialGradient(z / 2, z / 2, 0, z / 2, z / 2, z / 2);
+        rg.addColorStop(0, color);
+        rg.addColorStop(0.5, color);
+        rg.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = rg; // a faint halo so it still glows in the additive field
+        g.beginPath();
+        g.arc(z / 2, z / 2, z / 2, 0, 6.2832);
+        g.fill();
+        g.fillStyle = color; // then a hard polygon on top
+        g.beginPath();
+        for (var i = 0; i < 12; i++) {
+          var an = -1.5708 + i * 0.5236, rr = i % 2 ? z * 0.15 : z * 0.46;
+          g[i ? 'lineTo' : 'moveTo'](z / 2 + Math.cos(an) * rr, z / 2 + Math.sin(an) * rr);
+        }
+        g.closePath();
+        g.fill();
+        return c;
+      }
+      var warmC = ['#fff3df', '#ffe6c2', '#ffd49a', '#ffcf86', '#fff7ec', '#ffdca8', '#ffc878'];
+      var coolC = ['#eef2ff', '#e4ecff']; // a few near-white sparkles, not blue
+      var warm = warmC.map(sprite), cool = coolC.map(sprite);
+      var warmShard = warmC.map(starSprite), coolShard = coolC.map(starSprite); // Facet palettes (parallel)
       var DIR = Math.random() < 0.5 ? 1 : -1; // one swirl direction for the whole field
       var N = Math.max(0, Math.round(D.spDustCount != null ? D.spDustCount : 320));
       if (reduce) N = Math.min(N, 70); // reduced motion caps the field
       // ---- pattern/geometry, read once at build ----
       var ARMS = Math.round(D.spArms || 0); // quantise particles into N spiral arms (0 = free)
       var COOL = (1 - (D.spWarmth != null ? D.spWarmth : 90) / 100) * 0.5; // cool-spark fraction
+      var DAWN = (D.spDawn || 0) / 100; // "Dawn" — how the field gathers at the start (far + staggered)
       var P = new Array(N);
       for (var k = 0; k < N; k++) {
         var a0 = ARMS > 0 ? (((Math.random() * ARMS) | 0) / ARMS) * 6.2832 + R(-0.12, 0.12) : R(0, 6.2832);
+        var isCool = Math.random() < COOL, pal = isCool ? cool : warm;
         P[k] = {
-          a: a0, r0: R(22, 54), rmin: R(7, 20), rb: R(30, 86), // breathe r0 → annulus → rb (never the centre)
+          a: a0, r0: R(22, 54) + DAWN * R(20, 120), rmin: R(7, 20), rb: R(30, 86), // Dawn starts the motes far out
           tn: DIR * (1.15 + R(-0.2, 0.2)) * (D.spDustSpiral != null ? D.spDustSpiral : 1), om: DIR * (0.5 + R(0, 0.9)), // inspiral wind (× spDustSpiral) + drift
-          mg: 0.2 + R(0, 0.16), // staggered turn time, so the field never converges/bursts in unison
-          sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin * (D.spDustSize != null ? D.spDustSize : 1), dl: R(0, 0.05),
-          tw: R(0, 6.2832), // twinkle phase
-          spr: Math.random() < COOL ? cool[(Math.random() * cool.length) | 0] : warm[(Math.random() * warm.length) | 0],
+          mg: (0.2 + R(0, 0.16)) * (1 + DAWN * 1.2), // staggered turn time; Dawn slows the gathering
+          sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin * (D.spDustSize != null ? D.spDustSize : 1),
+          dl: R(0, 0.05) + DAWN * R(0, 0.5), // Dawn staggers the entry
+          tw: R(0, 6.2832), // twinkle / texture phase
+          ci: (Math.random() * pal.length) | 0, cool: isCool, fr: Math.random(), // colour index, palette, Facet rank
         };
       }
       var t0 = 0, STOP = 1.7;
@@ -180,6 +208,12 @@
         var TWK = (DD.spTwinkle || 0) / 100, OSC = (DD.spSwirlOsc || 0) / 100;
         var PUL = (DD.spPulse || 0) / 100, WAV = (DD.spWave || 0) / 100, TWIST = (DD.spArmTwist || 0) / 100;
         var DRIFT = DD.spDriftOut != null ? DD.spDriftOut : 50, FADE = (DD.spDustFade != null ? DD.spDustFade : 34) / 100;
+        // ---- texture / character layers (each 0 = off, so the authored field is untouched) ----
+        var TIDE = (DD.spTide || 0) / 100, PYRE = (DD.spPyre || 0) / 100, ERO = (DD.spErosion || 0) / 100;
+        var ENT = (DD.spEntropy || 0) / 100, TURB = (DD.spTurb || 0) / 100, UNDER = (DD.spUndertow || 0) / 100;
+        var FACET = (DD.spFacet || 0) / 100, MAND = Math.round((DD.spMandala || 0) / 100 * 6);
+        var K = MAND >= 1 ? MAND + 1 : 1, mc = [], ms = []; // Mandala: K-fold rotational symmetry
+        for (var mi = 0; mi < K; mi++) { var th = mi * 6.2832 / K; mc[mi] = Math.cos(th); ms[mi] = Math.sin(th); }
         // Trail: fade the prior frame instead of clearing (motion smear); else hard clear.
         if (TRAIL > 0) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(0,0,0,' + (1 - TRAIL * 0.92).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
         else ctx.clearRect(0, 0, W, H);
@@ -198,28 +232,46 @@
             r = p.r0 + (p.rmin - p.r0) * ei;
             grow = 1;
           } else {
-            var td = tt - p.mg, k = td / 0.35; // smoothstep out of the turn, then gaseous drift
-            var eo = k < 1 ? k * k * (3 - 2 * k) : 1;
+            var td = tt - p.mg, kk = td / 0.35; // smoothstep out of the turn, then gaseous drift
+            var eo = kk < 1 ? kk * kk * (3 - 2 * kk) : 1;
+            // Dusk (DRIFT) is signed: + flies the field apart, − collapses it inward.
             r = p.rmin + (p.rb - p.rmin) * eo + (td > 0.35 ? (td - 0.35) * 12 * (DRIFT / 50) : 0);
             grow = 1 + eo + (td > 0.35 ? (td - 0.35) * 0.8 : 0);
           }
+          if (r < 0) r = 0; // a negative Dusk never crosses the centre
           // Alpha: quick in, hold across the turn, then a gentle gaseous fade —
           // no pop in or out.
           var al = Math.min(1, tt * 12), fs = p.mg + FADE;
           if (tt > fs) al *= Math.max(0, 1 - (tt - fs));
-          if (TWK) al = Math.max(0, al * (1 + TWK * Math.sin(t * 7 + p.tw))); // twinkle
+          if (TWK) al *= 1 + TWK * Math.sin(t * 7 + p.tw); // Shimmer
+          if (PYRE) al *= 1 - PYRE * 0.4 * (0.5 + 0.5 * Math.sin(t * 12 + p.tw * 5)); // flame flicker
+          if (ENT) al *= 1 - ENT * 0.5 * (0.5 + 0.5 * Math.sin(p.tw * 17 + t * 9)); // disintegration noise
           if (al <= 0.02) continue;
+          if (al > 1.6) al = 1.6;
           // Always rotating: the inspiral wind (caps after the turn) plus a
           // constant drift, so nothing is ever momentarily static.
           var w = Math.min(1, tt / p.mg); w = w * (2 - w);
           var ang = p.a + p.tn * 6.2832 * w + p.om * tt;
-          if (TWIST) ang += TWIST * r * 0.05; // twist arms with radius → tighter spirals
-          if (PUL) r *= 1 + PUL * 0.12 * Math.sin(t * 3); // global radial pulse
-          if (OSC) r += OSC * 7 * Math.sin(t * 2.4 + p.a); // swirl oscillation in/out
-          if (WAV) r *= 1 + WAV * 0.18 * Math.sin((ARMS > 1 ? ARMS : 5) * ang); // petal / flower wave
+          if (TWIST) ang += TWIST * r * 0.05; // Vortex — twist arms with radius
+          if (UNDER) ang -= DIR * UNDER * 1.4 * tt * (0.5 + 0.5 * Math.sin(r * 0.2)); // Undertow — counter-current
+          if (PUL) r *= 1 + PUL * 0.12 * Math.sin(t * 3); // Heartbeat — global radial pulse
+          if (OSC) r += OSC * 7 * Math.sin(t * 2.4 + p.a); // Breath — swirl oscillation
+          if (WAV) r *= 1 + WAV * 0.18 * Math.sin((ARMS > 1 ? ARMS : 5) * ang); // Bloom — petal / flower wave
           var z = p.sz * grow;
+          if (ERO) z *= 1 - ERO * 0.5 * (tt > p.mg ? Math.min(1, tt - p.mg) : 0); // crumble shrink
+          if (FACET) z *= 1 + FACET * 0.15;
+          // Base position, then the displacement textures sculpt it: water, flame,
+          // crumble, disintegrate, chaos — each pushes the mote in screen space.
+          var px = cx + Math.cos(ang) * r * vmin, py = cy + Math.sin(ang) * r * vmin;
+          if (TIDE) { px += Math.sin(t * 1.6 + p.a * 3 + r * 0.18) * TIDE * 2.4 * vmin; py += Math.cos(t * 1.3 + r * 0.13 + p.tw) * TIDE * 2 * vmin; } // water
+          if (PYRE) { var ph = tt; py -= PYRE * ph * ph * 9 * vmin; px += Math.sin(t * 7 + p.tw * 4) * PYRE * 1.8 * vmin * ph; } // flame rises + flickers
+          if (ERO) { var pe = tt > p.mg ? tt - p.mg : 0; py += ERO * pe * pe * 16 * vmin; px += Math.sin(p.tw * 9) * ERO * pe * 3 * vmin; } // crumble falls
+          if (ENT) { var pn = tt > p.mg * 0.5 ? tt - p.mg * 0.5 : 0; px += Math.cos(p.tw * 3.1) * ENT * pn * 22 * vmin; py += Math.sin(p.tw * 3.1) * ENT * pn * 22 * vmin; } // disintegrate scatters
+          if (TURB) { px += Math.sin(t * 1.1 + p.a * 4 + r * 0.2) * TURB * 3 * vmin; py += Math.cos(t * 0.9 + p.tw * 2 + r * 0.15) * TURB * 3 * vmin; } // chaos
+          var shard = p.fr < FACET, pal = p.cool ? (shard ? coolShard : cool) : (shard ? warmShard : warm), spr = pal[p.ci]; // Facet: harden to shapes
           ctx.globalAlpha = al;
-          ctx.drawImage(p.spr, cx + Math.cos(ang) * r * vmin - z, cy + Math.sin(ang) * r * vmin - z, z * 2, z * 2);
+          if (K === 1) ctx.drawImage(spr, px - z, py - z, z * 2, z * 2);
+          else { var dx = px - cx, dy = py - cy; for (var m = 0; m < K; m++) ctx.drawImage(spr, cx + dx * mc[m] - dy * ms[m] - z, cy + dx * ms[m] + dy * mc[m] - z, z * 2, z * 2); } // Mandala copies
         }
         ctx.globalAlpha = 1;
         ctx.filter = 'none';
@@ -262,6 +314,7 @@
     crHue: 0,
     crBright: 1,
     linesBandPx: 40,
+    crIgnition: 0,
     // splash half — speed + the merger's sizes/colour/dust (scope:splash)
     splashSpeed: 1,
     spOrbSize: 13,
@@ -287,6 +340,16 @@
     spDustTrail: 0,
     spWarmth: 90,
     spDustFade: 34,
+    // texture / character — abstract sculpting (water, flame, crumble, geometry, start)
+    spDawn: 0,
+    spTide: 0,
+    spPyre: 0,
+    spErosion: 0,
+    spEntropy: 0,
+    spMandala: 0,
+    spFacet: 0,
+    spTurb: 0,
+    spUndertow: 0,
     // sequencing — how the two halves combine (scope:moment)
     creationBeatMs: 240,
     creationToSplashMs: -80,
@@ -425,14 +488,15 @@
     }
   };
 
-  // The generic engine entry: play the whole Moment, or one half, per window.__ospMode
-  // (set by the registry/lab/showcase/export). Default 'moment' is the full sequence.
-  // Accepts the current vocabulary (burst / merger / moment) and the older internal
-  // names (creation / splash / full) so nothing breaks mid-rename.
+  // The generic engine entry: play the whole Together, or one half, per window.__ospMode
+  // (set by the registry/lab/showcase/export). Default 'together' is the full sequence.
+  // Accepts the current vocabulary (first / last / together), the previous one
+  // (burst / merger / moment) and the oldest internal names (creation / splash / full),
+  // so nothing breaks across renames.
   window.__ospPlay = function () {
-    var mode = window.__ospMode || 'moment';
-    if (mode === 'burst' || mode === 'creation') return window.__ospCreation();
-    if (mode === 'merger' || mode === 'splash') return window.__ospSplashOnly();
+    var mode = window.__ospMode || 'together';
+    if (mode === 'first' || mode === 'burst' || mode === 'creation') return window.__ospCreation();
+    if (mode === 'last' || mode === 'merger' || mode === 'splash') return window.__ospSplashOnly();
     return window.__ospIntro();
   };
   window.__ospPlay();

@@ -3,6 +3,42 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.6.0
+
+### Changed
+
+- **Renamed the vocabulary again — First / Last / Together.** The Burst is now the **First**,
+  the Merger the **Last**, the Moment the **Together** (ids, modes, scopes, files
+  `first.ts` / `last.ts` / `together.ts`, exports `first.html` / `last.html` /
+  `together.html`, registry, manifest, UI and docs). The overlay's `__ospPlay` accepts the
+  new names plus the previous and oldest ones, so nothing breaks across renames. (Deep
+  internals — the `osp-creation` / `osp-splash` CSS, `cr*` / `sp*` dial keys, the
+  `__ospCreation` / `__ospSplashOnly` functions, the storyboard beats — stay as before.)
+- **Knobs are now abstract, pedal-style sculptors** (in the spirit of Old Blood Noise
+  Endeavors): every dial got a feeling/texture name — `Void`, `Ignition`, `Gravity`,
+  `Vortex`, `Bloom`, `Breath`, `Shimmer`, `Chromatic`, `Heartbeat`, `Memory`, `Mood`,
+  `Mortality`, `Dawn`, `Dusk`, … — instead of widths and sizes.
+
+### Added
+
+- **10 new sculpting behaviors (50 dials total)**, wired into the Last's canvas field — all
+  default to 0 so the authored look is untouched:
+  - **Tide** (water — a fluid rippling current), **Pyre** (flame — motes rise, lick and
+    flicker), **Erosion** (crumble — break apart and fall), **Entropy** (disintegrate —
+    scatter into noise), **Turbulence** (chaos), **Undertow** (a counter-current).
+  - **Mandala** (kaleidoscopic N-fold symmetry) and **Facet** (soft motes harden into
+    crystalline shapes) for geometry/fractals.
+  - **Dawn** (how it *starts* — gather slowly from far, scattered chaos), and **Dusk** —
+    the exit is now **signed**: collapse inward (−), settle (0), or fly apart (+). Plus
+    **Ignition** for how violent the First's birth is. So starts and ends are no longer same-y.
+- **Animated controls** — every button pops on press, the **🎲 dice tumbles and rolls
+  through faces** when you randomize, and the Swap arrow flips.
+- **Drag-and-drop chain reordering** — drag any link chip to reorder the chain (the selected
+  link follows its move).
+- **12 presets retuned around the new textures** — `Aqua` (water), `Inferno` (flame), `Ash`
+  (crumble), `Entropy`, `Mandala`, `Prism`, `Supernova`, `Singularity` (collapse), `Zen`,
+  `Maelstrom` (chaos), keeping `Genesis` as the default and `Original (One Still Point)`.
+
 ## 0.5.0
 
 ### Added

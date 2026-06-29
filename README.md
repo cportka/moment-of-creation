@@ -1,17 +1,21 @@
 # moment-of-creation — an animation toolkit
 
 A toolkit for **first-paint web animations**: it generates two animations — a pure-CSS
-**Burst** and a binary **Merger** — and combines them into a **Moment**. Each paints on the
+**First** and a binary **Last** — and combines them into a **Together**. Each paints on the
 very first frame (before any bundle parses), tunes live, and exports as **one self-contained
 `.html`** with zero external dependencies.
 
 ### ▶ Live showcase — https://cportka.github.io/moment-of-creation/
 
 It grew out of the load **intro** of [One Still Point](https://onestillpoint.app) — that
-intro *is* a Burst (a one-frame test pattern → a firework burst) followed by a Merger (two
+intro *is* a First (a one-frame test pattern → a firework burst) followed by a Last (two
 orbs spiralling into an event horizon). Lifted into this repo (history intact) and
-generalized, the engine can play either half, the combined Moment, **randomize** or **swap**
-their order, or **chain** up to ten Moments together.
+generalized, the engine can play either half, the combined Together, **randomize** or
+**swap** their order, or **chain** up to ten Togethers (drag to reorder).
+
+You **sculpt** with **abstract, pedal-style knobs** — feelings and textures (Tide, Pyre,
+Erosion, Entropy, Mandala, Facet, Dawn, Dusk…) rather than widths and sizes — wired to the
+canvas field so a turn re-shapes the motion, not just the dimensions.
 
 |  | |
 | --- | --- |
@@ -19,7 +23,7 @@ their order, or **chain** up to ten Moments together.
 | `npm test` | unit tests (engine, intro timeline, melt) |
 | `npm run build` | type-check + production bundle |
 | `npm run export -- <id>` | write a self-contained `dist/<id>.html` (omit `<id>` to export all) |
-| `npm run build:pages` | regenerate the showcase's embedded `burst.html` / `merger.html` / `moment.html` |
+| `npm run build:pages` | regenerate the showcase's embedded `first.html` / `last.html` / `together.html` |
 
 ```bash
 npm install
@@ -30,17 +34,18 @@ npm run dev
 
 **https://cportka.github.io/moment-of-creation/** — the repo **root** is a static,
 build-free site served by GitHub Pages (*Deploy from a branch* → `main` / root).
-[`index.html`](index.html) shows three windows on one row — left the **Burst**, middle the
-**Moment** (the two combined), right the **Merger** — each looping, with compact knob panels
-for all 40 parameters and a 12-preset picker (default **Genesis**). **🎲 Randomize** rolls
-fresh values for one half; **⇄ Swap order** reverses the two in the Moment (middle plays
-Merger→Burst); **⛓ Continue the chain** builds a **visual chain of up to ten Moments** —
-a strip of clickable link chips you select to tune (the middle plays the whole composition,
-the side windows show the selected link's two halves). It embeds the single-file exports
-([`burst.html`](burst.html), [`merger.html`](merger.html), [`moment.html`](moment.html)) as
-same-origin iframes and conducts them live; deep-link state with `?preset=`, `?swap=1`,
-`?chain=<n>`. Regenerate the exports with `npm run build:pages`. (The Vite first-paint demo
-lives in [`demo.html`](demo.html); it needs a build step, so it isn't the static homepage.)
+[`index.html`](index.html) shows three windows on one row — left the **First**, middle the
+**Together** (the two combined), right the **Last** — each looping, with compact knob panels
+for all 50 parameters and a 12-preset picker (default **Genesis**). **🎲 Randomize** rolls
+fresh values for one half (the die tumbles); **⇄ Swap order** reverses the two in the Together
+(middle plays Last→First); **⛓ Continue the chain** builds a **visual chain of up to ten
+Togethers** — a strip of link chips you **click to edit** and **drag to reorder** (the middle
+plays the whole composition, the side windows show the selected link's two halves). It embeds
+the single-file exports ([`first.html`](first.html), [`last.html`](last.html),
+[`together.html`](together.html)) as same-origin iframes and conducts them live; deep-link
+state with `?preset=`, `?swap=1`, `?chain=<n>`. Regenerate the exports with
+`npm run build:pages`. (The Vite first-paint demo lives in [`demo.html`](demo.html); it needs
+a build step, so it isn't the static homepage.)
 
 ## The animations
 
@@ -50,11 +55,28 @@ The toolkit makes two animations and combines them — one overlay
 
 | id | mode | what it is |
 | --- | --- | --- |
-| `burst` | `burst` | the **Burst** — black hold → 1-frame test pattern → pure-CSS firework burst. |
-| `merger` | `merger` | the **Merger** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field). |
-| `moment` | `moment` | the **Moment** — the Burst then the Merger, with the crossfade hand-off and the melt-inward Replay. |
+| `first` | `first` | the **First** — black hold → 1-frame test pattern → pure-CSS firework burst. |
+| `last` | `last` | the **Last** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field; the abstract texture knobs live here). |
+| `together` | `together` | the **Together** — the First then the Last, with the crossfade hand-off and the melt-inward Replay. |
 
 The intro unit (the source of all three) has its own [README](src/intro/README.md).
+
+## Sculpting — abstract knobs
+
+The dust field of the **Last** is a programmable canvas, so most knobs are *characterful*
+rather than dimensional — each shapes how the field **moves and resolves**:
+
+- **textures** — `Tide` (water), `Pyre` (flame), `Erosion` (crumble), `Entropy` (disintegrate),
+  `Turbulence` (chaos), `Undertow` (counter-current).
+- **geometry** — `Symmetry` (spiral arms), `Vortex`, `Bloom` (petals), `Mandala` (N-fold
+  kaleidoscope), `Facet` (motes harden into crystalline shapes).
+- **start & end** — `Dawn` (gather from far chaos) and `Dusk` (a signed exit: collapse inward
+  `−`, settle `0`, fly apart `+`); plus `Ignition` for how violent the First's birth is.
+- **feel** — `Gravity`, `Heartbeat`, `Breath`, `Shimmer`, `Chromatic`, `Memory`, `Mood`,
+  `Mortality`, `Density`, `Grain`…
+
+All default to today's look (every texture at 0), so the **Genesis** default and the kept
+**Original (One Still Point)** preset are exactly as authored; presets opt into the textures.
 
 ## The idea — an animation is data
 
@@ -80,7 +102,7 @@ Dials, their UI schema (`label`/`min`/`max`/`step`/`unit`/`hint`/`scope`) and th
 live as **data in one place** — [`src/intro/dials.json`](src/intro/dials.json) and
 [`src/engine/presets.json`](src/engine/presets.json). The overlay mirrors the defaults
 (kept in lockstep by a test), the lab imports them, and the static showcase `fetch`es them —
-so the 40 parameters and 12 presets are declared once.
+so the 50 parameters and 12 presets are declared once.
 
 They're collected in [`src/engine/registry.ts`](src/engine/registry.ts); the lab, the
 export and the tests all read from that one list. The engine plays a **selected**
@@ -119,8 +141,8 @@ paints + plays).
 ## Single-file export
 
 ```bash
-npm run export -- moment       # → dist/moment.html
-npm run export -- burst        # → dist/burst.html
+npm run export -- together     # → dist/together.html
+npm run export -- first        # → dist/first.html
 npm run export                 # all registered animations
 ```
 
@@ -143,9 +165,9 @@ A new **standalone** animation:
 4. Register it in [`src/engine/registry.ts`](src/engine/registry.ts) and add it to
    [`src/engine/manifest.json`](src/engine/manifest.json) (the Node export CLI reads that JSON).
 
-A new **mode** of an existing overlay (how `burst` / `merger` share the Moment's overlay):
+A new **mode** of an existing overlay (how `first` / `last` share the Together's overlay):
 have the overlay's boot script branch on `window.__ospMode`, then register an `Animation`
-with that `mode` (see [`src/intro/burst.ts`](src/intro/burst.ts)).
+with that `mode` (see [`src/intro/first.ts`](src/intro/first.ts)).
 
 Either way, a test in [`src/engine/engine.test.ts`](src/engine/engine.test.ts) then checks it
 for free: schema covers its dials, the overlay defines the contract and mirrors the dials,
@@ -155,15 +177,15 @@ and it exports to a self-contained file.
 
 ```
 index.html                 the GitHub Pages showcase (static; served from root)
-burst.html · merger.html · moment.html   single-file exports the showcase embeds (npm run build:pages)
-demo.html                  Vite first-paint demo: the Moment inlined before the bundle
+first.html · last.html · together.html   single-file exports the showcase embeds (npm run build:pages)
+demo.html                  Vite first-paint demo: the Together inlined before the bundle
 intro-lab.html             the general tuning lab (loads src/lab.ts)
 src/
   engine/                  types · registry · mount · standalone export · manifest
-  intro/                   the one overlay + burst.ts / merger.ts / moment.ts (its modes) + dials.json
+  intro/                   the one overlay + first.ts / last.ts / together.ts (its modes) + dials.json
   lab.ts                   the general lab
 scripts/                   export-animation.mjs · verify-intro.mjs · capture-*.mjs
-docs/intro-script.md       the Moment's beat-by-beat storyboard
+docs/intro-script.md       the Together's beat-by-beat storyboard
 ```
 
 ## Provenance

@@ -7,11 +7,11 @@ import { applyDials, buildStandaloneHtml } from './standalone.js';
 const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
 
 describe('engine registry — animation as data', () => {
-  it('registers the two animations the toolkit combines (Burst, Merger) and the Moment', () => {
+  it('registers the two animations the toolkit combines (First, Last) and the Together', () => {
     const ids = animations.map((a) => a.id);
-    expect(ids).toContain('burst');
-    expect(ids).toContain('merger');
-    expect(ids).toContain('moment');
+    expect(ids).toContain('first');
+    expect(ids).toContain('last');
+    expect(ids).toContain('together');
     expect(ids.length).toBeGreaterThanOrEqual(3);
     expect(new Set(ids).size).toBe(ids.length); // ids are unique
   });
@@ -70,9 +70,9 @@ describe('registry overlays are the real source files (one overlay, three modes)
   }
   it('the overlay implements every registered mode', () => {
     expect(overlay).toContain('window.__ospMode');
-    expect(overlay).toContain('__ospCreation'); // internal play fn for the Burst slice
-    expect(overlay).toContain('__ospSplashOnly'); // internal play fn for the Merger slice
-    for (const a of animations) expect(['moment', 'burst', 'merger']).toContain(a.mode);
+    expect(overlay).toContain('__ospCreation'); // internal play fn for the First slice
+    expect(overlay).toContain('__ospSplashOnly'); // internal play fn for the Last slice
+    for (const a of animations) expect(['together', 'first', 'last']).toContain(a.mode);
   });
 });
 
@@ -94,8 +94,8 @@ describe('single-file export', () => {
   });
 
   it('bakes tuned dials into the exported overlay', () => {
-    const moment = byId('moment')!;
-    const html = buildStandaloneHtml(moment, { dials: { initialBlackMs: 1234 } });
+    const together = byId('together')!;
+    const html = buildStandaloneHtml(together, { dials: { initialBlackMs: 1234 } });
     expect(html).toMatch(/initialBlackMs:\s*1234/);
     expect(html).not.toMatch(/initialBlackMs:\s*500\b/); // the default was replaced
   });
@@ -135,7 +135,7 @@ describe('single-source dials + presets', () => {
         expect(meta.min).toBeLessThanOrEqual(def);
         expect(meta.max).toBeGreaterThanOrEqual(def);
         expect(meta.step).toBeGreaterThan(0);
-        expect(['burst', 'merger', 'moment']).toContain(meta.scope);
+        expect(['first', 'last', 'together']).toContain(meta.scope);
       }
     }
   });
@@ -149,9 +149,9 @@ describe('single-source dials + presets', () => {
     expect(showcase).toContain('presets.json');
   });
 
-  it('the Moment carries 12 presets — a new default first, the OG kept selectable', () => {
-    const moment = byId('moment')!;
-    expect(moment.presets?.length).toBe(12);
+  it('the Together carries 12 presets — a new default first, the OG kept selectable', () => {
+    const together = byId('together')!;
+    expect(together.presets?.length).toBe(12);
     expect(presets[0].id).toBe('genesis'); // the new default, distinct from One Still Point
     expect(presets[0].id).not.toBe('original'); // ...the OG is no longer the default
     expect(presets.some((p) => p.id === 'original')).toBe(true); // ...but stays selectable

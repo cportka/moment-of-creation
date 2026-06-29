@@ -7,7 +7,7 @@
     <title>moment of creation — animation toolkit</title>
     <meta
       name="description"
-      content="A toolkit for two animations — a Burst and a Merger — combined into a Moment. Tune 40 parameters and 12 presets, randomize each half, swap the order, or chain up to 10 Moments together."
+      content="A toolkit for two animations — a First and a Last — combined into a Together. Sculpt 50 abstract, pedal-style knobs (water, flame, crumble, geometry…) and 12 presets; randomize each half, swap the order, or chain up to 10 Togethers and drag to reorder."
     />
     <style>
       :root {
@@ -31,10 +31,10 @@
       header { padding: 28px 22px 6px; }
       header h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); letter-spacing: 0.02em; font-weight: 650; }
       header h1 .dim { color: var(--muted); font-weight: 400; }
-      header p { margin: 8px 0 0; color: var(--muted); max-width: 76ch; }
+      header p { margin: 8px 0 0; color: var(--muted); max-width: 78ch; }
       main { padding: 14px 22px 50px; }
 
-      /* --- the three windows: Burst · Moment · Merger, always on one row --- */
+      /* --- the three windows: First · Together · Last, always on one row --- */
       .stage {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -66,20 +66,31 @@
       .bar label { font-weight: 600; color: #d9dffb; font-size: 13px; }
       .bar select {
         appearance: none; cursor: pointer; background: rgba(0, 0, 0, 0.35); color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; min-width: 180px;
+        border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; min-width: 200px;
       }
       .bar .spacer { flex: 1; }
       .btn {
         cursor: pointer; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.06); color: var(--ink);
         border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px;
+        transition: transform 0.1s ease, background 0.15s, box-shadow 0.15s, border-color 0.15s;
       }
       .btn:hover { background: rgba(255, 255, 255, 0.13); }
+      .btn:active { transform: translateY(1px) scale(0.97); }
+      .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       .btn:disabled { opacity: 0.4; cursor: not-allowed; }
       .btn.on { background: rgba(255, 138, 60, 0.22); border-color: rgba(255, 138, 60, 0.5); color: #ffd9a0; }
       .btn.mini { padding: 4px 9px; font-size: 11px; font-weight: 600; }
+      .btn.pop { animation: btn-pop 0.2s ease; }
+      @keyframes btn-pop { 0% { transform: scale(1); } 35% { transform: scale(0.93); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
+      /* the dice glyph tumbles on a roll */
+      .die { display: inline-block; will-change: transform; }
+      .die.rolling { animation: dice-tumble 0.55s cubic-bezier(0.3, 0.9, 0.3, 1); }
+      @keyframes dice-tumble { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(220deg) scale(1.3); } 60% { transform: rotate(400deg) scale(1.1); } 100% { transform: rotate(540deg) scale(1); } }
+      .swap-ico { display: inline-block; transition: transform 0.25s ease; }
+      .btn.on .swap-ico { transform: rotate(180deg); }
       .pill { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
 
-      /* --- the visual chain strip --- */
+      /* --- the visual chain strip (drag a link to reorder) --- */
       .chainbar {
         display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
         background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
@@ -88,14 +99,19 @@
       .chainbar__hint { font-size: 11px; color: var(--muted); margin-left: auto; }
       .chainstrip { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .link {
-        position: relative; cursor: pointer; width: 48px; height: 48px; padding: 0; flex: 0 0 auto;
+        position: relative; cursor: grab; width: 48px; height: 48px; padding: 0; flex: 0 0 auto;
         border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.16); overflow: hidden; color: #fff;
+        transition: transform 0.12s ease, border-color 0.12s, box-shadow 0.12s, opacity 0.12s;
       }
-      .link:hover { border-color: rgba(255, 255, 255, 0.4); }
+      .link:hover { border-color: rgba(255, 255, 255, 0.4); transform: translateY(-2px); }
       .link.on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255, 138, 60, 0.32); }
+      .link:active { cursor: grabbing; }
+      .link.dragging { opacity: 0.35; transform: scale(0.92); }
+      .link.drop-before { box-shadow: -3px 0 0 0 var(--accent); }
+      .link.drop-after { box-shadow: 3px 0 0 0 var(--accent); }
       .link__n {
         position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-        font-size: 15px; font-weight: 700; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+        font-size: 15px; font-weight: 700; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); pointer-events: none;
       }
       .link__x {
         position: absolute; top: 0; right: 2px; font-size: 13px; line-height: 1; font-weight: 700;
@@ -103,19 +119,20 @@
       }
       .link:hover .link__x { opacity: 0.95; }
       .link--add {
-        background: rgba(255, 255, 255, 0.05); border-style: dashed; color: var(--muted);
+        background: rgba(255, 255, 255, 0.05); border-style: dashed; color: var(--muted); cursor: pointer;
         font-size: 24px; font-weight: 300; line-height: 1;
       }
       .link--add:hover:not(:disabled) { color: var(--ink); border-color: rgba(255, 255, 255, 0.4); }
       .link--add:disabled { opacity: 0.35; cursor: not-allowed; }
 
-      .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
       @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
       .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 16px; }
       .panel h2 {
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        margin: 0 0 10px; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffd9a0;
+        margin: 0 0 4px; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffd9a0;
       }
+      .panel .note { margin: 0 0 10px; font-size: 11px; color: var(--muted); }
 
       /* compact, two-up dial grid */
       .dialgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 16px; }
@@ -133,33 +150,39 @@
       footer { padding: 0 22px 48px; color: var(--muted); font-size: 12.5px; }
       code { background: rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
       .err { color: #ff9a9a; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .die.rolling, .btn.pop { animation: none; }
+        .btn, .link, .swap-ico { transition: none; }
+      }
     </style>
   </head>
   <body>
     <header>
       <h1>moment of creation <span class="dim">· animation toolkit</span></h1>
       <p>
-        A toolkit for two animations — a pure-CSS <strong>Burst</strong> and a binary <strong>Merger</strong> — combined
-        into a <strong>Moment</strong>. Left: the Burst, looping. Middle: the Moment, the two combined. Right: the Merger.
-        <strong>🎲 Randomize</strong> either half, <strong>Swap</strong> their order, or <strong>chain</strong> up to ten
-        Moments and click any link to tune it. 40 parameters and 12 presets drive every window live.
-        <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
+        A toolkit for two animations — a pure-CSS <strong>First</strong> and a binary <strong>Last</strong> — combined
+        into a <strong>Together</strong>. Left: the First, looping. Middle: the Together, the two combined. Right: the
+        Last. Sculpt with <strong>50 abstract knobs</strong> — feelings and textures (Tide, Pyre, Erosion, Mandala…)
+        rather than widths and sizes. <strong>🎲 Randomize</strong> either half, <strong>Swap</strong> their order, or
+        <strong>chain</strong> up to ten Togethers and <strong>drag</strong> the links to reorder. 50 parameters and 12
+        presets drive every window live. <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
       </p>
     </header>
 
     <main>
       <section class="stage">
         <figure class="window" id="win-left">
-          <figcaption><span class="role">Burst</span> <span class="sub">half</span></figcaption>
-          <div class="frame"><iframe id="winL" src="burst.html" title="left window" loading="lazy" scrolling="no"></iframe></div>
+          <figcaption><span class="role">First</span> <span class="sub">half</span></figcaption>
+          <div class="frame"><iframe id="winL" src="first.html" title="left window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
         <figure class="window mid" id="win-mid">
-          <figcaption><span class="role">Moment</span> <span class="sub">the two combined</span></figcaption>
-          <div class="frame"><iframe id="winM" src="moment.html" title="middle window" loading="lazy" scrolling="no"></iframe></div>
+          <figcaption><span class="role">Together</span> <span class="sub">the two combined</span></figcaption>
+          <div class="frame"><iframe id="winM" src="together.html" title="middle window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
         <figure class="window" id="win-right">
-          <figcaption><span class="role">Merger</span> <span class="sub">half</span></figcaption>
-          <div class="frame"><iframe id="winR" src="merger.html" title="right window" loading="lazy" scrolling="no"></iframe></div>
+          <figcaption><span class="role">Last</span> <span class="sub">half</span></figcaption>
+          <div class="frame"><iframe id="winR" src="last.html" title="right window" loading="lazy" scrolling="no"></iframe></div>
         </figure>
       </section>
 
@@ -167,9 +190,11 @@
         <div class="bar">
           <label for="preset">Preset</label>
           <select id="preset"></select>
-          <button class="btn" id="swap" type="button" title="Swap Burst/Merger order in the Moment">⇄ Swap order</button>
-          <button class="btn" id="chain" type="button" title="Fold a new Moment onto the chain">⛓ Continue the chain</button>
-          <button class="btn" id="reset" type="button">Reset</button>
+          <button class="btn" id="swap" type="button" title="Swap First/Last order in the Together">
+            <span class="swap-ico" aria-hidden="true">⇄</span> Swap order
+          </button>
+          <button class="btn" id="chain" type="button" title="Fold a new Together onto the chain">⛓ Continue the chain</button>
+          <button class="btn" id="reset" type="button">↺ Reset</button>
           <span class="pill" id="depth" hidden></span>
           <span class="spacer"></span>
           <span id="status" style="font-size: 12px; color: var(--muted)"></span>
@@ -177,26 +202,29 @@
         <div class="chainbar">
           <span class="chainbar__label">Chain</span>
           <div class="chainstrip" id="chainstrip"></div>
-          <span class="chainbar__hint">click a link to edit that Moment · + adds one (max 10)</span>
+          <span class="chainbar__hint">click a link to edit it · drag to reorder · + adds one (max 10)</span>
         </div>
         <div class="panels">
           <div class="panel">
-            <h2>Burst <button class="btn mini" id="rand-burst" type="button" title="Randomize every Burst parameter">🎲 Randomize</button></h2>
-            <div class="dialgrid" id="grid-burst"></div>
+            <h2>First <button class="btn mini dice" id="rand-first" type="button" title="Roll fresh values for every First knob"><span class="die" aria-hidden="true">🎲</span> Randomize</button></h2>
+            <p class="note">the opening — birth, light, ignition</p>
+            <div class="dialgrid" id="grid-first"></div>
           </div>
           <div class="panel">
-            <h2>Merger <button class="btn mini" id="rand-merger" type="button" title="Randomize every Merger parameter">🎲 Randomize</button></h2>
-            <div class="dialgrid" id="grid-merger"></div>
+            <h2>Last <button class="btn mini dice" id="rand-last" type="button" title="Roll fresh values for every Last knob"><span class="die" aria-hidden="true">🎲</span> Randomize</button></h2>
+            <p class="note">the closing — the field, its textures, how it ends</p>
+            <div class="dialgrid" id="grid-last"></div>
           </div>
         </div>
       </section>
     </main>
 
     <footer>
-      Each window is the one overlay played in a mode (<code>burst</code> / <code>merger</code> / <code>moment</code>) — the
-      same source the <code>npm run export</code> single files use. The page conducts all three: Swap plays the Moment
-      Merger→Burst; the chain plays every saved Moment through the middle while the sides show the selected link's two
-      halves. 🎲 Randomize rolls fresh values for one half; controls + presets come from one source
+      Each window is the one overlay played in a mode (<code>first</code> / <code>last</code> / <code>together</code>) — the
+      same source the <code>npm run export</code> single files use. The page conducts all three: Swap plays the Together
+      Last→First; the chain plays every Together through the middle while the sides show the selected link's two halves
+      (drag a link to reorder the chain). The knobs are abstract, pedal-style sculptors — water, flame, crumble,
+      disintegrate, geometry, start &amp; end — wired to the canvas field; controls + presets come from one source
       (<code>dials.json</code> / <code>presets.json</code>). Built with the engine in this repo.
     </footer>
 
@@ -204,18 +232,18 @@
       const $ = (id) => document.getElementById(id);
       const POS = ['winL', 'winM', 'winR']; // left / middle / right window dom ids
 
-      // Which panel a dial lives in (also which half a randomize touches): burst-scoped +
-      // the burst-side sequencing dials go left; merger-scoped + merger-side sequencing go right.
+      // Which panel a dial lives in (also which half a randomize touches): first-scoped +
+      // the first-side sequencing dials go left; last-scoped + last-side sequencing go right.
       const panelOf = (key, scope) =>
-        scope === 'burst' ? 'burst' : scope === 'merger' ? 'merger' : key.indexOf('splash') === 0 ? 'merger' : 'burst';
+        scope === 'first' ? 'first' : scope === 'last' ? 'last' : key.indexOf('splash') === 0 ? 'last' : 'first';
 
       let SCHEMA = {}; // key -> { label, default, min, max, step, unit, scope, hint }
       let PRESETS = [];
       const inputs = {}; // key -> { num, range }
 
       // ----- engine state -----------------------------------------------------------
-      // The composition is a chain of 1..MAX_CHAIN Moments (each a complete dial-set).
-      // A single link = "normal" mode (Burst half · Moment · Merger half, Swap enabled);
+      // The composition is a chain of 1..MAX_CHAIN Togethers (each a complete dial-set).
+      // A single link = "normal" mode (First half · Together · Last half, Swap enabled);
       // two or more = chain mode. `dials` always aliases the *selected*, editable link, so
       // the panels, Randomize and presets all act on whichever link you've clicked.
       const MAX_CHAIN = 10;
@@ -230,45 +258,45 @@
 
       // ----- conducting the windows -------------------------------------------------
       // Each window runs a "program": a list of {mode, dials} steps it plays in a loop.
-      // One mechanism serves the single Moment, Swap (a reversed 2-step Moment) and the
+      // One mechanism serves the single Together, Swap (a reversed 2-step Together) and the
       // chain (the whole sequence through the middle). All windows load the full overlay,
       // so we just clear their self-loop and drive them by role.
-      const moments = (sets) => sets.map((d) => ({ mode: 'moment', dials: d }));
+      const togethers = (sets) => sets.map((d) => ({ mode: 'together', dials: d }));
 
       function stepMs(step) {
         const d = step.dials || dials;
         const ib = +d.initialBlackMs || 0, sb = +d.splitBlackMs || 0;
-        if (step.mode === 'burst') return ib + sb + 1200;
-        if (step.mode === 'merger') return 2400;
-        return ib + sb + (+d.creationBeatMs || 0) + 1700 + (+d.splashHoldMs || 0); // moment
+        if (step.mode === 'first') return ib + sb + 1200;
+        if (step.mode === 'last') return 2400;
+        return ib + sb + (+d.creationBeatMs || 0) + 1700 + (+d.splashHoldMs || 0); // together
       }
 
       // Compute each window's program + caption from the current state.
       function plan() {
         const d = links[editIdx];
-        const burst = { mode: 'burst', dials: d };
-        const merger = { mode: 'merger', dials: d };
+        const first = { mode: 'first', dials: d };
+        const last = { mode: 'last', dials: d };
         if (links.length > 1) {
           // Chain: the middle plays the whole composition; the sides show the two halves
           // of the link you're currently editing, so a click + a knob update them live.
           const tag = '#' + (editIdx + 1) + ' of ' + links.length;
           return {
-            winL: { steps: [burst], role: 'Burst', sub: tag, live: true },
-            winM: { steps: moments(links), role: 'Moment', sub: links.length + '-moment chain', live: true },
-            winR: { steps: [merger], role: 'Merger', sub: tag, live: true },
+            winL: { steps: [first], role: 'First', sub: tag, live: true },
+            winM: { steps: togethers(links), role: 'Together', sub: links.length + '-link chain', live: true },
+            winR: { steps: [last], role: 'Last', sub: tag, live: true },
           };
         }
         if (swapped) {
           return {
-            winL: { steps: [merger], role: 'Merger', sub: 'half', live: true },
-            winM: { steps: [merger, burst], role: 'Moment', sub: 'reversed ⇄', live: true },
-            winR: { steps: [burst], role: 'Burst', sub: 'half', live: true },
+            winL: { steps: [last], role: 'Last', sub: 'half', live: true },
+            winM: { steps: [last, first], role: 'Together', sub: 'reversed ⇄', live: true },
+            winR: { steps: [first], role: 'First', sub: 'half', live: true },
           };
         }
         return {
-          winL: { steps: [burst], role: 'Burst', sub: 'half', live: true },
-          winM: { steps: [{ mode: 'moment', dials: d }], role: 'Moment', sub: 'the two combined', live: true },
-          winR: { steps: [merger], role: 'Merger', sub: 'half', live: true },
+          winL: { steps: [first], role: 'First', sub: 'half', live: true },
+          winM: { steps: [{ mode: 'together', dials: d }], role: 'Together', sub: 'the two combined', live: true },
+          winR: { steps: [last], role: 'Last', sub: 'half', live: true },
         };
       }
 
@@ -322,15 +350,30 @@
         else depth.hidden = true;
       }
 
-      // ----- the visual chain strip -------------------------------------------------
+      // ----- the visual chain strip (click to edit · drag to reorder) ---------------
       let chipEls = [];
-      // A swatch per link, derived from its burst/merger hue so links look distinct.
+      let dragFrom = -1;
+      // A swatch per link, derived from its First/Last hue so links look distinct.
       const wrap = (n) => ((n % 360) + 360) % 360;
       function chipBg(d) {
         const a = wrap(40 + (d.crHue || 0)), b = wrap(210 + (d.spHue || 0));
         return 'linear-gradient(135deg, hsl(' + a + ',85%,58%), hsl(' + b + ',75%,48%))';
       }
       function paintChip(i) { if (chipEls[i]) chipEls[i].style.background = chipBg(links[i]); }
+
+      function clearDropMarks() {
+        for (const el of chipEls) if (el) el.classList.remove('drop-before', 'drop-after');
+      }
+      // Move a link from index `from` to final index `to`, keeping the same link selected.
+      function moveLink(from, to) {
+        if (from === to || from < 0) return;
+        const sel = links[editIdx];
+        const [m] = links.splice(from, 1);
+        links.splice(to, 0, m);
+        editIdx = links.indexOf(sel);
+        render(false); // the chain order changed → re-drive the windows
+        renderChain();
+      }
 
       function renderChain() {
         const strip = $('chainstrip');
@@ -341,8 +384,9 @@
           chip.type = 'button';
           chip.className = 'link' + (i === editIdx ? ' on' : '');
           chip.style.background = chipBg(d);
-          chip.title = 'Edit Moment ' + (i + 1);
-          chip.setAttribute('aria-label', 'Edit Moment ' + (i + 1) + (i === editIdx ? ' (selected)' : ''));
+          chip.draggable = true;
+          chip.title = 'Edit link ' + (i + 1) + ' — drag to reorder';
+          chip.setAttribute('aria-label', 'Link ' + (i + 1) + (i === editIdx ? ' (selected)' : '') + ' — click to edit, drag to reorder');
           chip.setAttribute('aria-pressed', i === editIdx ? 'true' : 'false');
           const n = document.createElement('span');
           n.className = 'link__n';
@@ -352,11 +396,37 @@
             const x = document.createElement('span');
             x.className = 'link__x';
             x.textContent = '×';
-            x.title = 'Remove Moment ' + (i + 1);
+            x.title = 'Remove link ' + (i + 1);
             x.addEventListener('click', (e) => { e.stopPropagation(); removeLink(i); });
             chip.appendChild(x);
           }
-          chip.addEventListener('click', () => selectLink(i));
+          chip.addEventListener('click', () => { if (dragFrom < 0) selectLink(i); });
+          // drag-and-drop reordering
+          chip.addEventListener('dragstart', (e) => {
+            dragFrom = i; e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', String(i)); } catch (err) {}
+            chip.classList.add('dragging');
+          });
+          chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); clearDropMarks(); dragFrom = -1; });
+          chip.addEventListener('dragover', (e) => {
+            if (dragFrom < 0 || dragFrom === i) return;
+            e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+            const r = chip.getBoundingClientRect();
+            const before = e.clientX < r.left + r.width / 2;
+            chip.classList.toggle('drop-before', before);
+            chip.classList.toggle('drop-after', !before);
+          });
+          chip.addEventListener('dragleave', () => chip.classList.remove('drop-before', 'drop-after'));
+          chip.addEventListener('drop', (e) => {
+            e.preventDefault();
+            chip.classList.remove('drop-before', 'drop-after');
+            if (dragFrom < 0 || dragFrom === i) return;
+            const r = chip.getBoundingClientRect();
+            const before = e.clientX < r.left + r.width / 2;
+            let raw = before ? i : i + 1;
+            const to = raw > dragFrom ? raw - 1 : raw;
+            moveLink(dragFrom, to);
+          });
           strip.appendChild(chip);
           chipEls[i] = chip;
         });
@@ -365,7 +435,7 @@
         add.className = 'link link--add';
         add.textContent = '+';
         add.disabled = links.length >= MAX_CHAIN;
-        add.title = add.disabled ? 'Chain is full (max ' + MAX_CHAIN + ')' : 'Continue the chain — add a Moment';
+        add.title = add.disabled ? 'Chain is full (max ' + MAX_CHAIN + ')' : 'Continue the chain — add a Together';
         add.setAttribute('aria-label', add.title);
         add.addEventListener('click', addLink);
         strip.appendChild(add);
@@ -432,6 +502,19 @@
         render(true);
       }
 
+      // ----- the dice ---------------------------------------------------------------
+      const DIE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+      function rollDie(span) {
+        if (!span) return;
+        span.classList.remove('rolling'); void span.offsetWidth; span.classList.add('rolling'); // restart the tumble
+        let n = 0;
+        clearInterval(span.__roll);
+        span.__roll = setInterval(() => {
+          span.textContent = DIE_FACES[(Math.random() * 6) | 0];
+          if (++n > 6) { clearInterval(span.__roll); span.textContent = '🎲'; }
+        }, 70);
+      }
+
       // Randomize one half (or 'all'): every dial in that scope rolls a fresh value across
       // its full range — dramatic by design. Writes into the selected link.
       function randomizeScope(scope, quiet) {
@@ -489,7 +572,7 @@
           $('grid-' + panelOf(key, meta.scope)).appendChild(buildDial(key, meta));
         }
 
-        // Start with a single Moment.
+        // Start with a single Together.
         links = [defaultsDials()];
         useLink(0);
 
@@ -504,11 +587,17 @@
           if (p) applyPreset(p);
         });
 
-        $('rand-burst').addEventListener('click', () => randomizeScope('burst'));
-        $('rand-merger').addEventListener('click', () => randomizeScope('merger'));
+        $('rand-first').addEventListener('click', (e) => { rollDie(e.currentTarget.querySelector('.die')); randomizeScope('first'); });
+        $('rand-last').addEventListener('click', (e) => { rollDie(e.currentTarget.querySelector('.die')); randomizeScope('last'); });
         $('swap').addEventListener('click', () => { if (links.length === 1) { swapped = !swapped; render(false); } });
         $('chain').addEventListener('click', addLink);
         $('reset').addEventListener('click', () => resetAll(sel));
+
+        // A tactile "pop" on every button press.
+        document.addEventListener('click', (e) => {
+          const b = e.target.closest && e.target.closest('.btn');
+          if (b && !b.disabled) { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+        });
 
         // Drive each window once it has loaded (and whenever we re-plan).
         for (const id of POS) $(id).addEventListener('load', () => driveWindow(id));
