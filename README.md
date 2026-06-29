@@ -13,9 +13,11 @@ orbs spiralling into an event horizon). Lifted into this repo (history intact) a
 generalized, the engine can play either half, the combined Together, **randomize** or
 **swap** their order, or **chain** up to ten Togethers (drag to reorder).
 
-You **sculpt** with **abstract, pedal-style knobs** — feelings and textures (Tide, Pyre,
-Erosion, Entropy, Mandala, Facet, Dawn, Dusk…) rather than widths and sizes — wired to the
-canvas field so a turn re-shapes the motion, not just the dimensions.
+You **sculpt** with **abstract, pedal-style knobs** — not widths and sizes. The First explodes
+six ways (the **Blast** — cone, shockwave, shards, lightning, nova) and the Last resolves into
+eight neon **Forms** (ring, polygon, star, slit, lens, lattice, spiral, cross) framed by slices
+of light. It's drawn as **snappy neon vectors** — a handful of strokes a frame — not a field of
+thousands of particles.
 
 |  | |
 | --- | --- |
@@ -36,9 +38,9 @@ npm run dev
 build-free site served by GitHub Pages (*Deploy from a branch* → `main` / root).
 [`index.html`](index.html) shows three windows on one row — left the **First**, middle the
 **Together** (the two combined), right the **Last** — each looping, with compact knob panels
-for all 50 parameters and a 12-preset picker (default **Genesis**). **🎲 Randomize** rolls
-fresh values for one half (the die tumbles); **⇄ Swap order** reverses the two in the Together
-(middle plays Last→First); **⛓ Continue the chain** builds a **visual chain of up to ten
+for all 40 parameters and a 12-preset picker (default **Genesis**). **Randomize** rolls fresh
+values for one half (the die tumbles); **Swap order** reverses the two in the Together
+(middle plays Last→First); **Continue the chain** builds a **visual chain of up to ten
 Togethers** — a strip of link chips you **click to edit** and **drag to reorder** (the middle
 plays the whole composition, the side windows show the selected link's two halves). It embeds
 the single-file exports ([`first.html`](first.html), [`last.html`](last.html),
@@ -56,27 +58,28 @@ The toolkit makes two animations and combines them — one overlay
 | id | mode | what it is |
 | --- | --- | --- |
 | `first` | `first` | the **First** — black hold → 1-frame test pattern → pure-CSS firework burst. |
-| `last` | `last` | the **Last** — two orbs inspiral and merge into the forming event horizon (CSS + a canvas dust field; the abstract texture knobs live here). |
+| `last` | `last` | the **Last** — two orbs inspiral + merge (CSS), then the field resolves into a selectable neon **Form** + slices of light on the canvas (this is where most knobs live). |
 | `together` | `together` | the **Together** — the First then the Last, with the crossfade hand-off and the melt-inward Replay. |
 
 The intro unit (the source of all three) has its own [README](src/intro/README.md).
 
 ## Sculpting — abstract knobs
 
-The dust field of the **Last** is a programmable canvas, so most knobs are *characterful*
-rather than dimensional — each shapes how the field **moves and resolves**:
+The 40 knobs are *characterful* macros, not dimensions — each chains several sub-effects:
 
-- **textures** — `Tide` (water), `Pyre` (flame), `Erosion` (crumble), `Entropy` (disintegrate),
-  `Turbulence` (chaos), `Undertow` (counter-current).
-- **geometry** — `Symmetry` (spiral arms), `Vortex`, `Bloom` (petals), `Mandala` (N-fold
-  kaleidoscope), `Facet` (motes harden into crystalline shapes).
-- **start & end** — `Dawn` (gather from far chaos) and `Dusk` (a signed exit: collapse inward
-  `−`, settle `0`, fly apart `+`); plus `Ignition` for how violent the First's birth is.
-- **feel** — `Gravity`, `Heartbeat`, `Breath`, `Shimmer`, `Chromatic`, `Memory`, `Mood`,
-  `Mortality`, `Density`, `Grain`…
+- **the explosion** — `Blast` (classic · cone · shockwave · shards · lightning · nova),
+  `Spread` (tight ↔ full radial), `Shards`, `Ignition`, `Reach`.
+- **the form it resolves into** — `Form` (ring · polygon · star · slit · lens · lattice · spiral ·
+  cross), `Facets` (its detail), `Scale`, `Halo`, plus `Beams` / `Sweep` / `Neon` for the slices of
+  light that frame it.
+- **how it moves** — `Flux` (inspiral), `Heartbeat`, `Mandala` (a cheap whole-canvas kaleidoscope),
+  `Texture` (one knob: smooth → water → flame → crumble → disintegrate), `Turbulence`.
+- **start & end** — `Dawn` (gather from far) and `Dusk` (a signed exit: collapse inward `−`, settle
+  `0`, fly apart `+`).
 
-All default to today's look (every texture at 0), so the **Genesis** default and the kept
-**Original (One Still Point)** preset are exactly as authored; presets opt into the textures.
+Defaults match the authored look, so the **Original (One Still Point)** preset stays faithful and
+**Genesis** is the new default; the field is **snappy neon vectors** with a small, capped dust
+`Sparkle` — not a heavy particle field.
 
 ## The idea — an animation is data
 
@@ -102,7 +105,7 @@ Dials, their UI schema (`label`/`min`/`max`/`step`/`unit`/`hint`/`scope`) and th
 live as **data in one place** — [`src/intro/dials.json`](src/intro/dials.json) and
 [`src/engine/presets.json`](src/engine/presets.json). The overlay mirrors the defaults
 (kept in lockstep by a test), the lab imports them, and the static showcase `fetch`es them —
-so the 50 parameters and 12 presets are declared once.
+so the 40 parameters and 12 presets are declared once.
 
 They're collected in [`src/engine/registry.ts`](src/engine/registry.ts); the lab, the
 export and the tests all read from that one list. The engine plays a **selected**

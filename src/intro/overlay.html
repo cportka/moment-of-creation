@@ -2,19 +2,11 @@
      index.html and intro-lab.html by the introOverlay() plugin in vite.config.ts, so
      the dev tuning lab previews the exact intro the site ships. The dials below are
      mirrored by src/intro/introTimeline.ts (introTimeline.test.ts guards the two). -->
-<!-- Load splash: a colourful, JS-free binary-merger "formation". Two big orbs
-     twirl together while a cluster + dust swirls in; at the merger a flash,
-     a tilted jet, colour plumes and reverberating shock rings burst forth,
-     and the dark event horizon settles into the final circle. Paints on first
-     paint (static markup + a tiny synchronous generator), so it can't be late. -->
-<!-- The intro prelude + "moment of creation". #osp-creation is an opaque,
-     near-black full-screen layer from the very first paint (its burst children
-     stay invisible until --go), so it doubles as the **black screen** (beat A,
-     0.00–0.25s). At ~0.25s the .osp-lines child flashes for a **single frame**
-     (beat B: a 40px white/black horizontal test pattern). Then the burst fires
-     (beat C: pure CSS — light, beams, reverberating rings, identical on every
-     device), the splash overlaps from ~0.05s later, and the creation fades out
-     as the splash takes over. All sequenced by the inline __ospIntro below. -->
+<!-- The First (a CSS firework birth) and the Last (a binary merger that resolves into
+     a selectable neon Form) combine into the Together. Both paint on first paint:
+     static markup + a tiny synchronous generator + one cheap canvas of vector neon
+     (slices of light + a geometric Form), with a light dust accent. Snappy by design —
+     a handful of strokes, not thousands of particles. -->
 <div id="osp-creation" aria-hidden="true">
   <div class="osp-lines" aria-hidden="true"></div>
   <i class="osp-cr osp-cr-core"></i>
@@ -31,173 +23,195 @@
   <i class="osp-cr osp-cr-ring" style="--c:#ff6aa0;--d:.13s"></i>
 </div>
 <div id="osp-splash" aria-hidden="true"><div class="osp-splash__stage"></div></div>
-<!-- Build the whole splash synchronously (before the module bundle) so it
-     paints on first paint. Exposed as window.__ospSplash so "Replay intro"
-     can rebuild it (a fresh build restarts every animation). Structured
-     elements are CSS; the dust is one cheap canvas layer: hundreds of small,
-     mostly-warm, lightly-saturated points that spiral inward then spiral back
-     out. Capped backing resolution + small sprites keep it smooth. -->
 <script>
-  // Push the tunable dials onto CSS custom properties (read by intro.css). Defaults match
-  // the CSS var() fallbacks, so an un-tuned overlay (e.g. the verify-intro harness) looks
-  // identical. One place per half keeps __ospCreation / __ospIntro from drifting.
+  // ===== shared cheap neon-vector helpers (layered strokes, no shadowBlur) =========
+  // A small base palette; a single CSS hue-rotate on the canvas recolours the whole
+  // composition (Last light + Chromatic), so per-stroke colour stays cheap.
+  var OSP_PAL = ['#36e0ff', '#ff3cc0', '#ffd24a', '#b06aff', '#3affd0', '#ff7a4f'];
+  function ospClamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  // Trace a path (fn) as neon: a wide faint pass + a narrow bright pass.
+  function ospNeon(g, fn, w, col, a) {
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.strokeStyle = col; g.globalAlpha = a * 0.22; g.lineWidth = w * 2.6; fn(); g.stroke();
+    g.globalAlpha = a; g.lineWidth = w; fn(); g.stroke();
+  }
+  // Slices of light: n wedges of light radiating from the centre, fading outward.
+  function ospBeams(g, cx, cy, n, len, rot, halfW, a) {
+    if (n <= 0 || len <= 0) return;
+    for (var i = 0; i < n; i++) {
+      var ang = rot + i * 6.2832 / n, dx = Math.cos(ang), dy = Math.sin(ang), nx = -dy, ny = dx;
+      var ex = cx + dx * len, ey = cy + dy * len;
+      var grad = g.createLinearGradient(cx, cy, ex, ey), col = OSP_PAL[i % OSP_PAL.length];
+      grad.addColorStop(0, col); grad.addColorStop(0.15, col); grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.globalAlpha = a; g.fillStyle = grad;
+      g.beginPath(); g.moveTo(cx + nx * halfW, cy + ny * halfW); g.lineTo(cx - nx * halfW, cy - ny * halfW); g.lineTo(ex, ey); g.closePath(); g.fill();
+    }
+  }
+  // The path of one Form. type: 0 ring · 1 polygon · 2 star · 3 slit · 4 lens · 5 lattice · 6 spiral · 7 cross
+  function ospFormPath(g, cx, cy, type, R, sides, rot) {
+    g.beginPath();
+    if (type === 1) { for (var i = 0; i < sides; i++) { var a1 = rot + i * 6.2832 / sides; g[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a1) * R, cy + Math.sin(a1) * R); } g.closePath(); }
+    else if (type === 2) { var p = sides * 2; for (var j = 0; j < p; j++) { var a2 = rot + j * 6.2832 / p, rr = j % 2 ? R : R * 0.45; g[j ? 'lineTo' : 'moveTo'](cx + Math.cos(a2) * rr, cy + Math.sin(a2) * rr); } g.closePath(); }
+    else if (type === 3) { var hw = R * 0.34, hh = R * 1.2; g.moveTo(cx - hw, cy - hh + hw); g.arc(cx, cy - hh + hw, hw, Math.PI, 0); g.lineTo(cx + hw, cy + hh - hw); g.arc(cx, cy + hh - hw, hw, 0, Math.PI); g.closePath(); } // a vertical portal slit
+    else if (type === 4) { g.arc(cx - R * 0.5, cy, R, -0.95, 0.95); g.arc(cx + R * 0.5, cy, R, Math.PI - 0.95, Math.PI + 0.95); } // lens / eye
+    else if (type === 6) { var turns = 0.5 + sides * 0.35; for (var s = 0; s <= 120; s++) { var f = s / 120, a3 = rot + f * turns * 6.2832, r3 = R * f; g[s ? 'lineTo' : 'moveTo'](cx + Math.cos(a3) * r3, cy + Math.sin(a3) * r3); } } // spiral
+    else if (type === 7) { g.moveTo(cx - R, cy); g.lineTo(cx + R, cy); g.moveTo(cx, cy - R); g.lineTo(cx, cy + R); } // cross
+    else { g.arc(cx, cy, R, 0, 6.2832); } // 0 ring (and the outline for 5 lattice)
+  }
+  // Draw a Form as neon (with an optional halo glow + a grid for the lattice form).
+  function ospForm(g, cx, cy, type, R, sides, rot, a, w, halo, turb, t) {
+    if (R < 1 || a <= 0.01) return;
+    if (turb) { R *= 1 + turb * 0.06 * Math.sin(t * 9); rot += turb * 0.12 * Math.sin(t * 7); }
+    if (halo > 0) { var rg = g.createRadialGradient(cx, cy, R * 0.35, cx, cy, R + halo); rg.addColorStop(0, 'rgba(0,0,0,0)'); rg.addColorStop(0.7, OSP_PAL[(type + 1) % OSP_PAL.length]); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.globalAlpha = a * 0.18; g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, R + halo, 0, 6.2832); g.fill(); }
+    if (type === 5) { // lattice — a grid clipped to a circle
+      g.save(); g.beginPath(); g.arc(cx, cy, R, 0, 6.2832); g.clip();
+      var step = 2 * R / Math.max(2, sides), col5 = OSP_PAL[0];
+      g.strokeStyle = col5; g.globalAlpha = a; g.lineWidth = w; g.beginPath();
+      for (var x = -R; x <= R + 0.5; x += step) { g.moveTo(cx + x, cy - R); g.lineTo(cx + x, cy + R); g.moveTo(cx - R, cy + x); g.lineTo(cx + R, cy + x); }
+      g.stroke(); g.restore();
+    }
+    var col = OSP_PAL[type % OSP_PAL.length];
+    ospNeon(g, function () { ospFormPath(g, cx, cy, type, R, sides, rot); }, w, col, a);
+  }
+
+  // Push the tunable dials onto CSS custom properties (read by intro.css) for the First's
+  // CSS firework. Defaults match the CSS var() fallbacks. The canvas Blast (below) adds the
+  // alternate explosion geometries on top.
   function ospSetCreationVars(cr, D) {
-    var IG = (D.crIgnition || 0) / 100; // "Ignition" — how violent the birth is (flares flash / rays / rings / glow)
+    var IG = (D.crIgnition || 0) / 100; // "Ignition" — how violent the birth is
     cr.style.setProperty('--osp-cr-core', (D.crCoreSize != null ? D.crCoreSize : 7) + 'vmax');
     cr.style.setProperty('--osp-cr-flash', (D.crFlashSize != null ? D.crFlashSize : 30) * (1 + IG * 1.2) + 'vmax');
     cr.style.setProperty('--osp-cr-ray-len', (D.crRayLength != null ? D.crRayLength : 150) * (1 + IG * 0.8) + 'vmax');
-    cr.style.setProperty('--osp-cr-ray-w', (D.crRayWidth != null ? D.crRayWidth : 0.7) + 'vmax');
-    cr.style.setProperty('--osp-cr-ring-w', (D.crRingThickness != null ? D.crRingThickness : 0.5) + 'vmax');
     cr.style.setProperty('--osp-cr-ring-x', (D.crRingExpand != null ? D.crRingExpand : 13) * (1 + IG * 0.7));
-    cr.style.setProperty('--osp-lines-band', (D.linesBandPx != null ? D.linesBandPx : 40) + 'px');
     cr.style.filter = 'hue-rotate(' + (D.crHue || 0) + 'deg) brightness(' + (D.crBright != null ? D.crBright : 1) * (1 + IG * 0.5) + ')';
   }
   function ospSetSplashVars(splash, D) {
-    var stage = splash.querySelector('.osp-splash__stage');
-    if (stage) stage.style.setProperty('--core-d', (D.spCoreDiameter != null ? D.spCoreDiameter : 38) + 'vmin');
-    splash.style.setProperty('--osp-sp-orb', (D.spOrbSize != null ? D.spOrbSize : 13) + 'vmin');
-    splash.style.setProperty('--osp-sp-disk', (D.spDiskSize != null ? D.spDiskSize : 44) + 'vmin');
-    splash.style.setProperty('--osp-sp-shock-x', D.spShockExpand != null ? D.spShockExpand : 7);
-    splash.style.setProperty('--osp-sp-streak', (D.spStreakLength != null ? D.spStreakLength : 58) + 'vmin');
-    splash.style.setProperty('--osp-sp-plume', (D.spPlumeReach != null ? D.spPlumeReach : 24) + 'vmin');
-    splash.style.setProperty('--osp-sp-flash', (D.spFlashSize != null ? D.spFlashSize : 34) + 'vmin');
     splash.style.filter = 'hue-rotate(' + (D.spHue || 0) + 'deg)';
   }
 
-  // Build the splash (and, unless `defer`, play it immediately). Passing defer=true
-  // *prebuilds* it — stage + canvas ready but frozen (CSS paused via the
-  // #osp-splash:not(--go) rule; canvas not yet drawing) — so it can be assembled on
-  // an idle thread during the black hold and then played instantly, crossfading
-  // straight out of the moment of creation with no build hitch and no black gap.
+  // The First's canvas Blast — alternate ways an explosion can happen, drawn over the CSS
+  // burst. crBlast: 0 classic (CSS only) · 1 cone · 2 shockwave · 3 shards · 4 lightning · 5 nova.
+  window.__ospBlast = function () {
+    try {
+      var cr = document.getElementById('osp-creation');
+      if (!cr) return;
+      var D = window.__ospDials || {};
+      var mode = Math.round(D.crBlast || 0);
+      var rays = cr.getElementsByClassName('osp-cr-ray');
+      // Dim the CSS rays when an alternate blast owns the geometry, so they don't clash.
+      for (var ri = 0; ri < rays.length; ri++) rays[ri].style.opacity = mode === 0 ? '' : '0.22';
+      var old = cr.querySelector('.osp-cr-blastcv');
+      if (old) old.remove();
+      if (cr.__braf) cancelAnimationFrame(cr.__braf);
+      cr.__braf = 0;
+      if (mode === 0) return; // classic — pure CSS, nothing to draw
+      var cv = document.createElement('canvas');
+      cv.className = 'osp-cr-blastcv';
+      cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none';
+      cr.appendChild(cv);
+      var g = cv.getContext('2d');
+      if (!g) return;
+      var sc = Math.min(1, 1400 / Math.max(innerWidth, innerHeight));
+      var W = (cv.width = Math.round(innerWidth * sc)), H = (cv.height = Math.round(innerHeight * sc));
+      var cx = W / 2, cy = H / 2, vmax = Math.max(W, H) / 100;
+      var REACH = (D.crRayLength != null ? D.crRayLength : 150), SPREAD = (D.crSpread != null ? D.crSpread : 100) / 100;
+      var SH = Math.round(D.crShards || 0), IGb = 1 + (D.crIgnition || 0) / 100;
+      var dir = Math.random() < 0.5 ? 1 : -1, sd = []; // shard seeds
+      for (var s = 0; s < SH + 24; s++) sd.push({ a: Math.random() * 6.2832, sp: 0.5 + Math.random(), rot: Math.random() * 6.2832, w: 0.6 + Math.random() * 1.6 });
+      var bt0 = 0;
+      function bdraw(now) {
+        if (!bt0) bt0 = now;
+        var t = (now - bt0) / 1000, prog = ospClamp(t / 0.7), ease = prog * (2 - prog);
+        g.clearRect(0, 0, W, H);
+        g.globalCompositeOperation = 'lighter';
+        var len = REACH * vmax * 0.5 * ease * IGb, w = vmax * 1.4;
+        if (mode === 1) ospBeams(g, cx, cy, 7, len, -1.5708 - SPREAD * 1.2, w * (0.4 + SPREAD), 0.9 * (1 - prog * 0.4)); // cone (clustered upward)
+        else if (mode === 2) { for (var k = 0; k < 4; k++) { var rr = len * (0.4 + k * 0.22) * ease; ospNeon(g, function () { g.beginPath(); g.arc(cx, cy, rr, 0, 6.2832); }, vmax * (1.6 - k * 0.2), OSP_PAL[k % OSP_PAL.length], 0.85 * (1 - prog)); } } // shockwave
+        else if (mode === 3) { var n = SH || 16; for (var i = 0; i < n; i++) { var q = sd[i], d = len * q.sp * ease, px = cx + Math.cos(q.a) * d, py = cy + Math.sin(q.a) * d; ospNeon(g, function () { ospFormPath(g, px, py, 1, vmax * 1.8 * q.w, 3, q.rot + t * 6 * dir); }, vmax * 0.9, OSP_PAL[i % OSP_PAL.length], 0.9 * (1 - prog * 0.7)); } } // shards
+        else if (mode === 4) { var bolts = 7; for (var b = 0; b < bolts; b++) { var a0 = b * 6.2832 / bolts + 0.2 * Math.sin(t * 20 + b); ospNeon(g, function () { g.beginPath(); g.moveTo(cx, cy); var seg = 6, px2 = cx, py2 = cy; for (var sgi = 1; sgi <= seg; sgi++) { var fr = sgi / seg, jit = (Math.sin(b * 9 + sgi * 3 + ((t * 30) | 0)) ) * vmax * 2 * (1 - fr); var aa = a0 + jit * 0.04; px2 = cx + Math.cos(aa) * len * fr; py2 = cy + Math.sin(aa) * len * fr; g.lineTo(px2, py2); } }, vmax * 0.8, OSP_PAL[b % OSP_PAL.length], 0.9 * (1 - prog * 0.5)); } } // lightning
+        else { var rg = g.createRadialGradient(cx, cy, 0, cx, cy, len); rg.addColorStop(0, 'rgba(255,240,210,' + (0.9 * (1 - prog)) + ')'); rg.addColorStop(0.4, OSP_PAL[2]); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.globalAlpha = 1; g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, len, 0, 6.2832); g.fill(); ospBeams(g, cx, cy, 12, len * 1.1, t * dir, w * 0.5, 0.5 * (1 - prog)); } // nova
+        g.globalAlpha = 1;
+        if (t < 0.95) cr.__braf = requestAnimationFrame(bdraw); else { g.clearRect(0, 0, W, H); cr.__braf = 0; }
+      }
+      cr.__braf = requestAnimationFrame(bdraw);
+    } catch (e) { /* the blast is non-essential */ }
+  };
+
+  // Build the Last (and, unless `defer`, play it). The merge drama (orbs, flash, neon
+  // streaks, shock rings, plumes) is CSS; the *ending* — slices of light + a selectable
+  // neon Form — plus a light dust accent is one cheap canvas. Prebuild during the black
+  // hold (defer=true) so it plays instantly with no hitch.
   window.__ospSplash = function (defer) {
     try {
       var splash = document.getElementById('osp-splash');
       var stage = splash && splash.querySelector('.osp-splash__stage');
       if (!stage) return;
       var D = window.__ospDials || {};
-      ospSetSplashVars(splash, D); // size/colour custom props + horizon diameter
+      ospSetSplashVars(splash, D);
       splash.classList.remove('osp-splash--hide');
-      splash.classList.remove('osp-splash--go'); // a (re)build starts paused until __ospSplashPlay
-      splash.__hideAt = 0; // reset the crossfade marker on (re)build
+      splash.classList.remove('osp-splash--go');
+      splash.__hideAt = 0;
       if (splash.__raf) cancelAnimationFrame(splash.__raf);
       splash.__raf = 0;
       var prev = splash.querySelector('.osp-splash__dustcv');
       if (prev) prev.remove();
       var R = function (a, b) { return a + Math.random() * (b - a); };
 
-      // Structured burst elements (CSS-animated).
+      // Structured CSS burst — the merge drama. The resolved geometry lives on the canvas
+      // now, so there is no CSS core/disk: the merger can end on any Form.
       var h = '';
-      // Reverberating shock rings: vibrant neon bases; CSS animates a hue-shift
-      // + glow so they shimmer through the spectrum as they expand (--sd staggers
-      // them, compressed so the whole burst lands inside ~0.65s).
       var SC = [['#ff1f9e', '0.22', '7'], ['#ff7a1f', '0.28', '-11'], ['#14e3ff', '0.34', '3'], ['#c23dff', '0.40', '-5']];
-      for (var s = 0; s < SC.length; s++)
-        h += '<span class="osp-splash__shock" style="--rc:' + SC[s][0] + ';--sd:' + SC[s][1] + 's;--rr:' + SC[s][2] + 'deg"></span>';
-      // Neon streaks — thin bright rays that shoot out with the rings (hue-shifted).
+      for (var s = 0; s < SC.length; s++) h += '<span class="osp-splash__shock" style="--rc:' + SC[s][0] + ';--sd:' + SC[s][1] + 's;--rr:' + SC[s][2] + 'deg"></span>';
       var KC = ['#ff2fae', '#22e6ff', '#b65cff', '#ffd24a', '#ff5cf0', '#3affd0'], KA = [34, 96, 162, 214, 283, 331];
-      for (var kk = 0; kk < KC.length; kk++)
-        h += '<span class="osp-splash__streak" style="--a:' + KA[kk] + 'deg;--kc:' + KC[kk] + '"></span>';
-      // Gas plumes — kept warm (gold → orange) so the overall colourway reads warm
-      // and elegant; the neon lives in the rings + streaks above.
+      for (var kc = 0; kc < KC.length; kc++) h += '<span class="osp-splash__streak" style="--a:' + KA[kc] + 'deg;--kc:' + KC[kc] + '"></span>';
       var PC = ['#ffd24a', '#ffb24a', '#ff8a3c', '#ffe2a0', '#ffc266', '#ff9a48'], PA = [18, 74, 138, 203, 262, 321];
-      for (var q = 0; q < PC.length; q++)
-        h += '<span class="osp-splash__plume" style="--a:' + PA[q] + 'deg;--pc:' + PC[q] + '"></span>';
+      for (var q = 0; q < PC.length; q++) h += '<span class="osp-splash__plume" style="--a:' + PA[q] + 'deg;--pc:' + PC[q] + '"></span>';
       h += '<span class="osp-splash__orb osp-splash__orb--a"></span><span class="osp-splash__orb osp-splash__orb--b"></span>' +
         '<span class="osp-splash__jet"></span><span class="osp-splash__flash"></span>';
-      function body(cls, n, sMin, sMax, rMin, rMax, dS) {
-        for (var i = 0; i < n; i++)
-          h += '<i class="' + cls + '" style="--a:' + R(0, 360).toFixed(1) + 'deg;--s:' + R(sMin, sMax).toFixed(2) +
-            'vmin;--r:' + R(rMin, rMax).toFixed(1) + 'vmin;--w:' + R(120, 240).toFixed(0) + 'deg;--d:' + (-R(0, dS)).toFixed(3) + 's"></i>';
-      }
-      body('osp-splash__b osp-splash__b--big', 3 + ((Math.random() * 2) | 0), 3.2, 5, 24, 40, 0.06);
-      body('osp-splash__b', 5 + ((Math.random() * 4) | 0), 0.8, 1.6, 22, 46, 0.14);
-      // A warm accretion ring that forms *early* and holds around the horizon
-      // (the gas/dust ring), then the event-horizon core settles inside it.
-      h += '<span class="osp-splash__disk"></span><span class="osp-splash__core"></span>';
       stage.innerHTML = h;
+      stage.style.opacity = '1'; // reset for replay; the draw loop fades it as the Form resolves
 
-      // Canvas dust — small, mostly-warm, coherent spiral; cheap (capped res).
+      // One cheap canvas: light dust accent + slices of light + the neon Form.
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var cv = document.createElement('canvas');
       cv.className = 'osp-splash__dustcv';
       splash.insertBefore(cv, splash.firstChild);
       var ctx = cv.getContext('2d');
       if (!ctx) return;
-      var sc = Math.min(1, 1500 / Math.max(innerWidth, innerHeight)); // bound backing buffer
-      var W = (cv.width = Math.round(innerWidth * sc));
-      var H = (cv.height = Math.round(innerHeight * sc));
+      var scl = Math.min(1, 1400 / Math.max(innerWidth, innerHeight));
+      var W = (cv.width = Math.round(innerWidth * scl));
+      var H = (cv.height = Math.round(innerHeight * scl));
       cv.style.width = innerWidth + 'px';
       cv.style.height = innerHeight + 'px';
       var cx = W / 2, cy = H / 2, vmin = Math.min(W, H) / 100;
+      var oc = document.createElement('canvas'); oc.width = W; oc.height = H; var octx = oc.getContext('2d'); // offscreen for Mandala
       function sprite(color) {
-        var z = 40, c = document.createElement('canvas');
-        c.width = c.height = z;
-        var g = c.getContext('2d'), rg = g.createRadialGradient(z / 2, z / 2, 0, z / 2, z / 2, z / 2);
-        rg.addColorStop(0, color);
-        rg.addColorStop(0.35, color);
-        rg.addColorStop(1, 'rgba(0,0,0,0)');
-        g.fillStyle = rg;
-        g.beginPath();
-        g.arc(z / 2, z / 2, z / 2, 0, 6.2832);
-        g.fill();
-        return c;
+        var z = 32, c = document.createElement('canvas'); c.width = c.height = z;
+        var gg = c.getContext('2d'), rg = gg.createRadialGradient(z / 2, z / 2, 0, z / 2, z / 2, z / 2);
+        rg.addColorStop(0, color); rg.addColorStop(0.4, color); rg.addColorStop(1, 'rgba(0,0,0,0)');
+        gg.fillStyle = rg; gg.beginPath(); gg.arc(z / 2, z / 2, z / 2, 0, 6.2832); gg.fill(); return c;
       }
-      // A crisp 6-point star sprite (for "Facet" — soft motes harden into crystalline shapes).
-      function starSprite(color) {
-        var z = 40, c = document.createElement('canvas');
-        c.width = c.height = z;
-        var g = c.getContext('2d'), rg = g.createRadialGradient(z / 2, z / 2, 0, z / 2, z / 2, z / 2);
-        rg.addColorStop(0, color);
-        rg.addColorStop(0.5, color);
-        rg.addColorStop(1, 'rgba(0,0,0,0)');
-        g.fillStyle = rg; // a faint halo so it still glows in the additive field
-        g.beginPath();
-        g.arc(z / 2, z / 2, z / 2, 0, 6.2832);
-        g.fill();
-        g.fillStyle = color; // then a hard polygon on top
-        g.beginPath();
-        for (var i = 0; i < 12; i++) {
-          var an = -1.5708 + i * 0.5236, rr = i % 2 ? z * 0.15 : z * 0.46;
-          g[i ? 'lineTo' : 'moveTo'](z / 2 + Math.cos(an) * rr, z / 2 + Math.sin(an) * rr);
-        }
-        g.closePath();
-        g.fill();
-        return c;
-      }
-      var warmC = ['#fff3df', '#ffe6c2', '#ffd49a', '#ffcf86', '#fff7ec', '#ffdca8', '#ffc878'];
-      var coolC = ['#eef2ff', '#e4ecff']; // a few near-white sparkles, not blue
-      var warm = warmC.map(sprite), cool = coolC.map(sprite);
-      var warmShard = warmC.map(starSprite), coolShard = coolC.map(starSprite); // Facet palettes (parallel)
-      var DIR = Math.random() < 0.5 ? 1 : -1; // one swirl direction for the whole field
-      var N = Math.max(0, Math.round(D.spDustCount != null ? D.spDustCount : 320));
-      if (reduce) N = Math.min(N, 70); // reduced motion caps the field
-      // ---- pattern/geometry, read once at build ----
-      var ARMS = Math.round(D.spArms || 0); // quantise particles into N spiral arms (0 = free)
-      var COOL = (1 - (D.spWarmth != null ? D.spWarmth : 90) / 100) * 0.5; // cool-spark fraction
-      var DAWN = (D.spDawn || 0) / 100; // "Dawn" — how the field gathers at the start (far + staggered)
+      var warm = ['#fff3df', '#ffe6c2', '#ffd49a', '#ffcf86', '#ffdca8'].map(sprite), cool = ['#eef2ff', '#dbe6ff'].map(sprite);
+      var DIR = Math.random() < 0.5 ? 1 : -1;
+      var SPARK = Math.max(0, Math.min(100, D.spSparkle != null ? D.spSparkle : 18)) / 100;
+      var N = Math.round(SPARK * 170); // hard cap — the dust is an accent, not the show
+      if (reduce) N = Math.min(N, 50);
+      var COOL = (1 - (D.spWarmth != null ? D.spWarmth : 90) / 100) * 0.5;
+      var DAWN = (D.spDawn || 0) / 100;
       var P = new Array(N);
       for (var k = 0; k < N; k++) {
-        var a0 = ARMS > 0 ? (((Math.random() * ARMS) | 0) / ARMS) * 6.2832 + R(-0.12, 0.12) : R(0, 6.2832);
         var isCool = Math.random() < COOL, pal = isCool ? cool : warm;
         P[k] = {
-          a: a0, r0: R(22, 54) + DAWN * R(20, 120), rmin: R(7, 20), rb: R(30, 86), // Dawn starts the motes far out
-          tn: DIR * (1.15 + R(-0.2, 0.2)) * (D.spDustSpiral != null ? D.spDustSpiral : 1), om: DIR * (0.5 + R(0, 0.9)), // inspiral wind (× spDustSpiral) + drift
-          mg: (0.2 + R(0, 0.16)) * (1 + DAWN * 1.2), // staggered turn time; Dawn slows the gathering
-          sz: (0.16 + Math.pow(Math.random(), 2.2) * 0.95) * vmin * (D.spDustSize != null ? D.spDustSize : 1),
-          dl: R(0, 0.05) + DAWN * R(0, 0.5), // Dawn staggers the entry
-          tw: R(0, 6.2832), // twinkle / texture phase
-          ci: (Math.random() * pal.length) | 0, cool: isCool, fr: Math.random(), // colour index, palette, Facet rank
+          a: R(0, 6.2832), r0: R(26, 60) + DAWN * R(20, 90), rmin: R(6, 18), rb: R(34, 80),
+          tn: DIR * (1.1 + R(-0.2, 0.3)), om: DIR * (0.5 + R(0, 0.8)), mg: (0.2 + R(0, 0.16)) * (1 + DAWN),
+          sz: (0.22 + Math.pow(Math.random(), 2) * 0.9) * vmin * (D.spDustSize != null ? D.spDustSize : 1),
+          dl: R(0, 0.05) + DAWN * R(0, 0.4), tw: R(0, 6.2832), spr: pal[(Math.random() * pal.length) | 0],
         };
       }
-      var t0 = 0, STOP = 1.7;
+
+      var t0 = 0, STOP = 2.5;
       function draw(now) {
         if (!t0) {
-          // Start the clock AND the CSS choreography (--go) on the first
-          // *painted* frame, not at parse: mobile Safari often defers the
-          // first paint past the short splash, so a parse-time timeline meant
-          // the merger was never seen. This also locks the CSS layers to this
-          // canvas, and lets main.ts hold the crossfade until the splash has
-          // actually played (window.__ospSplashStart).
           t0 = now;
           window.__ospSplashStart = now;
           splash.classList.add('osp-splash--go');
@@ -205,152 +219,133 @@
         var t = (now - t0) / 1000;
         var DD = window.__ospDials || {};
         var TRAIL = (DD.spDustTrail || 0) / 100, CYCLE = DD.spColorCycle || 0;
-        var TWK = (DD.spTwinkle || 0) / 100, OSC = (DD.spSwirlOsc || 0) / 100;
-        var PUL = (DD.spPulse || 0) / 100, WAV = (DD.spWave || 0) / 100, TWIST = (DD.spArmTwist || 0) / 100;
-        var DRIFT = DD.spDriftOut != null ? DD.spDriftOut : 50, FADE = (DD.spDustFade != null ? DD.spDustFade : 34) / 100;
-        // ---- texture / character layers (each 0 = off, so the authored field is untouched) ----
-        var TIDE = (DD.spTide || 0) / 100, PYRE = (DD.spPyre || 0) / 100, ERO = (DD.spErosion || 0) / 100;
-        var ENT = (DD.spEntropy || 0) / 100, TURB = (DD.spTurb || 0) / 100, UNDER = (DD.spUndertow || 0) / 100;
-        var FACET = (DD.spFacet || 0) / 100, MAND = Math.round((DD.spMandala || 0) / 100 * 6);
-        var K = MAND >= 1 ? MAND + 1 : 1, mc = [], ms = []; // Mandala: K-fold rotational symmetry
-        for (var mi = 0; mi < K; mi++) { var th = mi * 6.2832 / K; mc[mi] = Math.cos(th); ms[mi] = Math.sin(th); }
-        // Trail: fade the prior frame instead of clearing (motion smear); else hard clear.
-        if (TRAIL > 0) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(0,0,0,' + (1 - TRAIL * 0.92).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
-        else ctx.clearRect(0, 0, W, H);
-        ctx.filter = CYCLE ? 'hue-rotate(' + ((t * CYCLE * 4) | 0) + 'deg)' : 'none'; // colour cycle
-        ctx.globalCompositeOperation = 'lighter';
+        var TWK = (DD.spTwinkle || 0) / 100, PUL = (DD.spPulse || 0) / 100, TURB = (DD.spTurb || 0) / 100;
+        var DUSK = DD.spDriftOut != null ? DD.spDriftOut : 50, FLUX = (DD.spFlux != null ? DD.spFlux : 40) / 100;
+        var TEX = (DD.spTexture || 0) / 100; // one knob, chained: smooth → water → flame → crumble → disintegrate
+        var TIDE = ospClamp(1 - Math.abs(TEX - 0.25) / 0.25), PYRE = ospClamp(1 - Math.abs(TEX - 0.55) / 0.25);
+        var ERO = ospClamp((TEX - 0.55) / 0.3), ENT = ospClamp((TEX - 0.78) / 0.22);
+        var NEON = (DD.spNeon != null ? DD.spNeon : 60) / 100;
+        var FORM = Math.round(DD.spForm || 0), SIDES = Math.round(DD.spSides != null ? DD.spSides : 6);
+        var BEAMS = Math.round(DD.spBeams || 0), SWEEP = (DD.spSweep || 0) / 100;
+        var SCALE = DD.spCoreDiameter != null ? DD.spCoreDiameter : 38, HALO = DD.spDiskSize != null ? DD.spDiskSize : 44;
+        var MAND = Math.round((DD.spMandala || 0) / 100 * 5), K = MAND >= 1 ? MAND + 1 : 1;
+        var g = K > 1 ? octx : ctx; // when mandala-compositing, render the frame offscreen first
+        // Last light + Chromatic recolour the whole canvas with one cheap hue-rotate.
+        cv.style.filter = 'hue-rotate(' + ((DD.spHue || 0) + t * CYCLE * 0.6) + 'deg)';
+        if (TRAIL > 0) { g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,' + (1 - TRAIL * 0.9).toFixed(3) + ')'; g.fillRect(0, 0, W, H); }
+        else g.clearRect(0, 0, W, H);
+        g.globalCompositeOperation = 'lighter';
+        var mp = ospClamp((t - 0.4) / 0.8); mp = mp * mp * (3 - 2 * mp); // merge progress — the Form resolves as the orbs fade
+        var late = t > 1.4 ? t - 1.4 : 0; // Dusk shapes the ending, after the Form has formed
+        // The CSS merge (orbs, flash, streaks) plays, then the stage fades so the canvas
+        // Form behind it becomes the ending — no longer always a bright circle.
+        stage.style.opacity = ospClamp(1 - (t - 0.7) / 0.7);
+        var puls = 1 + PUL * 0.12 * Math.sin(t * 4);
+
+        // ---- light dust accent ----
         for (var j = 0; j < N; j++) {
           var p = P[j], tt = t - p.dl;
           if (tt < 0) continue;
-          // One continuous "breath" per particle (no hard inward/burst/drift
-          // boundaries that read as separate beats), turning at its own time
-          // (p.mg) through an *annulus* (p.rmin, not the centre — so the field
-          // never piles into a static central clot).
           var r, grow;
-          if (tt < p.mg) {
-            var e = tt / p.mg, ei = e * (2 - e); // ease-out inward, moving from frame 1
-            r = p.r0 + (p.rmin - p.r0) * ei;
-            grow = 1;
-          } else {
-            var td = tt - p.mg, kk = td / 0.35; // smoothstep out of the turn, then gaseous drift
-            var eo = kk < 1 ? kk * kk * (3 - 2 * kk) : 1;
-            // Dusk (DRIFT) is signed: + flies the field apart, − collapses it inward.
-            r = p.rmin + (p.rb - p.rmin) * eo + (td > 0.35 ? (td - 0.35) * 12 * (DRIFT / 50) : 0);
-            grow = 1 + eo + (td > 0.35 ? (td - 0.35) * 0.8 : 0);
+          if (tt < p.mg) { var e = tt / p.mg; r = p.r0 + (p.rmin - p.r0) * e * (2 - e); grow = 1; }
+          else { var td = tt - p.mg, kk = td < 0.35 ? td / 0.35 : 1; var eo = kk * kk * (3 - 2 * kk); r = p.rmin + (p.rb - p.rmin) * eo + (td > 0.35 ? (td - 0.35) * 12 * (DUSK / 50) : 0); grow = 1 + eo; }
+          if (r < 0) r = 0;
+          var al = Math.min(1, tt * 12); if (tt > p.mg + 0.6) al *= Math.max(0, 1 - (tt - p.mg - 0.6));
+          if (TWK) al *= 1 + TWK * Math.sin(t * 7 + p.tw);
+          if (ENT) al *= 1 - ENT * 0.5 * (0.5 + 0.5 * Math.sin(p.tw * 17 + t * 9));
+          if (al <= 0.03) continue;
+          var w2 = tt < p.mg ? tt / p.mg : 1; w2 = w2 * (2 - w2);
+          var ang = p.a + p.tn * 6.2832 * w2 * (0.4 + FLUX) + p.om * tt;
+          if (TURB) { ang += TURB * 0.3 * Math.sin(t * 1.2 + p.a * 4); r += TURB * 3 * Math.sin(t + p.tw); }
+          r *= puls;
+          var z = p.sz * grow, px = cx + Math.cos(ang) * r * vmin, py = cy + Math.sin(ang) * r * vmin;
+          if (TEX > 0) {
+            px += Math.sin(t * 1.6 + p.a * 3 + r * 0.18) * TIDE * 2.2 * vmin + ENT * Math.cos(p.tw * 3.1) * (tt > p.mg ? tt - p.mg : 0) * 18 * vmin;
+            py += Math.cos(t * 1.3 + r * 0.13) * TIDE * 1.8 * vmin - PYRE * tt * tt * 8 * vmin + ERO * (tt > p.mg ? (tt - p.mg) * (tt - p.mg) : 0) * 14 * vmin + ENT * Math.sin(p.tw * 3.1) * (tt > p.mg ? tt - p.mg : 0) * 18 * vmin;
           }
-          if (r < 0) r = 0; // a negative Dusk never crosses the centre
-          // Alpha: quick in, hold across the turn, then a gentle gaseous fade —
-          // no pop in or out.
-          var al = Math.min(1, tt * 12), fs = p.mg + FADE;
-          if (tt > fs) al *= Math.max(0, 1 - (tt - fs));
-          if (TWK) al *= 1 + TWK * Math.sin(t * 7 + p.tw); // Shimmer
-          if (PYRE) al *= 1 - PYRE * 0.4 * (0.5 + 0.5 * Math.sin(t * 12 + p.tw * 5)); // flame flicker
-          if (ENT) al *= 1 - ENT * 0.5 * (0.5 + 0.5 * Math.sin(p.tw * 17 + t * 9)); // disintegration noise
-          if (al <= 0.02) continue;
-          if (al > 1.6) al = 1.6;
-          // Always rotating: the inspiral wind (caps after the turn) plus a
-          // constant drift, so nothing is ever momentarily static.
-          var w = Math.min(1, tt / p.mg); w = w * (2 - w);
-          var ang = p.a + p.tn * 6.2832 * w + p.om * tt;
-          if (TWIST) ang += TWIST * r * 0.05; // Vortex — twist arms with radius
-          if (UNDER) ang -= DIR * UNDER * 1.4 * tt * (0.5 + 0.5 * Math.sin(r * 0.2)); // Undertow — counter-current
-          if (PUL) r *= 1 + PUL * 0.12 * Math.sin(t * 3); // Heartbeat — global radial pulse
-          if (OSC) r += OSC * 7 * Math.sin(t * 2.4 + p.a); // Breath — swirl oscillation
-          if (WAV) r *= 1 + WAV * 0.18 * Math.sin((ARMS > 1 ? ARMS : 5) * ang); // Bloom — petal / flower wave
-          var z = p.sz * grow;
-          if (ERO) z *= 1 - ERO * 0.5 * (tt > p.mg ? Math.min(1, tt - p.mg) : 0); // crumble shrink
-          if (FACET) z *= 1 + FACET * 0.15;
-          // Base position, then the displacement textures sculpt it: water, flame,
-          // crumble, disintegrate, chaos — each pushes the mote in screen space.
-          var px = cx + Math.cos(ang) * r * vmin, py = cy + Math.sin(ang) * r * vmin;
-          if (TIDE) { px += Math.sin(t * 1.6 + p.a * 3 + r * 0.18) * TIDE * 2.4 * vmin; py += Math.cos(t * 1.3 + r * 0.13 + p.tw) * TIDE * 2 * vmin; } // water
-          if (PYRE) { var ph = tt; py -= PYRE * ph * ph * 9 * vmin; px += Math.sin(t * 7 + p.tw * 4) * PYRE * 1.8 * vmin * ph; } // flame rises + flickers
-          if (ERO) { var pe = tt > p.mg ? tt - p.mg : 0; py += ERO * pe * pe * 16 * vmin; px += Math.sin(p.tw * 9) * ERO * pe * 3 * vmin; } // crumble falls
-          if (ENT) { var pn = tt > p.mg * 0.5 ? tt - p.mg * 0.5 : 0; px += Math.cos(p.tw * 3.1) * ENT * pn * 22 * vmin; py += Math.sin(p.tw * 3.1) * ENT * pn * 22 * vmin; } // disintegrate scatters
-          if (TURB) { px += Math.sin(t * 1.1 + p.a * 4 + r * 0.2) * TURB * 3 * vmin; py += Math.cos(t * 0.9 + p.tw * 2 + r * 0.15) * TURB * 3 * vmin; } // chaos
-          var shard = p.fr < FACET, pal = p.cool ? (shard ? coolShard : cool) : (shard ? warmShard : warm), spr = pal[p.ci]; // Facet: harden to shapes
-          ctx.globalAlpha = al;
-          if (K === 1) ctx.drawImage(spr, px - z, py - z, z * 2, z * 2);
-          else { var dx = px - cx, dy = py - cy; for (var m = 0; m < K; m++) ctx.drawImage(spr, cx + dx * mc[m] - dy * ms[m] - z, cy + dx * ms[m] + dy * mc[m] - z, z * 2, z * 2); } // Mandala copies
+          g.globalAlpha = Math.min(1.4, al);
+          g.drawImage(p.spr, px - z, py - z, z * 2, z * 2);
         }
-        ctx.globalAlpha = 1;
-        ctx.filter = 'none';
-        // Keep drifting *through* the crossfade — the div's opacity fades the
-        // dust out as the engine is revealed — then stop to free the GPU.
+
+        // ---- slices of light (beams) ----
+        var beamRot = t * (0.25 + SWEEP * 2) * DIR + (1 - mp) * 1.4;
+        ospBeams(g, cx, cy, BEAMS, (38 + SCALE * 0.9) * vmin * puls, beamRot, vmin * (0.5 + NEON * 1.6), (0.35 + NEON * 0.5) * mp);
+
+        // ---- the resolved Form ----
+        var fr = SCALE * 0.62 * mp * puls;
+        fr *= 1 + late * (DUSK / 50) * 0.6; if (fr < 0) fr = 0; // Dusk: collapse(−) / settle(0) / expand(+)
+        var fa = (0.6 + NEON * 0.4) * (late > 0.7 ? Math.max(0, 1 - (late - 0.7)) : 1);
+        ospForm(g, cx, cy, FORM, fr * vmin, SIDES, t * 0.2 * DIR * (1 + SWEEP), fa, vmin * (0.5 + NEON * 1.8), HALO * vmin * 0.4, TURB, t);
+
+        g.globalAlpha = 1;
+        // ---- Mandala: composite the whole frame K times rotated (cheap — K blits) ----
+        if (K > 1) {
+          ctx.clearRect(0, 0, W, H); ctx.globalCompositeOperation = 'lighter';
+          for (var m = 0; m < K; m++) { ctx.save(); ctx.translate(cx, cy); ctx.rotate(m * 6.2832 / K); ctx.translate(-cx, -cy); ctx.drawImage(oc, 0, 0); ctx.restore(); }
+        }
+        // Keep drawing through the crossfade (the div's opacity fades it out), then stop.
         if (splash.classList.contains('osp-splash--hide') && !splash.__hideAt) splash.__hideAt = t;
         if (t < STOP && !(splash.__hideAt && t > splash.__hideAt + 0.5)) splash.__raf = requestAnimationFrame(draw);
-        else { ctx.clearRect(0, 0, W, H); splash.__raf = 0; splash.__hideAt = 0; }
+        else { ctx.clearRect(0, 0, W, H); if (octx) octx.clearRect(0, 0, W, H); splash.__raf = 0; splash.__hideAt = 0; }
       }
-      splash.__draw = draw; // stored so __ospSplashPlay can start a prebuilt splash
-      if (!defer) window.__ospSplashPlay(); // default (and replay): build + play together
+      splash.__draw = draw;
+      if (!defer) window.__ospSplashPlay();
     } catch (e) {
-      /* the splash is non-essential — never let it break the page */
+      /* the Last is non-essential — never let it break the page */
     }
   };
-  // Play a (possibly prebuilt) splash: schedule its first canvas frame — which adds
-  // --go (un-pausing the merger), stamps __ospSplashStart, and animates the dust.
+  // Play a (possibly prebuilt) Last: schedule its first canvas frame — which adds --go
+  // (un-pausing the merger), stamps __ospSplashStart, and animates the canvas.
   window.__ospSplashPlay = function () {
     var splash = document.getElementById('osp-splash');
     if (!splash || !splash.__draw || splash.__raf) return;
     splash.__raf = requestAnimationFrame(splash.__draw);
   };
 
-  // ===== Intro dials — the one place to tune the load intro ==============
-  // The bundle mirrors these in src/intro/introTimeline.ts (the inline-sync test
-  // guards the two). Times are ms; *speeds* are duration multipliers (1 = as
-  // authored, 2 = twice as slow, 0.5 = twice as fast). Exposed on window so you can
-  // tweak live in the console, then "Replay intro".
+  // ===== Dials — the one place to tune the intro (40, abstract + macro) ==============
+  // Mirrored in src/intro/introTimeline.ts (the inline-sync test guards the two). Times
+  // are ms; speeds are duration multipliers (1 = as authored). Several knobs are macros
+  // that chain sub-effects internally (Blast, Form, Texture, Flux), so 40 stays expressive.
   window.__ospDials = {
-    // creation half — timing + the burst's sizes/colour (mirror of dials.json scope:creation)
+    // First — the birth (scope:first)
     initialBlackMs: 500,
     splitBlackMs: 70,
     creationSpeed: 1,
+    crBlast: 0,
+    crIgnition: 0,
     crCoreSize: 7,
     crFlashSize: 30,
     crRayLength: 150,
-    crRayWidth: 0.7,
-    crRingThickness: 0.5,
+    crSpread: 100,
+    crShards: 0,
     crRingExpand: 13,
     crHue: 0,
     crBright: 1,
-    linesBandPx: 40,
-    crIgnition: 0,
-    // splash half — speed + the merger's sizes/colour/dust (scope:splash)
+    // Last — the merger + its resolved Form (scope:last)
     splashSpeed: 1,
-    spOrbSize: 13,
+    spForm: 0,
+    spSides: 6,
     spCoreDiameter: 38,
     spDiskSize: 44,
-    spShockExpand: 7,
-    spStreakLength: 58,
-    spPlumeReach: 24,
-    spFlashSize: 34,
+    spBeams: 0,
+    spSweep: 30,
+    spNeon: 60,
     spHue: 0,
-    spDustCount: 320,
-    spDustSize: 1,
-    spDustSpiral: 1,
-    // merger dust — pattern / geometry that actively changes (scope:merger)
-    spArms: 0,
-    spArmTwist: 0,
-    spWave: 0,
-    spSwirlOsc: 0,
-    spTwinkle: 0,
-    spColorCycle: 0,
+    spFlux: 40,
     spPulse: 0,
+    spColorCycle: 0,
+    spSparkle: 18,
+    spTexture: 0,
     spDriftOut: 50,
-    spDustTrail: 0,
-    spWarmth: 90,
-    spDustFade: 34,
-    // texture / character — abstract sculpting (water, flame, crumble, geometry, start)
-    spDawn: 0,
-    spTide: 0,
-    spPyre: 0,
-    spErosion: 0,
-    spEntropy: 0,
     spMandala: 0,
-    spFacet: 0,
+    // shared character (scope:last)
+    spWarmth: 90,
+    spTwinkle: 0,
+    spDustTrail: 0,
     spTurb: 0,
-    spUndertow: 0,
-    // sequencing — how the two halves combine (scope:moment)
+    spDawn: 0,
+    spDustSize: 1,
+    // sequencing — how the two halves combine (scope:together)
     creationBeatMs: 240,
     creationToSplashMs: -80,
     creationFadeMs: 120,
@@ -358,64 +353,49 @@
     splashFadeMs: 450,
   };
 
-  // The whole intro, sequenced off the *first painted frame* (so a deferred mobile
-  // paint still plays it in full). All timings/speeds come from window.__ospDials:
-  //   boot engine  start    (parse runs *under the black*, so the splash is smooth)
-  //   beat A · black hold    initialBlackMs       (#osp-creation opaque; burst paused)
-  //   · prebuild splash      ~200ms before B      (idle, hidden under the creation)
-  //   beat B · test pattern  at initialBlackMs    (.osp-lines, one painted frame)
-  //   · split black          splitBlackMs         (a deliberate tiny black)
-  //   beat C · creation      then                 (--go fires the CSS firework)
-  //   beat D · splash plays  creationBeatMs(+overlap), the creation fades into it
+  // The whole intro, sequenced off the *first painted frame* (so a deferred mobile paint
+  // still plays it in full). All timings/speeds come from window.__ospDials.
   window.__ospIntro = function () {
     var D = window.__ospDials;
     try {
       var cr = document.getElementById('osp-creation');
       var splash = document.getElementById('osp-splash');
       var lines = cr && cr.querySelector('.osp-lines');
-      // The full Moment shows both halves: a prior burst-only / merger-only play (or a
-      // Swap, which sequences merger→burst) may have left a layer display:none — restore.
+      // The full Together shows both halves: a prior First-only / Last-only play (or a Swap,
+      // which sequences Last→First) may have left a layer display:none — restore both.
       if (cr) cr.style.display = '';
       if (splash) splash.style.display = '';
       if (cr) {
-        cr.className = 'osp-creation'; // reset for replay (drop --go / --hide)
-        cr.style.setProperty('--osp-cr-scale', D.creationSpeed); // (c) creation speed
-        cr.style.setProperty('--osp-cr-fade', D.creationFadeMs / 1000 + 's'); // (e) crossfade speed
-        ospSetCreationVars(cr, D); // burst sizes / colour from the dials
-        // Restart the burst's CSS animations so **Replay** plays them again: they
-        // completed on the first run (forwards), and toggling --go alone just resumes
-        // them at 100% — a reflow on the parent doesn't restart the reused children.
+        var ob = cr.querySelector('.osp-cr-blastcv'); if (ob) ob.remove(); // clear any prior blast canvas
+        cr.className = 'osp-creation';
+        cr.style.setProperty('--osp-cr-scale', D.creationSpeed);
+        cr.style.setProperty('--osp-cr-fade', D.creationFadeMs / 1000 + 's');
+        ospSetCreationVars(cr, D);
         var crs = cr.getElementsByClassName('osp-cr');
         for (var ci = 0; ci < crs.length; ci++) crs[ci].style.animation = 'none';
         void cr.offsetWidth; // reflow registers the 'none' so the next line restarts from 0
         for (var cj = 0; cj < crs.length; cj++) crs[cj].style.animation = '';
       }
       if (splash) {
-        splash.style.setProperty('--osp-splash-scale', D.splashSpeed); // (d) splash speed
-        splash.style.setProperty('--osp-splash-fade', D.splashFadeMs / 1000 + 's'); // (f) crossfade speed
+        splash.style.setProperty('--osp-splash-scale', D.splashSpeed);
+        splash.style.setProperty('--osp-splash-fade', D.splashFadeMs / 1000 + 's');
       }
-      if (lines) lines.className = 'osp-lines'; // reset the test-pattern flash for replay
-      window.__ospSplashStart = undefined; // a fresh intro: wait for the new splash's first frame
+      if (lines) lines.className = 'osp-lines';
+      window.__ospSplashStart = undefined; // a fresh intro: wait for the new Last's first frame
       requestAnimationFrame(function () {
-        // Boot the heavy engine bundle at the *start* of the intro, so its ~860KB parse
-        // + WebGPU init happen under the black hold — not later, where they froze the
-        // splash's dust canvas and lagged its first paint. The black absorbs the load.
+        // Boot the heavy engine bundle at the *start*, so its parse happens under the black hold.
         if (window.__ospBoot && !window.__ospBooted) { window.__ospBooted = true; window.__ospBoot(); }
-        // Prebuild the splash during the black hold (idle, hidden) so it plays instantly.
+        // Prebuild the Last during the black hold (idle, hidden) so it plays instantly.
         window.setTimeout(function () { window.__ospSplash(true); }, Math.max(0, D.initialBlackMs - 200));
-        // beat A — hold pure black.
         window.setTimeout(function () {
-          // beat B — the interference pattern: a brief flash over the black.
           if (lines) lines.classList.add('osp-lines--on');
-          requestAnimationFrame(function () { // frame 1: the pattern is painted
-            requestAnimationFrame(function () { // frame 2: drop the pattern → a split-second of black
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
               if (lines) lines.classList.remove('osp-lines--on');
-              // ...a deliberate tiny black after the interference, then straight into:
               window.setTimeout(function () {
-                if (cr) cr.classList.add('osp-creation--go'); // beat C — the moment of creation (its own beat)
-                // beat D — play the prebuilt splash near the creation's end (overlap dial) and
-                // fade the creation into it. Negative overlap = splash a touch *before* the fade,
-                // so there's no black gap and the orbs play fresh + visible.
+                if (cr) cr.classList.add('osp-creation--go'); // beat C — the First fires
+                if (window.__ospBlast) window.__ospBlast(); // ...and its canvas Blast (if any)
+                // beat D — play the prebuilt Last near the First's end (overlap dial) and fade in.
                 window.setTimeout(window.__ospSplashPlay, Math.max(0, D.creationBeatMs + D.creationToSplashMs));
                 window.setTimeout(function () { if (cr) cr.classList.add('osp-creation--hide'); }, D.creationBeatMs);
               }, D.splitBlackMs);
@@ -432,12 +412,9 @@
     }
   };
 
-  // ===== The two halves of the moment of creation, playable on their own ===========
-  // The intro is two animations in sequence — the creation burst and the binary-merger
-  // splash. These play either half alone (selected by window.__ospMode); 'full' (the
-  // default, __ospIntro above) is the whole thing. Same markup + intro.css throughout.
+  // ===== The two halves, playable on their own (selected by window.__ospMode) =========
 
-  // Just the moment-of-creation burst: black hold → test pattern → burst, splash hidden.
+  // Just the First: black hold → test pattern → CSS burst (+ canvas Blast), Last hidden.
   window.__ospCreation = function () {
     var D = window.__ospDials;
     try {
@@ -446,10 +423,11 @@
       var lines = cr && cr.querySelector('.osp-lines');
       if (splash) splash.style.display = 'none';
       if (!cr) return;
+      var ob = cr.querySelector('.osp-cr-blastcv'); if (ob) ob.remove();
       cr.style.display = '';
       cr.className = 'osp-creation';
       cr.style.setProperty('--osp-cr-scale', D.creationSpeed);
-      ospSetCreationVars(cr, D); // burst sizes / colour from the dials
+      ospSetCreationVars(cr, D);
       var crs = cr.getElementsByClassName('osp-cr');
       for (var ci = 0; ci < crs.length; ci++) crs[ci].style.animation = 'none';
       void cr.offsetWidth; // reflow so the burst restarts on replay (see __ospIntro)
@@ -461,17 +439,17 @@
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               if (lines) lines.classList.remove('osp-lines--on');
-              window.setTimeout(function () { cr.classList.add('osp-creation--go'); }, D.splitBlackMs);
+              window.setTimeout(function () { cr.classList.add('osp-creation--go'); if (window.__ospBlast) window.__ospBlast(); }, D.splitBlackMs);
             });
           });
         }, D.initialBlackMs);
       });
     } catch (e) {
-      /* the burst is non-essential — never let it break the page */
+      /* the First is non-essential — never let it break the page */
     }
   };
 
-  // Just the binary-merger splash: creation hidden, build + play the merger.
+  // Just the Last: First hidden, build + play the merger and its Form.
   window.__ospSplashOnly = function () {
     var D = window.__ospDials;
     try {
@@ -491,8 +469,7 @@
   // The generic engine entry: play the whole Together, or one half, per window.__ospMode
   // (set by the registry/lab/showcase/export). Default 'together' is the full sequence.
   // Accepts the current vocabulary (first / last / together), the previous one
-  // (burst / merger / moment) and the oldest internal names (creation / splash / full),
-  // so nothing breaks across renames.
+  // (burst / merger / moment) and the oldest internal names (creation / splash / full).
   window.__ospPlay = function () {
     var mode = window.__ospMode || 'together';
     if (mode === 'first' || mode === 'burst' || mode === 'creation') return window.__ospCreation();

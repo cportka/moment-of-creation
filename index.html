@@ -7,7 +7,7 @@
     <title>moment of creation — animation toolkit</title>
     <meta
       name="description"
-      content="A toolkit for two animations — a First and a Last — combined into a Together. Sculpt 50 abstract, pedal-style knobs (water, flame, crumble, geometry…) and 12 presets; randomize each half, swap the order, or chain up to 10 Togethers and drag to reorder."
+      content="A toolkit for two animations — a First and a Last — combined into a Together. Sculpt 40 abstract, pedal-style knobs: the First explodes six ways, the Last resolves into eight neon Forms (ring, star, slit, lattice, spiral…). 12 presets; randomize, swap, or chain up to 10 and drag to reorder."
     />
     <style>
       :root {
@@ -79,15 +79,22 @@
       .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       .btn:disabled { opacity: 0.4; cursor: not-allowed; }
       .btn.on { background: rgba(255, 138, 60, 0.22); border-color: rgba(255, 138, 60, 0.5); color: #ffd9a0; }
-      .btn.mini { padding: 4px 9px; font-size: 11px; font-weight: 600; }
+      .btn.mini { padding: 4px 9px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; }
       .btn.pop { animation: btn-pop 0.2s ease; }
       @keyframes btn-pop { 0% { transform: scale(1); } 35% { transform: scale(0.93); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
-      /* the dice glyph tumbles on a roll */
-      .die { display: inline-block; will-change: transform; }
+      /* a small CSS die (no emoji) that tumbles when you randomize */
+      .die {
+        display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-right: 5px; will-change: transform;
+        background:
+          radial-gradient(circle 1.3px at 3.5px 3.5px, #05060a 96%, transparent),
+          radial-gradient(circle 1.3px at 9.5px 3.5px, #05060a 96%, transparent),
+          radial-gradient(circle 1.3px at 6.5px 6.5px, #05060a 96%, transparent),
+          radial-gradient(circle 1.3px at 3.5px 9.5px, #05060a 96%, transparent),
+          radial-gradient(circle 1.3px at 9.5px 9.5px, #05060a 96%, transparent),
+          #eef1f7;
+      }
       .die.rolling { animation: dice-tumble 0.55s cubic-bezier(0.3, 0.9, 0.3, 1); }
       @keyframes dice-tumble { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(220deg) scale(1.3); } 60% { transform: rotate(400deg) scale(1.1); } 100% { transform: rotate(540deg) scale(1); } }
-      .swap-ico { display: inline-block; transition: transform 0.25s ease; }
-      .btn.on .swap-ico { transform: rotate(180deg); }
       .pill { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
 
       /* --- the visual chain strip (drag a link to reorder) --- */
@@ -153,7 +160,7 @@
 
       @media (prefers-reduced-motion: reduce) {
         .die.rolling, .btn.pop { animation: none; }
-        .btn, .link, .swap-ico { transition: none; }
+        .btn, .link { transition: none; }
       }
     </style>
   </head>
@@ -163,10 +170,12 @@
       <p>
         A toolkit for two animations — a pure-CSS <strong>First</strong> and a binary <strong>Last</strong> — combined
         into a <strong>Together</strong>. Left: the First, looping. Middle: the Together, the two combined. Right: the
-        Last. Sculpt with <strong>50 abstract knobs</strong> — feelings and textures (Tide, Pyre, Erosion, Mandala…)
-        rather than widths and sizes. <strong>🎲 Randomize</strong> either half, <strong>Swap</strong> their order, or
-        <strong>chain</strong> up to ten Togethers and <strong>drag</strong> the links to reorder. 50 parameters and 12
-        presets drive every window live. <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
+        Last. Sculpt with <strong>40 abstract knobs</strong>: the First explodes six ways (the <strong>Blast</strong> —
+        cone, shockwave, shards, lightning, nova) and the Last resolves into eight neon <strong>Forms</strong> (ring,
+        polygon, star, slit, lens, lattice, spiral, cross) framed by slices of light — not a field of tiny particles.
+        <strong>Randomize</strong> either half, <strong>Swap</strong> their order, or <strong>chain</strong> up to ten
+        and <strong>drag</strong> the links to reorder. 40 parameters and 12 presets drive every window live.
+        <a href="https://github.com/cportka/moment-of-creation">Source &amp; engine →</a>
       </p>
     </header>
 
@@ -190,11 +199,9 @@
         <div class="bar">
           <label for="preset">Preset</label>
           <select id="preset"></select>
-          <button class="btn" id="swap" type="button" title="Swap First/Last order in the Together">
-            <span class="swap-ico" aria-hidden="true">⇄</span> Swap order
-          </button>
-          <button class="btn" id="chain" type="button" title="Fold a new Together onto the chain">⛓ Continue the chain</button>
-          <button class="btn" id="reset" type="button">↺ Reset</button>
+          <button class="btn" id="swap" type="button" title="Swap First/Last order in the Together">Swap order</button>
+          <button class="btn" id="chain" type="button" title="Fold a new Together onto the chain">Continue the chain</button>
+          <button class="btn" id="reset" type="button">Reset</button>
           <span class="pill" id="depth" hidden></span>
           <span class="spacer"></span>
           <span id="status" style="font-size: 12px; color: var(--muted)"></span>
@@ -206,13 +213,13 @@
         </div>
         <div class="panels">
           <div class="panel">
-            <h2>First <button class="btn mini dice" id="rand-first" type="button" title="Roll fresh values for every First knob"><span class="die" aria-hidden="true">🎲</span> Randomize</button></h2>
-            <p class="note">the opening — birth, light, ignition</p>
+            <h2>First <button class="btn mini dice" id="rand-first" type="button" title="Roll fresh values for every First knob"><span class="die" aria-hidden="true"></span>Randomize</button></h2>
+            <p class="note">the birth — how it explodes (Blast), its light and reach</p>
             <div class="dialgrid" id="grid-first"></div>
           </div>
           <div class="panel">
-            <h2>Last <button class="btn mini dice" id="rand-last" type="button" title="Roll fresh values for every Last knob"><span class="die" aria-hidden="true">🎲</span> Randomize</button></h2>
-            <p class="note">the closing — the field, its textures, how it ends</p>
+            <h2>Last <button class="btn mini dice" id="rand-last" type="button" title="Roll fresh values for every Last knob"><span class="die" aria-hidden="true"></span>Randomize</button></h2>
+            <p class="note">the merger — the Form it resolves into, its beams and ending</p>
             <div class="dialgrid" id="grid-last"></div>
           </div>
         </div>
@@ -223,9 +230,9 @@
       Each window is the one overlay played in a mode (<code>first</code> / <code>last</code> / <code>together</code>) — the
       same source the <code>npm run export</code> single files use. The page conducts all three: Swap plays the Together
       Last→First; the chain plays every Together through the middle while the sides show the selected link's two halves
-      (drag a link to reorder the chain). The knobs are abstract, pedal-style sculptors — water, flame, crumble,
-      disintegrate, geometry, start &amp; end — wired to the canvas field; controls + presets come from one source
-      (<code>dials.json</code> / <code>presets.json</code>). Built with the engine in this repo.
+      (drag a link to reorder). The knobs are abstract, pedal-style sculptors — the Blast that shapes the explosion, the
+      Form the merger resolves into, slices of light, and a signed Dusk that ends on a collapse or a burst — drawn as
+      snappy neon vectors. Controls + presets come from one source (<code>dials.json</code> / <code>presets.json</code>).
     </footer>
 
     <script>
@@ -257,18 +264,14 @@
       function useLink(i) { editIdx = Math.max(0, Math.min(links.length - 1, i)); dials = links[editIdx]; }
 
       // ----- conducting the windows -------------------------------------------------
-      // Each window runs a "program": a list of {mode, dials} steps it plays in a loop.
-      // One mechanism serves the single Together, Swap (a reversed 2-step Together) and the
-      // chain (the whole sequence through the middle). All windows load the full overlay,
-      // so we just clear their self-loop and drive them by role.
       const togethers = (sets) => sets.map((d) => ({ mode: 'together', dials: d }));
 
       function stepMs(step) {
         const d = step.dials || dials;
         const ib = +d.initialBlackMs || 0, sb = +d.splitBlackMs || 0;
         if (step.mode === 'first') return ib + sb + 1200;
-        if (step.mode === 'last') return 2400;
-        return ib + sb + (+d.creationBeatMs || 0) + 1700 + (+d.splashHoldMs || 0); // together
+        if (step.mode === 'last') return 2600;
+        return ib + sb + (+d.creationBeatMs || 0) + 1900 + (+d.splashHoldMs || 0); // together
       }
 
       // Compute each window's program + caption from the current state.
@@ -277,8 +280,6 @@
         const first = { mode: 'first', dials: d };
         const last = { mode: 'last', dials: d };
         if (links.length > 1) {
-          // Chain: the middle plays the whole composition; the sides show the two halves
-          // of the link you're currently editing, so a click + a knob update them live.
           const tag = '#' + (editIdx + 1) + ' of ' + links.length;
           return {
             winL: { steps: [first], role: 'First', sub: tag, live: true },
@@ -289,7 +290,7 @@
         if (swapped) {
           return {
             winL: { steps: [last], role: 'Last', sub: 'half', live: true },
-            winM: { steps: [last, first], role: 'Together', sub: 'reversed ⇄', live: true },
+            winM: { steps: [last, first], role: 'Together', sub: 'reversed', live: true },
             winR: { steps: [first], role: 'First', sub: 'half', live: true },
           };
         }
@@ -330,8 +331,6 @@
         debounce[id] = setTimeout(() => driveWindow(id), 320);
       }
 
-      // Re-plan and (re)drive. `liveOnly` = only the windows showing the current dials
-      // (a dial tweak shouldn't restart a frozen window).
       function render(liveOnly) {
         PLAN = plan();
         for (const id of POS) {
@@ -346,14 +345,13 @@
         $('swap').disabled = inChain;
         $('chain').disabled = links.length >= MAX_CHAIN;
         const depth = $('depth');
-        if (inChain) { depth.hidden = false; depth.textContent = '⛓ chain · ' + links.length; }
+        if (inChain) { depth.hidden = false; depth.textContent = 'chain · ' + links.length; }
         else depth.hidden = true;
       }
 
       // ----- the visual chain strip (click to edit · drag to reorder) ---------------
       let chipEls = [];
       let dragFrom = -1;
-      // A swatch per link, derived from its First/Last hue so links look distinct.
       const wrap = (n) => ((n % 360) + 360) % 360;
       function chipBg(d) {
         const a = wrap(40 + (d.crHue || 0)), b = wrap(210 + (d.spHue || 0));
@@ -361,17 +359,14 @@
       }
       function paintChip(i) { if (chipEls[i]) chipEls[i].style.background = chipBg(links[i]); }
 
-      function clearDropMarks() {
-        for (const el of chipEls) if (el) el.classList.remove('drop-before', 'drop-after');
-      }
-      // Move a link from index `from` to final index `to`, keeping the same link selected.
+      function clearDropMarks() { for (const el of chipEls) if (el) el.classList.remove('drop-before', 'drop-after'); }
       function moveLink(from, to) {
         if (from === to || from < 0) return;
         const sel = links[editIdx];
         const [m] = links.splice(from, 1);
         links.splice(to, 0, m);
         editIdx = links.indexOf(sel);
-        render(false); // the chain order changed → re-drive the windows
+        render(false);
         renderChain();
       }
 
@@ -401,7 +396,6 @@
             chip.appendChild(x);
           }
           chip.addEventListener('click', () => { if (dragFrom < 0) selectLink(i); });
-          // drag-and-drop reordering
           chip.addEventListener('dragstart', (e) => {
             dragFrom = i; e.dataTransfer.effectAllowed = 'move';
             try { e.dataTransfer.setData('text/plain', String(i)); } catch (err) {}
@@ -448,7 +442,6 @@
           if (inputs[key]) { inputs[key].num.value = v; inputs[key].range.value = v; }
         }
       }
-      // Overwrite the selected link with a full dial-set (preset overrides + defaults).
       function loadDials(values) {
         for (const key of Object.keys(SCHEMA)) dials[key] = key in values ? Number(values[key]) : SCHEMA[key].default;
         reflect();
@@ -456,7 +449,7 @@
 
       function setDial(key, value) {
         dials[key] = value; // dials === links[editIdx]
-        paintChip(editIdx); // live swatch feedback
+        paintChip(editIdx);
         render(true);
       }
 
@@ -497,26 +490,17 @@
       }
 
       function applyPreset(preset) {
-        loadDials(preset.dials || {}); // applies to the selected link
+        loadDials(preset.dials || {});
         paintChip(editIdx);
         render(true);
       }
 
-      // ----- the dice ---------------------------------------------------------------
-      const DIE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+      // ----- the dice (CSS, no emoji) -----------------------------------------------
       function rollDie(span) {
         if (!span) return;
-        span.classList.remove('rolling'); void span.offsetWidth; span.classList.add('rolling'); // restart the tumble
-        let n = 0;
-        clearInterval(span.__roll);
-        span.__roll = setInterval(() => {
-          span.textContent = DIE_FACES[(Math.random() * 6) | 0];
-          if (++n > 6) { clearInterval(span.__roll); span.textContent = '🎲'; }
-        }, 70);
+        span.classList.remove('rolling'); void span.offsetWidth; span.classList.add('rolling');
       }
 
-      // Randomize one half (or 'all'): every dial in that scope rolls a fresh value across
-      // its full range — dramatic by design. Writes into the selected link.
       function randomizeScope(scope, quiet) {
         for (const [key, meta] of Object.entries(SCHEMA)) {
           if (scope !== 'all' && panelOf(key, meta.scope) !== scope) continue;
@@ -530,19 +514,14 @@
       }
 
       // ----- chain actions ----------------------------------------------------------
-      function selectLink(i) {
-        useLink(i);
-        reflect();
-        render(true);
-        renderChain();
-      }
+      function selectLink(i) { useLink(i); reflect(); render(true); renderChain(); }
 
       function addLink() {
         if (links.length >= MAX_CHAIN) return;
-        links.push(snap()); // branch a new link from the current one...
+        links.push(snap());
         useLink(links.length - 1);
         swapped = false;
-        randomizeScope('all', true); // ...then roll it into a fresh variation
+        randomizeScope('all', true);
         render(false);
         renderChain();
       }
@@ -572,7 +551,6 @@
           $('grid-' + panelOf(key, meta.scope)).appendChild(buildDial(key, meta));
         }
 
-        // Start with a single Together.
         links = [defaultsDials()];
         useLink(0);
 
@@ -593,13 +571,11 @@
         $('chain').addEventListener('click', addLink);
         $('reset').addEventListener('click', () => resetAll(sel));
 
-        // A tactile "pop" on every button press.
         document.addEventListener('click', (e) => {
           const b = e.target.closest && e.target.closest('.btn');
           if (b && !b.disabled) { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
         });
 
-        // Drive each window once it has loaded (and whenever we re-plan).
         for (const id of POS) $(id).addEventListener('load', () => driveWindow(id));
 
         // Deep-link initial state: ?preset=<id>, ?swap=1, ?chain=<n>. Default preset = first.
