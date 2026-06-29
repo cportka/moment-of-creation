@@ -1,28 +1,28 @@
 [
   {
-    "id": "burst",
-    "name": "Burst",
+    "id": "first",
+    "name": "First",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "burst",
+    "mode": "first",
     "background": "#05060a",
     "loopMs": 1970
   },
   {
-    "id": "merger",
-    "name": "Merger",
+    "id": "last",
+    "name": "Last",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "merger",
+    "mode": "last",
     "background": "#05060a",
     "loopMs": 2600
   },
   {
-    "id": "moment",
-    "name": "Moment",
+    "id": "together",
+    "name": "Together",
     "overlay": "src/intro/overlay.html",
     "css": "src/intro/intro.css",
-    "mode": "moment",
+    "mode": "together",
     "background": "#05060a",
     "loopMs": 3410
   }

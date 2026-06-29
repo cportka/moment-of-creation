@@ -4,17 +4,17 @@
  * it; the lab picker, the export and the tests all read from this one list.
  */
 import type { Animation } from './types';
-import { burst } from '../intro/burst';
-import { merger } from '../intro/merger';
-import { moment } from '../intro/moment';
+import { first } from '../intro/first';
+import { last } from '../intro/last';
+import { together } from '../intro/together';
 
 /** Every registered animation, in display order: the two animations the toolkit combines
- *  (Burst, Merger) and the Moment they make. They share one overlay + stylesheet and
+ *  (First, Last) and the Together they make. They share one overlay + stylesheet and
  *  differ only by mode. */
-export const animations: Animation[] = [burst, merger, moment];
+export const animations: Animation[] = [first, last, together];
 
-/** The animation the lab/demo selects by default — the combined Moment. */
-export const DEFAULT_ID = 'moment';
+/** The animation the lab/demo selects by default — the combined Together. */
+export const DEFAULT_ID = 'together';
 
 /** Look up an animation by id (undefined if none matches). */
 export function byId(id: string): Animation | undefined {
