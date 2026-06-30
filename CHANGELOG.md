@@ -3,6 +3,35 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.8.0
+
+Packaged the toolkit as a **modular, standalone library** people can drop into their own
+projects — framework-agnostic, zero runtime dependencies.
+
+### Added
+
+- **A public entry ([`src/index.ts`](src/index.ts))** exporting the whole surface: `embed`,
+  `mount`, `register` + `<moment-of-creation>`, `buildEmbedHtml` / `buildStandaloneHtml`,
+  the `animations` / `presets` / `dials` data, and all types.
+- **`<moment-of-creation>` web component** — `register()` then `<moment-of-creation preset="portal"
+  mode="together" loop>`. Renders an **isolated `<iframe srcdoc>`** internally, so it's contained,
+  immune to the host's CSS/JS, and safe to use many times on one page (the overlay is a singleton).
+- **`embed(target, opts)`** (iframe, contained, repeatable, with `update()` / `destroy()`) and
+  **`mount(opts)`** (full-page, in-document — for a load intro you crossfade out of via `__ospBoot`).
+- **A library build** ([`vite.lib.config.ts`](vite.lib.config.ts) → `build:lib`): ESM
+  (`dist/moment-of-creation.js`) + UMD (`…umd.cjs`, global `MomentOfCreation`) + `.d.ts`, with the
+  overlay HTML/CSS inlined (self-contained). Types verified to resolve for consumers.
+- **[`examples/embed.html`](examples/embed.html)** demonstrating all paths, and a README
+  **“Use it in your project”** matrix (iframe single-file · web component · `embed` · `mount` ·
+  build-your-own-UI · install from npm or GitHub · copy the forkable `src/intro/` unit).
+
+### Changed
+
+- **`package.json` is now publishable** — renamed `moment-of-creation`, no longer `private`, with
+  `exports` / `module` / `types` / `files` / `sideEffects`, MIT `license`, and a `prepare` hook so
+  `npm install github:cportka/moment-of-creation` builds on install. (Publish to npm with
+  `npm publish` when ready.)
+
 ## 0.7.0
 
 A creative + performance pass: stop leaning on a dust field of tiny particles (which dragged

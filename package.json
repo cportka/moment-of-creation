@@ -1,14 +1,56 @@
 {
-  "name": "intro",
-  "version": "0.7.0",
-  "private": true,
+  "name": "moment-of-creation",
+  "version": "0.8.0",
+  "description": "A first-paint web animation: a First (a CSS firework birth) and a Last (a binary merger that resolves into a neon Form) combine into a Together. Drop it in as an isolated iframe/web-component embed, a full-page mount, or one self-contained .html — zero dependencies.",
   "type": "module",
+  "license": "MIT",
+  "author": "Chris Portka",
+  "homepage": "https://cportka.github.io/moment-of-creation/",
+  "repository": { "type": "git", "url": "git+https://github.com/cportka/moment-of-creation.git" },
+  "bugs": { "url": "https://github.com/cportka/moment-of-creation/issues" },
+  "keywords": [
+    "animation",
+    "canvas",
+    "css",
+    "web-component",
+    "custom-element",
+    "first-paint",
+    "intro",
+    "loading-animation",
+    "hero",
+    "generative",
+    "neon",
+    "zero-dependency"
+  ],
+  "sideEffects": false,
+  "main": "./dist/moment-of-creation.umd.cjs",
+  "module": "./dist/moment-of-creation.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/moment-of-creation.js",
+      "require": "./dist/moment-of-creation.umd.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "first.html",
+    "last.html",
+    "together.html",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:lib": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json && node -e \"require('fs').copyFileSync('src/engine/standalone.d.ts','dist/engine/standalone.d.ts')\"",
     "test": "vitest run",
     "export": "node scripts/export-animation.mjs",
     "build:pages": "node scripts/export-animation.mjs first first.html && node scripts/export-animation.mjs last last.html && node scripts/export-animation.mjs together together.html",
+    "prepare": "npm run build:lib",
     "verify:intro": "node scripts/verify-intro.mjs",
     "capture:creation": "node scripts/capture-creation.mjs",
     "capture:splash": "node scripts/capture-splash.mjs"

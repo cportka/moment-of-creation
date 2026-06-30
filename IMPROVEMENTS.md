@@ -25,6 +25,10 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   a **visual, clickable chain** (a strip of per-Moment swatch chips, select to edit, max 10);
   **12 dramatically-retuned presets** with a new default (**Genesis**, the OG kept as
   `Original`); fixed the **Swap-drops-the-Burst** bug (half-only plays left a layer hidden).
+- **0.8** — packaged as a **modular standalone library**: a public `src/index.ts`, the
+  `<moment-of-creation>` web component + `embed()` (isolated iframes) + `mount()` (full-page), a
+  Vite **lib build** (ESM/UMD + `.d.ts`, overlay inlined), a publishable `package.json` (exports,
+  files, MIT, `prepare` for GitHub-install), an `examples/` page and a README usage matrix.
 - **0.7** — **outside the box + snappy.** The Last stopped being a heavy particle field — dust is now
   a capped **Sparkle** accent and the show is **neon vectors**: the First explodes six ways (**Blast** —
   cone/shockwave/shards/lightning/nova) and the Last resolves into eight **Forms** (ring/polygon/star/
@@ -77,6 +81,19 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   localStorage) so a specific composition is shareable like `?preset=`.
 - **Swap inside chain mode** is still normal-mode-only (chain mode shows the selected link's two halves
   in the side windows instead). Decide whether a per-link swap belongs in the chain, or leave by design.
+
+## Library — follow-ups (new in 0.8)
+
+- **Native multi-instance `mount()`.** Direct mounting is one-per-page (the overlay uses fixed
+  `#osp-*` ids + `window.__osp*` globals + `position:fixed`). The embed paths sidestep this with
+  iframes; a true in-document multi-instance mount needs the overlay scoped (instance ids, a root
+  element, instance-local state instead of globals). Biggest structural unlock for the library.
+- **Publish + release automation.** Add a CI job that runs `build:lib` (so a broken library build
+  fails PRs) and a tag-driven `npm publish`. Then the CDN/`<script>` paths resolve from npm.
+- **Thin framework wrappers.** React / Vue / Svelte components around `<moment-of-creation>` (props →
+  attributes) for idiomatic use, published as subpath exports.
+- **A typed dial map.** `dials` is `Record<string, DialSchema>`; generate a `Dials` union/interface
+  from the keys so `embed({ dials: { … } })` autocompletes and type-checks knob names.
 
 ## Later — bigger / structural
 
