@@ -11,11 +11,11 @@
  * `mount()` only when you deliberately want the full-page, in-document intro (e.g. to
  * crossfade into your app via `window.__ospBoot`).
  */
-import { byId } from './registry';
+import { byId } from './registry.js';
 import { applyDials, buildStandaloneHtml } from './standalone.js';
-import { mountAnimation, type MountHandle } from './mount';
-import type { Animation } from './types';
-import type { Dials, PresetId } from './keys';
+import { mountAnimation, type MountHandle } from './mount.js';
+import type { Animation } from './types.js';
+import type { Dials, PresetId } from './keys.js';
 
 /** Which slice of the overlay to play. */
 export type OspMode = 'together' | 'first' | 'last';

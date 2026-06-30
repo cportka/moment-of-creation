@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { animations, byId, DEFAULT_ID } from './registry';
+import { animations, byId, DEFAULT_ID } from './registry.js';
 import { applyDials, buildStandaloneHtml } from './standalone.js';
 
 const read = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');

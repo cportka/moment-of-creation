@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { DIAL_KEYS, PRESET_IDS } from './keys';
+import { DIAL_KEYS, PRESET_IDS } from './keys.js';
 
 // Read + parse the JSON straight from disk so the typed consts are checked against the
 // real source of truth (same pattern as introTimeline.test.ts). This pins keys.ts to the

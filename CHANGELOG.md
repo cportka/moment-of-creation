@@ -15,6 +15,14 @@ Hardened the library for real-world adoption + publishing.
   `buildEmbedHtml`. The element now extends an SSR-safe base (real `HTMLElement` in a browser, a stub
   under Node); `register()` still only defines the element in a browser. Verified by importing the
   built bundle in plain Node.
+- **Type resolution under `node16` / `nodenext`.** The shipped `.d.ts` used extensionless relative
+  imports (`from './engine/types'`), which error (`TS2834`) under the *recommended* `moduleResolution:
+  node16`/`nodenext` unless consumers force `skipLibCheck`. Every relative import now carries its
+  explicit `.js` extension and the declaration build runs under `nodenext`, so a dropped extension
+  fails the build. CJS consumers (`require('moment-of-creation')`) also got no `.d.cts`, so they hit
+  `TS1471`; the build now emits a `.d.cts` twin tree and `exports` carries per-condition, types-first
+  `import`/`require` entries. Proven by typechecking both an `import` and a `require` consumer against
+  the packed tarball under `node16` with `skipLibCheck: false`.
 
 ### Added
 
@@ -34,7 +42,7 @@ Hardened the library for real-world adoption + publishing.
   single-file `.html` exports, README and LICENSE (48 → 22 files). The forkable `src/intro/` unit
   lives in the repo. Added `engines` (`node >= 18`) and `publishConfig` (`access: public`,
   `provenance: true`). Verified end-to-end: packed the tarball, installed it in a fresh project, and
-  imported it + resolved its types under `node16` resolution.
+  typechecked both `import` and `require` consumers against it under `node16` (`skipLibCheck: false`).
 - **Framework usage docs** (React / Vue / Svelte / Angular / CDN) in the README + `examples/embed.html`.
 
 ## 0.8.0

@@ -19,8 +19,8 @@
  *   E · Engine     ~0.6s onward the model settling in   engine/physics rate
  */
 
-import type { DialSchema } from '../engine/types';
-import dialsJson from './dials.json';
+import type { DialSchema } from '../engine/types.js';
+import dialsJson from './dials.json' with { type: 'json' };
 
 /** Frame rate we aim the *intro story* (everything but the live physics model) at —
  *  uncapped, beyond the limit of human flicker detection. Documentation/intent: the

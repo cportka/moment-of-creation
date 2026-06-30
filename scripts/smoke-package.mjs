@@ -2,7 +2,10 @@
 // Smoke-test the *built* library bundle in plain Node (no DOM). Run after `npm run build:lib`.
 // Asserts the public API surface + the data shapes are intact — and, crucially, that importing
 // the package server-side does NOT throw (the web component must be SSR-safe). Prints "smoke ok".
+import { createRequire } from 'node:module';
+
 const DIST = new URL('../dist/moment-of-creation.js', import.meta.url);
+const DIST_CJS = new URL('../dist/moment-of-creation.umd.cjs', import.meta.url);
 
 function fail(msg) {
   console.error(`smoke failed: ${msg}`);
@@ -40,6 +43,14 @@ try {
   if (!dials || Object.keys(dials).length !== 40) fail(`Object.keys(dials).length = ${Object.keys(dials || {}).length} (expected 40)`);
   if (!Array.isArray(DIAL_KEYS) || DIAL_KEYS.length !== 40) fail(`DIAL_KEYS.length = ${DIAL_KEYS?.length} (expected 40)`);
   if (!Array.isArray(PRESET_IDS) || PRESET_IDS.length !== 12) fail(`PRESET_IDS.length = ${PRESET_IDS?.length} (expected 12)`);
+
+  // the `require` condition (UMD/CJS bundle) must also load under plain Node and expose the API,
+  // so dual-package consumers (`require('moment-of-creation')`) work, not just ESM `import`.
+  const require = createRequire(import.meta.url);
+  const cjs = require(DIST_CJS.pathname);
+  for (const name of ['buildEmbedHtml', 'register', 'embed', 'mount']) {
+    if (typeof cjs[name] !== 'function') fail(`require: ${name} is not a function (got ${typeof cjs[name]})`);
+  }
 
   console.log('smoke ok');
 } catch (err) {

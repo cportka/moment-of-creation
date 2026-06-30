@@ -30,9 +30,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/moment-of-creation.js",
-      "require": "./dist/moment-of-creation.umd.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/moment-of-creation.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/moment-of-creation.umd.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -47,7 +52,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json && node -e \"require('fs').copyFileSync('src/engine/standalone.d.ts','dist/engine/standalone.d.ts')\"",
+    "build:lib": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json && node -e \"require('fs').copyFileSync('src/engine/standalone.d.ts','dist/engine/standalone.d.ts')\" && node scripts/emit-cjs-types.mjs",
     "test": "vitest run",
     "export": "node scripts/export-animation.mjs",
     "build:pages": "node scripts/export-animation.mjs first first.html && node scripts/export-animation.mjs last last.html && node scripts/export-animation.mjs together together.html",

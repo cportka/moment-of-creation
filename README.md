@@ -295,10 +295,12 @@ and it exports to a self-contained file.
 
 ## Releasing (maintainers)
 
-The library build (`npm run build:lib` → `dist/` ESM + UMD + `.d.ts`) runs automatically on
+The library build (`npm run build:lib` → `dist/` ESM + UMD + `.d.ts`/`.d.cts`) runs automatically on
 `npm install` (the `prepare` hook), so `npm install github:cportka/moment-of-creation` works from
-source. CI also runs it and a `scripts/smoke-package.mjs` check (the built bundle must import under
-plain Node — i.e. stay SSR-safe).
+source. The types are emitted with explicit `.js` import extensions and a CommonJS `.d.cts` twin, so
+both `import` and `require` resolve cleanly under `moduleResolution: node16`/`nodenext` (no
+`skipLibCheck` needed). CI also runs the build and a `scripts/smoke-package.mjs` check (the built
+bundle must import under plain Node — i.e. stay SSR-safe).
 
 Publishing is **tag-driven** via [`.github/workflows/release.yml`](.github/workflows/release.yml):
 
@@ -327,8 +329,8 @@ src/
                            embed.ts (embed / mount / <moment-of-creation>) · keys.ts (typed dial/preset names)
   intro/                   the one overlay + first.ts / last.ts / together.ts (its modes) + dials.json
   lab.ts                   the general lab
-vite.lib.config.ts         library build → dist/ (ESM + UMD + .d.ts); `npm run build:lib`
-scripts/                   export-animation.mjs · smoke-package.mjs · verify-intro.mjs · capture-*.mjs
+vite.lib.config.ts         library build → dist/ (ESM + UMD + .d.ts/.d.cts); `npm run build:lib`
+scripts/                   export-animation.mjs · smoke-package.mjs · emit-cjs-types.mjs · verify-intro.mjs · capture-*.mjs
 .github/workflows/         ci.yml (test + build + smoke) · release.yml (tag-driven npm publish)
 docs/intro-script.md       the Together's beat-by-beat storyboard
 ```

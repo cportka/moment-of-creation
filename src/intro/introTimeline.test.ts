@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { INTRO_BEATS, INTRO_DIALS, INTRO_STORY_FPS, MELT_MS, SPLASH_COVERS_AT_MS } from './introTimeline';
+import { INTRO_BEATS, INTRO_DIALS, INTRO_STORY_FPS, MELT_MS, SPLASH_COVERS_AT_MS } from './introTimeline.js';
 
 describe('intro dials', () => {
   it('orders the beats black → lines → creation → splash → engine', () => {

@@ -5,8 +5,8 @@
  * script to play just this slice. Its dials are the `first`-scoped ones, projected from the
  * single source (dials.json) — add a dial there, tag its scope, and it appears here for free.
  */
-import type { Animation } from '../engine/types';
-import { pickByScope } from './introTimeline';
+import type { Animation } from '../engine/types.js';
+import { pickByScope } from './introTimeline.js';
 import overlayHtml from './overlay.html?raw';
 import css from './intro.css?raw';
 

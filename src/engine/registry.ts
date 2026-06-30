@@ -3,10 +3,10 @@
  * of a single hardcoded sequence. Add an animation by importing its object and listing
  * it; the lab picker, the export and the tests all read from this one list.
  */
-import type { Animation } from './types';
-import { first } from '../intro/first';
-import { last } from '../intro/last';
-import { together } from '../intro/together';
+import type { Animation } from './types.js';
+import { first } from '../intro/first.js';
+import { last } from '../intro/last.js';
+import { together } from '../intro/together.js';
 
 /** Every registered animation, in display order: the two animations the toolkit combines
  *  (First, Last) and the Together they make. They share one overlay + stylesheet and
