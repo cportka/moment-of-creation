@@ -35,6 +35,10 @@ export {
 export type { EmbedOptions, EmbedHandle, OspMode } from './engine/embed';
 export type { MountHandle } from './engine/mount';
 
+// --- typed dial + preset names (compile-time-checked against the JSON) ---
+export { DIAL_KEYS, PRESET_IDS } from './engine/keys';
+export type { DialKey, Dials, PresetId } from './engine/keys';
+
 // --- packaging: build a self-contained .html for any animation (isomorphic) ---
 export { buildStandaloneHtml, applyDials } from './engine/standalone.js';
 export type { StandaloneOptions } from './engine/standalone';

@@ -15,6 +15,7 @@ import { byId } from './registry';
 import { applyDials, buildStandaloneHtml } from './standalone.js';
 import { mountAnimation, type MountHandle } from './mount';
 import type { Animation } from './types';
+import type { Dials, PresetId } from './keys';
 
 /** Which slice of the overlay to play. */
 export type OspMode = 'together' | 'first' | 'last';
@@ -23,9 +24,9 @@ export interface EmbedOptions {
   /** `'together'` (default — First → Last), or one half: `'first'` / `'last'`. */
   mode?: OspMode;
   /** A named preset id (see the exported `presets`); its dials are the base. */
-  preset?: string;
+  preset?: PresetId | (string & {});
   /** Dial overrides applied on top of the preset / defaults (see the exported `dials`). */
-  dials?: Record<string, number>;
+  dials?: Dials;
   /** Loop forever (default `true`); `false` plays once; a number sets a custom ms interval. */
   loop?: boolean | number;
   /** Page background behind the animation. */
@@ -121,7 +122,12 @@ const ATTRS = ['preset', 'mode', 'loop', 'background', 'dials'];
  *
  *     <moment-of-creation preset="portal" mode="together" style="height:420px"></moment-of-creation>
  */
-export class MomentOfCreationElement extends HTMLElement {
+// SSR-safe base: the real HTMLElement in a browser, a harmless stub under Node so the
+// module imports cleanly server-side (register() only defines the element in a browser).
+const HostElement: typeof HTMLElement =
+  typeof HTMLElement !== 'undefined' ? HTMLElement : (class {} as unknown as typeof HTMLElement);
+
+export class MomentOfCreationElement extends HostElement {
   static get observedAttributes(): string[] {
     return ATTRS;
   }

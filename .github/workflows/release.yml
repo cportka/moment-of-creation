@@ -1,0 +1,40 @@
+name: Release
+
+# Publish to npm when a version tag (vX.Y.Z) is pushed. Cut a release with:
+#   npm version patch|minor|major   # bumps package.json + creates the tag
+#   git push --follow-tags
+#
+# MAINTAINER ACTION (one-time): either
+#   • add a repo secret NPM_TOKEN = an npm "Automation" (or Granular publish) access token, OR
+#   • configure npm Trusted Publishing for this package (npmjs.com → package → Settings →
+#     Trusted Publisher → GitHub Actions → this repo + workflow "release.yml"). With trusted
+#     publishing the token isn't needed (npm exchanges the OIDC token); you can drop the
+#     `env: NODE_AUTH_TOKEN` line below. Either way `id-token: write` must stay (for provenance).
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  id-token: write # lets npm mint a build-provenance attestation from the Actions OIDC token
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:lib
+      # --provenance: a signed, public attestation of where/how this was built (needs id-token: write).
+      # --access public: required for the first publish of an unscoped package.
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

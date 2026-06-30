@@ -17,3 +17,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      # npm ci already runs the package `prepare` hook (build:lib), so dist/ exists; an
+      # explicit build + smoke step makes the library bundle and its public surface verifiable
+      # (the smoke test also asserts the bundle imports under plain Node — i.e. SSR-safe).
+      - run: npm run build:lib
+      - run: node scripts/smoke-package.mjs
