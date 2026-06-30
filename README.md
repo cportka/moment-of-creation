@@ -122,9 +122,29 @@ buildStandaloneHtml(byId('together'), { dials: { spForm: 2 }, mode: 'together', 
 // → a complete, self-contained HTML document string (save it, or set it as an iframe srcdoc)
 ```
 
-A live example of all of these is in [`examples/embed.html`](examples/embed.html). And if you'd
-rather **own the source**, the animation is a single forkable unit — copy
-[`src/intro/`](src/intro/README.md) into your repo (one find/replace renames the `osp-` namespace).
+### 6 · In a framework (React · Vue · Svelte · Angular)
+
+`<moment-of-creation>` is a standard custom element, so it works everywhere — call `register()` once
+at startup, then use the tag (pass `dials` as a JSON **string** attribute). Each framework needs one
+small thing:
+
+- **React 19** — custom elements work out of the box; render `<moment-of-creation preset="portal"
+  dials={JSON.stringify({ spForm: 3 })} style={{ height: 420 }} />`. (Pre-19, or for fully-typed
+  options, call `embed(ref.current, { … })` in a `useEffect` instead.)
+- **Vue 3** — tell the compiler it's a custom element:
+  `vue({ template: { compilerOptions: { isCustomElement: (t) => t.includes('-') } } })`, then use the
+  tag with `:dials="JSON.stringify({ spForm: 3 })"`.
+- **Svelte** — works natively; just use the tag.
+- **Angular** — add `CUSTOM_ELEMENTS_SCHEMA` to the component/module `schemas`, then bind
+  `[attr.dials]="…"`.
+
+Full, copy-paste snippets for each are in [`examples/embed.html`](examples/embed.html) and the
+expanded guide. **TypeScript:** `EmbedOptions.preset` is a `PresetId` union and `EmbedOptions.dials`
+is keyed by `DialKey`, so preset names and knob names autocomplete and type-check; `DIAL_KEYS` and
+`PRESET_IDS` are exported if you want to enumerate them.
+
+And if you'd rather **own the source**, the animation is a single forkable unit — copy
+[`src/intro/`](src/intro/README.md) from the repo (one find/replace renames the `osp-` namespace).
 
 See the [full demo + tuning lab](#live-showcase-github-pages) below, or
 [**try every knob live →**](https://cportka.github.io/moment-of-creation/).
@@ -273,6 +293,28 @@ Either way, a test in [`src/engine/engine.test.ts`](src/engine/engine.test.ts) t
 for free: schema covers its dials, the overlay defines the contract and mirrors the dials,
 and it exports to a self-contained file.
 
+## Releasing (maintainers)
+
+The library build (`npm run build:lib` → `dist/` ESM + UMD + `.d.ts`/`.d.cts`) runs automatically on
+`npm install` (the `prepare` hook), so `npm install github:cportka/moment-of-creation` works from
+source. The types are emitted with explicit `.js` import extensions and a CommonJS `.d.cts` twin, so
+both `import` and `require` resolve cleanly under `moduleResolution: node16`/`nodenext` (no
+`skipLibCheck` needed). CI also runs the build and a `scripts/smoke-package.mjs` check (the built
+bundle must import under plain Node — i.e. stay SSR-safe).
+
+Publishing is **tag-driven** via [`.github/workflows/release.yml`](.github/workflows/release.yml):
+
+```bash
+npm version patch   # or minor / major — bumps package.json + tags vX.Y.Z
+git push --follow-tags
+```
+
+The pushed `v*.*.*` tag triggers a workflow that tests, builds, and runs
+`npm publish --provenance --access public` (a signed npm provenance attestation, via GitHub
+Actions OIDC). **One-time setup:** add a repo secret `NPM_TOKEN` (an npm *Automation* token), or
+configure npm *Trusted Publishing* for the package (then the token isn't needed). To publish by hand
+instead: `npm publish` (the `prepublishOnly` hook runs the tests + type-check first).
+
 ## Layout
 
 ```
@@ -280,11 +322,16 @@ index.html                 the GitHub Pages showcase (static; served from root)
 first.html · last.html · together.html   single-file exports the showcase embeds (npm run build:pages)
 demo.html                  Vite first-paint demo: the Together inlined before the bundle
 intro-lab.html             the general tuning lab (loads src/lab.ts)
+examples/embed.html        embedding examples (iframe · web component · embed())
 src/
+  index.ts                 the public library entry (exports below)
   engine/                  types · registry · mount · standalone export · manifest
+                           embed.ts (embed / mount / <moment-of-creation>) · keys.ts (typed dial/preset names)
   intro/                   the one overlay + first.ts / last.ts / together.ts (its modes) + dials.json
   lab.ts                   the general lab
-scripts/                   export-animation.mjs · verify-intro.mjs · capture-*.mjs
+vite.lib.config.ts         library build → dist/ (ESM + UMD + .d.ts/.d.cts); `npm run build:lib`
+scripts/                   export-animation.mjs · smoke-package.mjs · emit-cjs-types.mjs · verify-intro.mjs · capture-*.mjs
+.github/workflows/         ci.yml (test + build + smoke) · release.yml (tag-driven npm publish)
 docs/intro-script.md       the Together's beat-by-beat storyboard
 ```
 

@@ -5,8 +5,8 @@
  * `mode: 'last'` plays just this slice. Its dials are the `last`-scoped ones, projected
  * from the single source (dials.json).
  */
-import type { Animation } from '../engine/types';
-import { pickByScope } from './introTimeline';
+import type { Animation } from '../engine/types.js';
+import { pickByScope } from './introTimeline.js';
 import overlayHtml from './overlay.html?raw';
 import css from './intro.css?raw';
 

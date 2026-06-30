@@ -4,7 +4,13 @@
     "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    // Emit + validate the .d.ts under Node's own resolution (not the app's "bundler"
+    // mode) so the shipped declarations carry explicit `.js` extensions on relative
+    // imports — required for consumers on moduleResolution node16/nodenext. This also
+    // fails the build if a future relative import drops its extension.
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   },
   "include": ["src/index.ts", "src/engine", "src/intro", "src/vite-env.d.ts"],
   "exclude": ["src/**/*.test.ts", "src/lab.ts"]

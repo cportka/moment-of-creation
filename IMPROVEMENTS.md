@@ -25,6 +25,15 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
   a **visual, clickable chain** (a strip of per-Moment swatch chips, select to edit, max 10);
   **12 dramatically-retuned presets** with a new default (**Genesis**, the OG kept as
   `Original`); fixed the **Swap-drops-the-Burst** bug (half-only plays left a layer hidden).
+- **0.9** — **library hardening + release readiness**: fixed an SSR/Node-import crash (the web
+  component now extends an SSR-safe base); made the shipped types **`node16`/`nodenext`-correct**
+  (explicit `.js` import extensions, declaration build validated under `nodenext`, plus a `.d.cts`
+  twin tree + per-condition `exports` so CJS `require()` consumers type-check too); **typed
+  knob/preset names** (`DialKey` / `PresetId`, `DIAL_KEYS` / `PRESET_IDS`, JSON-pinned by a test); a
+  **tag-driven npm publish** workflow with provenance + a CI `build:lib` + package smoke test; a clean
+  publish tarball (`files` narrowed, tests dropped, `engines` / `publishConfig` added), verified by
+  packing + typechecking `import` *and* `require` consumers under `node16` (`skipLibCheck: false`);
+  React/Vue/Svelte/Angular usage docs.
 - **0.8** — packaged as a **modular standalone library**: a public `src/index.ts`, the
   `<moment-of-creation>` web component + `embed()` (isolated iframes) + `mount()` (full-page), a
   Vite **lib build** (ESM/UMD + `.d.ts`, overlay inlined), a publishable `package.json` (exports,
@@ -82,18 +91,22 @@ The toolkit makes two animations — a **First** and a **Last** — and combines
 - **Swap inside chain mode** is still normal-mode-only (chain mode shows the selected link's two halves
   in the side windows instead). Decide whether a per-link swap belongs in the chain, or leave by design.
 
-## Library — follow-ups (new in 0.8)
+## Library — follow-ups (0.8–0.9)
 
+- **Publish the package.** 0.9 made it publish-ready (SSR-safe, clean tarball, tag-driven
+  `release.yml` with provenance). Remaining maintainer action: add the `NPM_TOKEN` secret (or npm
+  Trusted Publishing) and push the first `v*.*.*` tag so the CDN/`<script>` paths resolve from npm.
 - **Native multi-instance `mount()`.** Direct mounting is one-per-page (the overlay uses fixed
   `#osp-*` ids + `window.__osp*` globals + `position:fixed`). The embed paths sidestep this with
   iframes; a true in-document multi-instance mount needs the overlay scoped (instance ids, a root
-  element, instance-local state instead of globals). Biggest structural unlock for the library.
-- **Publish + release automation.** Add a CI job that runs `build:lib` (so a broken library build
-  fails PRs) and a tag-driven `npm publish`. Then the CDN/`<script>` paths resolve from npm.
-- **Thin framework wrappers.** React / Vue / Svelte components around `<moment-of-creation>` (props →
-  attributes) for idiomatic use, published as subpath exports.
-- **A typed dial map.** `dials` is `Record<string, DialSchema>`; generate a `Dials` union/interface
-  from the keys so `embed({ dials: { … } })` autocompletes and type-checks knob names.
+  element, instance-local state instead of globals). Biggest remaining structural unlock.
+- **Thin framework wrappers (packages).** 0.9 ships framework *docs* + the typed web component;
+  optional next step is published subpath wrappers (`moment-of-creation/react`, `/vue`) with
+  props→attributes for fully-idiomatic use (adds peer deps + per-framework build).
+- **`@arethetypeswrong/cli` in CI.** 0.9 made the types `node16`/`nodenext`-correct for both the
+  `import` and `require` conditions (extensioned `.d.ts` + a generated `.d.cts` twin), proven by a
+  manual packed-tarball typecheck. Add an `attw --pack` check so that resolution stays correct
+  automatically and any future `exports` regression fails the PR.
 
 ## Later — bigger / structural
 

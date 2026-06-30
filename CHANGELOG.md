@@ -3,6 +3,48 @@
 All notable changes to this project. Versioning follows [SemVer](https://semver.org/);
 each PR bumps the version.
 
+## 0.9.0
+
+Hardened the library for real-world adoption + publishing.
+
+### Fixed
+
+- **SSR / Node import crash.** The built bundle threw `ReferenceError: HTMLElement is not defined`
+  when imported server-side (Next.js, SSR, any Node tool) because `<moment-of-creation>` evaluated
+  `class extends HTMLElement` at module load — which broke *every* import, even DOM-free helpers like
+  `buildEmbedHtml`. The element now extends an SSR-safe base (real `HTMLElement` in a browser, a stub
+  under Node); `register()` still only defines the element in a browser. Verified by importing the
+  built bundle in plain Node.
+- **Type resolution under `node16` / `nodenext`.** The shipped `.d.ts` used extensionless relative
+  imports (`from './engine/types'`), which error (`TS2834`) under the *recommended* `moduleResolution:
+  node16`/`nodenext` unless consumers force `skipLibCheck`. Every relative import now carries its
+  explicit `.js` extension and the declaration build runs under `nodenext`, so a dropped extension
+  fails the build. CJS consumers (`require('moment-of-creation')`) also got no `.d.cts`, so they hit
+  `TS1471`; the build now emits a `.d.cts` twin tree and `exports` carries per-condition, types-first
+  `import`/`require` entries. Proven by typechecking both an `import` and a `require` consumer against
+  the packed tarball under `node16` with `skipLibCheck: false`.
+
+### Added
+
+- **Typed knob + preset names.** `EmbedOptions.preset` is a `PresetId` union and `EmbedOptions.dials`
+  is keyed by `DialKey`, so names autocomplete and type-check. New exports `DIAL_KEYS` / `PRESET_IDS`
+  (+ types `DialKey` / `Dials` / `PresetId`), generated in `src/engine/keys.ts` and pinned to the JSON
+  by `keys.test.ts` (they can't drift).
+- **Release automation** — [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes
+  to npm on a `vX.Y.Z` tag with **provenance** (GitHub Actions OIDC). CI now also runs `build:lib` +
+  `scripts/smoke-package.mjs` (the built bundle must import under plain Node — SSR-safe — and expose
+  the right surface). Local `npm publish` is guarded by `prepublishOnly` (tests + type-check).
+
+### Changed
+
+- **Clean publish contents.** The npm tarball no longer ships test files or dev scratch — `files` is
+  narrowed to the built `dist/` (ESM + UMD + `.d.ts`, sourcemaps with embedded sources), the three
+  single-file `.html` exports, README and LICENSE (48 → 22 files). The forkable `src/intro/` unit
+  lives in the repo. Added `engines` (`node >= 18`) and `publishConfig` (`access: public`,
+  `provenance: true`). Verified end-to-end: packed the tarball, installed it in a fresh project, and
+  typechecked both `import` and `require` consumers against it under `node16` (`skipLibCheck: false`).
+- **Framework usage docs** (React / Vue / Svelte / Angular / CDN) in the README + `examples/embed.html`.
+
 ## 0.8.0
 
 Packaged the toolkit as a **modular, standalone library** people can drop into their own

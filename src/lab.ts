@@ -9,10 +9,10 @@
  * Tweaks bind live to window.__ospDials; "Copy values" emits a paste-back snippet;
  * "Export .html" downloads the self-contained single file for the current animation.
  */
-import { animations, byId, DEFAULT_ID } from './engine/registry';
-import { mountAnimation, type MountHandle } from './engine/mount';
+import { animations, byId, DEFAULT_ID } from './engine/registry.js';
+import { mountAnimation, type MountHandle } from './engine/mount.js';
 import { buildStandaloneHtml } from './engine/standalone.js';
-import type { Animation } from './engine/types';
+import type { Animation } from './engine/types.js';
 
 // Deep-link the starting animation with ?anim=<id> (falls back to the default).
 const wanted = new URLSearchParams(location.search).get('anim');

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { MELT_CLASS, meltInward } from './melt';
+import { MELT_CLASS, meltInward } from './melt.js';
 
 afterEach(() => vi.useRealTimers());
 

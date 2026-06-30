@@ -4,9 +4,9 @@
  * (`intro.css`) stay the single source of truth (imported `?raw`); the dials/schema come
  * from `dials.json` via `introTimeline`, and the named tunings from `presets.json`.
  */
-import type { Animation, Preset } from '../engine/types';
-import { INTRO_DIALS, INTRO_SCHEMA } from './introTimeline';
-import presetsJson from '../engine/presets.json';
+import type { Animation, Preset } from '../engine/types.js';
+import { INTRO_DIALS, INTRO_SCHEMA } from './introTimeline.js';
+import presetsJson from '../engine/presets.json' with { type: 'json' };
 import overlayHtml from './overlay.html?raw';
 import css from './intro.css?raw';
 

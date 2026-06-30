@@ -1,4 +1,4 @@
-import type { Animation } from './types';
+import type { Animation } from './types.js';
 
 export interface StandaloneOptions {
   /** Dial overrides to bake into the exported file (defaults to the overlay's values). */

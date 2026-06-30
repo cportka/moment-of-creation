@@ -8,7 +8,7 @@
  * re-create each <script> as a fresh executable element. That preserves the exact
  * first-paint contract: the injected inline script runs and defines window.__osp*.
  */
-import type { Animation } from './types';
+import type { Animation } from './types.js';
 
 const STAGE_ID = 'osp-stage';
 const STYLE_ID = 'osp-anim-style';
