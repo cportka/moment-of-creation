@@ -32,6 +32,103 @@ npm install
 npm run dev
 ```
 
+## Use it in your project
+
+It ships as a **framework-agnostic library with zero runtime dependencies**. Every path below
+plays the same animation; pick by how much control you want.
+
+| You want… | Use | Build step? |
+| --- | --- | --- |
+| The simplest drop-in, fully isolated | a **single `.html` in an `<iframe>`** | none |
+| A tag you configure with attributes | the **`<moment-of-creation>` web component** | bundler or a `<script>` |
+| Programmatic control (create / update / destroy) | **`embed(target, opts)`** | bundler |
+| A full-page load intro you crossfade out of | **`mount(opts)`** | bundler |
+| Your own controls / presets UI | the exported **`presets` / `dials` / `buildStandaloneHtml`** | bundler |
+
+> **Why iframes?** The overlay is a singleton (fixed-position, `window.__osp*` globals), so the
+> embed paths wrap it in an `<iframe srcdoc>` — each instance is contained, immune to your CSS/JS,
+> and safe to repeat on one page. `mount()` is the one in-document, full-page path.
+
+### 1 · Single file in an `<iframe>` (no build, works anywhere)
+
+The repo ships self-contained exports ([`together.html`](together.html), [`first.html`](first.html),
+[`last.html`](last.html)). Drop one in an iframe — host it yourself, or pull it straight from the
+repo via a CDN:
+
+```html
+<iframe src="together.html" style="border:0;width:100%;height:100%"></iframe>
+
+<!-- straight from the repo, no install: -->
+<iframe src="https://cdn.jsdelivr.net/gh/cportka/moment-of-creation/together.html"></iframe>
+```
+
+### 2 · Install
+
+```bash
+npm install moment-of-creation
+# …or straight from the repo (builds on install):
+npm install github:cportka/moment-of-creation
+```
+
+### 3 · The `<moment-of-creation>` web component
+
+```js
+import { register } from 'moment-of-creation';
+register(); // defines <moment-of-creation> (idempotent)
+```
+
+```html
+<moment-of-creation preset="portal" mode="together" loop
+                    style="display:block; height:420px"></moment-of-creation>
+```
+
+Attributes: `preset`, `mode` (`together` / `first` / `last`), `loop` (`true` / `false` / a number of ms),
+`background`, and `dials` (a JSON object of overrides). It renders an isolated iframe internally, so
+size it with CSS (defaults to a 1:1 block). No build? Use the UMD bundle from a CDN and call
+`MomentOfCreation.register()`:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/moment-of-creation"></script>
+<script>MomentOfCreation.register()</script>
+<moment-of-creation preset="nova"></moment-of-creation>
+```
+
+### 4 · `embed()` and `mount()`
+
+```js
+import { embed, mount } from 'moment-of-creation';
+
+// Contained, isolated, repeatable — an iframe inside your element:
+const handle = embed(document.querySelector('#hero'), { preset: 'genesis', loop: true });
+handle.update({ mode: 'last', dials: { spForm: 3 } }); // re-tune live
+handle.destroy();
+
+// A full-page load intro, in your document (single instance). Define __ospBoot to load
+// your app under the opening black, then crossfade in:
+window.__ospBoot = () => import('./main.js');
+mount({ preset: 'genesis' });
+```
+
+`EmbedOptions` (shared by all three): `{ mode?, preset?, dials?, loop?, background? }`.
+
+### 5 · Build your own UI / files
+
+```js
+import { presets, dials, buildStandaloneHtml, byId } from 'moment-of-creation';
+
+presets;                 // [{ id, name, dials }, …] — for a picker / deep-links
+dials;                   // { key: { label, min, max, step, unit, scope, hint, default } } — 40 knobs
+buildStandaloneHtml(byId('together'), { dials: { spForm: 2 }, mode: 'together', loopMs: 3400 });
+// → a complete, self-contained HTML document string (save it, or set it as an iframe srcdoc)
+```
+
+A live example of all of these is in [`examples/embed.html`](examples/embed.html). And if you'd
+rather **own the source**, the animation is a single forkable unit — copy
+[`src/intro/`](src/intro/README.md) into your repo (one find/replace renames the `osp-` namespace).
+
+See the [full demo + tuning lab](#live-showcase-github-pages) below, or
+[**try every knob live →**](https://cportka.github.io/moment-of-creation/).
+
 ## Live showcase (GitHub Pages)
 
 **https://cportka.github.io/moment-of-creation/** — the repo **root** is a static,
